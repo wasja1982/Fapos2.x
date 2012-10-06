@@ -391,6 +391,19 @@ $array[] = "CREATE TABLE `{$set['db']['prefix']}foto` (
   PRIMARY KEY  (`id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci";
 #############################################################################
+$array[] = "DROP TABLE IF EXISTS `{$set['db']['prefix']}foto_comments`";
+$array[] = "CREATE TABLE `{$set['db']['prefix']}foto_comments` (
+`id` int(11) NOT NULL auto_increment,
+`entity_id` int(11) NOT NULL,
+`user_id` INT(11) DEFAULT '0' NOT NULL,
+`name` varchar(100) NOT NULL,
+`message` text NOT NULL,
+`ip` varchar(50) NOT NULL,
+`mail` varchar(150) NOT NULL,
+`date` DATETIME NOT NULL,
+PRIMARY KEY (`id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci";
+#############################################################################
 $array[] = "DROP TABLE IF EXISTS `{$set['db']['prefix']}foto_sections`";
 $array[] = "CREATE TABLE `{$set['db']['prefix']}foto_sections` (
   `id` int(11) NOT NULL auto_increment,

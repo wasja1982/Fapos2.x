@@ -333,25 +333,34 @@ $acl_rules = array (
     ),
     'view_comments' => 
     array (
+      2 => 3,
       3 => 4,
-      4 => 3,
-      5 => 1,
+      4 => 1,
+      5 => 2,
       6 => 0,
     ),
     'add_comments' => 
     array (
+      2 => 3,
       3 => 4,
-      4 => 3,
+      4 => 1,
+      5 => 2,
+      6 => 0,
     ),
     'edit_comments' => 
     array (
+      2 => 3,
       3 => 4,
-      4 => 3,
     ),
     'delete_comments' => 
     array (
       3 => 4,
       4 => 3,
+    ),
+    'record_comments_management' => 
+    array (
+      2 => 3,
+      3 => 4,
     ),
   ),
   'forum' => 
