@@ -401,24 +401,26 @@ class PrintText {
 			$sizey = intval($sizey);
 			if (!empty($sizex) && !empty($sizey)) {
 				$str = preg_replace("#\[img\][\s]*([^\"'\>\<\(\)]+)[\s]*\[\/img\]#isU"
-				,'<a href="\\1" class="gallery"><img style="max-width:'.$sizex.'px; max-height:'.$sizey
-				.'px;" src="\\1" alt="'.$title.'" title="'.$title.'" /></a>',$str);
+				,'<img style="max-width:'.$sizex.'px; max-height:'.$sizey
+				.'px;" src="\\1" alt="'.$title.'" title="'.$title.'" />',$str);
 				$str = preg_replace("#\[imgl\][\s]*([^\"'\>\<\(\)]+)[\s]*\[\/imgl\]#isU"
-				,'<a style="float:left;" href="\\1" class="gallery"><img style="max-width:'.$sizex.'px; max-height:'
-				.$sizey.'px;" src="\\1" alt="'.$title.'" title="'.$title.'" /><div class="clear"></div></a>',$str);
+				,'<img style="max-width:'.$sizex.'px; max-height:'
+				.$sizey.'px;" src="\\1" alt="'.$title.'" title="'.$title.'" /><div class="clear"></div>',$str);
 				return $str;
 			}
 		}
 		$str = preg_replace("#\[img\][\s]*([^\"'\>\<\(\)]+)[\s]*\[\/img\]#isU"
-		,'<a href="\\1" class="gallery"><img style="max-width:150px;" src="\\1" alt="'.$title.'" title="'.$title.'" /></a>',$str);
+		,'<img style="max-width:150px;" src="\\1" alt="'.$title.'" title="'.$title.'" />',$str);
 		$str = preg_replace("#\[imgl\][\s]*([^\"'\>\<\(\)]+)[\s]*\[\/imgl\]#isU"
-		,'<a style="float:left;" href="\\1" class="gallery"><img style="max-width:150px;" src="\\1" alt="'.$title.'" title="'.$title.'" /></a>',$str);
+		,'<img style="max-width:150px;" src="\\1" alt="'.$title.'" title="'.$title.'" />',$str);
 		return $str;
 	}
 	public function parseUrlBb($str) {
 		$str = preg_replace("#\[url\](http[s]*://[\w\d\-_.]*\.\w{2,}[\w\d\-_\\/.\?=\#&;%]*)\[\/url\]#iuU",'<noindex><a href="\\1" target="_blank">\\1</a></noindex>',$str);
 		$str = preg_replace("#\[url=(http[s]*://[\w\d\-_.]*\.\w{2,}[\w\d\-_\\/.\?=\#;&%]*)\]([^\[]*)\[/url\]#iuU", '<noindex><a href="\\1" target="_blank">\\2</a></noindex>', $str);
-		
+
+		$str = preg_replace("#\[gallery=([\w\d\-_\\/.\?=\#;&%+]*)\]([^\[]*)\[/gallery\]#iuU", '<a href="\\1" class="gallery">\\2</a>', $str);
+
 		return $str;
 	}
 

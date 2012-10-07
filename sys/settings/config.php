@@ -54,6 +54,7 @@ $set = array (
     'max_attaches_size' => 5000000,
     'img_size_x' => '150',
     'img_size_y' => '350',
+    'use_preview' => 1,
     'fields' => 
     array (
     ),
@@ -74,6 +75,7 @@ $set = array (
     'max_attaches_size' => 5000000,
     'img_size_x' => 150,
     'img_size_y' => 200,
+    'use_preview' => 1,
     'fields' => 
     array (
     ),
@@ -99,6 +101,7 @@ $set = array (
     'max_attaches_size' => 5000000,
     'img_size_x' => 150,
     'img_size_y' => 200,
+    'use_preview' => 1,
     'fields' => 
     array (
     ),

@@ -124,16 +124,32 @@ Class StatModule extends Module {
 			$announce = $result->getMain();
 			// replace image tags in text
 			$attaches = $result->getAttaches();
-			if (!empty($attaches) && count($attaches) > 0) {
-				$attachDir = R . 'sys/files/' . $this->module . '/';
-				foreach ($attaches as $attach) {
-					if ($attach->getIs_image() == 1 && file_exists($attachDir . $attach->getFilename())) {
-						$announce = str_replace('{IMAGE'.$attach->getAttach_number().'}'
-						, '[img]' . get_url('/sys/files/'.$this->module.'/'.$attach->getFilename()).'[/img]'
-						, $announce);
-					}
-				}
-			}
+            if (!empty($attaches) && count($attaches) > 0) {
+                $attachDir = ROOT . '/sys/files/' . $this->module . '/';
+                $previewDir = ROOT . '/sys/tmp/previews/' . $this->module . '/';
+                foreach ($attaches as $attach) {
+                    if ($attach->getIs_image() == 1 && file_exists($attachDir . $attach->getFilename())) {
+                        $img = getimagesize($attachDir.$attach->getFilename());
+                        if (!file_exists($previewDir . $attach->getFilename()) && Config::read('use_preview', $this->module) &&
+                            ($img[0] > Config::read('img_size_x', $this->module) || $img[1] > Config::read('img_size_y', $this->module))) {
+                            $save_path = $attachDir . $attach->getFilename();
+                            $save_sempl_path = $previewDir . $attach->getFilename();
+                            $resample = resampleImage($save_path, $save_sempl_path, Config::read('img_size_x', $this->module), Config::read('img_size_y', $this->module));
+                            if ($resample) chmod($save_sempl_path, 0644);
+                        }
+
+                        if (file_exists($previewDir . $attach->getFilename()) && Config::read('use_preview', $this->module)) {
+                            $announce = str_replace('{IMAGE'.$attach->getAttach_number().'}'
+                            , '[gallery=' . get_url('/sys/files/'.$this->module.'/'.$attach->getFilename()).'][img]' . get_url('/sys/tmp/previews/'.$this->module.'/'.$attach->getFilename()).'[/img][/gallery]'
+                            , $announce);
+                        } else {
+                            $announce = str_replace('{IMAGE'.$attach->getAttach_number().'}'
+                            , '[img]' . get_url('/sys/files/'.$this->module.'/'.$attach->getFilename()).'[/img]'
+                            , $announce);
+                        }
+                    }
+                }
+            }
 			$announce = $this->Textarier->getAnnounce($announce
 				, $entry_url
 				, 0 
@@ -275,16 +291,32 @@ Class StatModule extends Module {
 			$announce = $result->getMain();
 			// replace image tags in text
 			$attaches = $result->getAttaches();
-			if (!empty($attaches) && count($attaches) > 0) {
-				$attachDir = R . 'sys/files/' . $this->module . '/';
-				foreach ($attaches as $attach) {
-					if ($attach->getIs_image() == 1 && file_exists($attachDir . $attach->getFilename())) {
-						$announce = str_replace('{IMAGE'.$attach->getAttach_number().'}'
-						, '[img]' . get_url('/sys/files/'.$this->module.'/'.$attach->getFilename()).'[/img]'
-						, $announce);
-					}
-				}
-			}
+            if (!empty($attaches) && count($attaches) > 0) {
+                $attachDir = ROOT . '/sys/files/' . $this->module . '/';
+                $previewDir = ROOT . '/sys/tmp/previews/' . $this->module . '/';
+                foreach ($attaches as $attach) {
+                    if ($attach->getIs_image() == 1 && file_exists($attachDir . $attach->getFilename())) {
+                        $img = getimagesize($attachDir.$attach->getFilename());
+                        if (!file_exists($previewDir . $attach->getFilename()) && Config::read('use_preview', $this->module) &&
+                            ($img[0] > Config::read('img_size_x', $this->module) || $img[1] > Config::read('img_size_y', $this->module))) {
+                            $save_path = $attachDir . $attach->getFilename();
+                            $save_sempl_path = $previewDir . $attach->getFilename();
+                            $resample = resampleImage($save_path, $save_sempl_path, Config::read('img_size_x', $this->module), Config::read('img_size_y', $this->module));
+                            if ($resample) chmod($save_sempl_path, 0644);
+                        }
+
+                        if (file_exists($previewDir . $attach->getFilename()) && Config::read('use_preview', $this->module)) {
+                            $announce = str_replace('{IMAGE'.$attach->getAttach_number().'}'
+                            , '[gallery=' . get_url('/sys/files/'.$this->module.'/'.$attach->getFilename()).'][img]' . get_url('/sys/tmp/previews/'.$this->module.'/'.$attach->getFilename()).'[/img][/gallery]'
+                            , $announce);
+                        } else {
+                            $announce = str_replace('{IMAGE'.$attach->getAttach_number().'}'
+                            , '[img]' . get_url('/sys/files/'.$this->module.'/'.$attach->getFilename()).'[/img]'
+                            , $announce);
+                        }
+                    }
+                }
+            }
 			$announce = $this->Textarier->getAnnounce($announce
 				, $entry_url
 				, 0 
@@ -396,16 +428,32 @@ Class StatModule extends Module {
 		$announce = $entity->getMain();
 		// replace image tags in text
 		$attaches = $entity->getAttaches();
-		if (!empty($attaches) && count($attaches) > 0) {
-			$attachDir = ROOT . '/sys/files/' . $this->module . '/';
-			foreach ($attaches as $attach) {
-				if ($attach->getIs_image() == 1 && file_exists($attachDir . $attach->getFilename())) {
-					$announce = str_replace('{IMAGE'.$attach->getAttach_number().'}'
-					, '[img]' . get_url('/sys/files/'.$this->module.'/'.$attach->getFilename()).'[/img]'
-					, $announce);
-				}
-			}
-		}
+        if (!empty($attaches) && count($attaches) > 0) {
+            $attachDir = ROOT . '/sys/files/' . $this->module . '/';
+            $previewDir = ROOT . '/sys/tmp/previews/' . $this->module . '/';
+            foreach ($attaches as $attach) {
+                if ($attach->getIs_image() == 1 && file_exists($attachDir . $attach->getFilename())) {
+                $img = getimagesize($attachDir.$attach->getFilename());
+                    if (!file_exists($previewDir . $attach->getFilename()) && Config::read('use_preview', $this->module) &&
+                        ($img[0] > Config::read('img_size_x', $this->module) || $img[1] > Config::read('img_size_y', $this->module))) {
+                        $save_path = $attachDir . $attach->getFilename();
+                        $save_sempl_path = $previewDir . $attach->getFilename();
+                        $resample = resampleImage($save_path, $save_sempl_path, Config::read('img_size_x', $this->module), Config::read('img_size_y', $this->module));
+                        if ($resample) chmod($save_sempl_path, 0644);
+                    }
+
+                    if (file_exists($previewDir . $attach->getFilename()) && Config::read('use_preview', $this->module)) {
+                        $announce = str_replace('{IMAGE'.$attach->getAttach_number().'}'
+                        , '[gallery=' . get_url('/sys/files/'.$this->module.'/'.$attach->getFilename()).'][img]' . get_url('/sys/tmp/previews/'.$this->module.'/'.$attach->getFilename()).'[/img][/gallery]'
+                        , $announce);
+                    } else {
+                        $announce = str_replace('{IMAGE'.$attach->getAttach_number().'}'
+                        , '[img]' . get_url('/sys/files/'.$this->module.'/'.$attach->getFilename()).'[/img]'
+                        , $announce);
+                    }
+                }
+            }
+        }
 		$announce = $this->Textarier->print_page($announce, $entity->getAuthor()->getStatus(), $entity->getTitle());
 		$markers['mainText'] = $announce;
 		$entity->setAdd_markers($markers);

@@ -1,6 +1,6 @@
 <?php
 
-function resampleImage($path, $new_path, $size) {
+function resampleImage($path, $new_path, $sizew, $sizeh) {
 	if (function_exists('exif_imagetype')) {
 		$itype = exif_imagetype($path);
 		switch ($itype) {
@@ -26,18 +26,17 @@ function resampleImage($path, $new_path, $size) {
 	}
 	$w = imagesx($img);
 	$h = imagesy($img);
-	if ($w / $size < ($h / $size)) {
-		$nw = $size;
-		$nh = intval($h * $size / $w);
+	if ($w / $sizew < ($h / $sizeh)) {
+		$nw = intval($w * $sizeh / $h);
+		$nh = $sizeh;
 	} else {
-		$nw = intval($w * $size / $h);
-		$nh = $size;
+		$nw = $sizew;
+		$nh = intval($h * $sizew / $w);
 	}
 
-	$dest = imagecreatetruecolor($size, $size);
+	$dest = imagecreatetruecolor($nw, $nh);
 	imagecopyresampled(
-		$dest, $img, intval($size / 2 - $nw / 2), intval($size / 2 - $nh / 2),
-		0, 0, $nw, $nh, $w, $h
+		$dest, $img, 0, 0, 0, 0, $nw, $nh, $w, $h
 	);
 
 	imagejpeg($dest, $new_path);
