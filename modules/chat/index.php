@@ -73,6 +73,7 @@ class ChatModule extends Module {
 				
 				
 				foreach ($data as $key => $record) {
+					$data[$key]['message'] = $this->Textarier->print_page($record['message']);
 					/* view ip adres if admin */
 					if ($this->ACL->turn(array('chat', 'delete_materials'), false)) {
 						$data[$key]['ip'] = get_img('/sys/img/ip.png', array('title' => h($record['ip'])));
@@ -147,11 +148,12 @@ class ChatModule extends Module {
 		if (!$ACL->turn(array('chat', 'add_materials'), false)) {
 			return;
 		}
-		if (!isset($_POST['login']) || !isset($_POST['message'])) {
+		if (!isset($_POST['message'])) {
 			die(__('Needed fields is empty'));
 		}
 		
 		/* cut and trim values */
+		$user_id    = (!empty($_SESSION['user']['id'])) ? $_SESSION['user']['id'] : '0';
 		$name    = (!empty($_SESSION['user']['name'])) ? $_SESSION['user']['name'] : 'Гость';
 		$message = mb_substr( $_POST['message'], 0, $this->Register['Config']->read('max_lenght', 'chat'));
 		$name    = trim( $name );
@@ -163,10 +165,6 @@ class ChatModule extends Module {
 		// Check fields
 		$error  = '';
 		$valobj = $this->Register['Validate'];
-		if (empty($name))                          
-			$error = $error . '<li>' . __('Empty field "login"') . '</li>' . "\n";
-		elseif (!$valobj->cha_val($name, V_TITLE))  
-			$error = $error . '<li>' . __('Wrong chars in field "login"') . '</li>' . "\n";
 		if (empty($message))                       
 			$error = $error . '<li>' . __('Empty field "text"') . '</li>' . "\n";
 			
@@ -219,6 +217,7 @@ class ChatModule extends Module {
 			array_shift($data);
 		}
 		$data[] = array(
+			'user_id' => $user_id,
 			'name' => $name,
 			'message' => $message,
 			'ip' => $ip,
