@@ -2,12 +2,12 @@
 /*---------------------------------------------\
 |											   |
 | @Author:       Andrey Brykin (Drunya)        |
-| @Version:      1.7.8                         |
+| @Version:      1.7.91                         |
 | @Project:      CMS                           |
 | @package       CMS Fapos                     |
 | @subpackege    Loads Module                  |
 | @copyright     ©Andrey Brykin 2010-20112     |
-| @last mod.     2012/10/03                    |
+| @last mod.     2012/11/12                    |
 |----------------------------------------------|
 |											   |
 | any partial or not partial extension         |
@@ -245,7 +245,7 @@ Class LoadsModule extends Module {
 
 
         $total = $this->Model->getTotal($query_params);
-        list ($pages, $page) = pagination( $total, Config::read('per_page', 'loads'), '/loads');
+        list ($pages, $page) = pagination( $total, $this->Register['Config']->read('per_page', 'loads'), '/loads/category/' . $id);
         $this->Register['pages'] = $pages;
         $this->Register['page'] = $page;
         $this->page_title .= ' (' . $page . ')';
@@ -415,8 +415,8 @@ Class LoadsModule extends Module {
             && $this->ACL->turn(array('loads', 'view_comments'), false)
             && $entity->getCommented() == 1) {
             if ($this->ACL->turn(array('loads', 'add_comments'), false))
-                $this->comments  = $this->_add_comment_form($id);
-            $this->comments  = $this->_get_comments($entity) . $this->comments;
+                $this->comments_form = $this->_add_comment_form($id);
+            $this->comments = $this->_get_comments($entity);
         }
         $this->Register['current_vars'] = $entity;
 

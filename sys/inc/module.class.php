@@ -2,12 +2,12 @@
 /*-----------------------------------------------\
 | 												 |
 |  @Author:       Andrey Brykin (Drunya)         |
-|  @Version:      1.5.3                          |
+|  @Version:      1.5.6                          |
 |  @Project:      CMS                            |
 |  @package       CMS Fapos                      |
 |  @subpackege    Module Class                   |
 |  @copyright     ©Andrey Brykin 2010-2012       |
-|  @last mod.     2012/09/17                     |
+|  @last mod.     2012/12/06                     |
 \-----------------------------------------------*/
 
 /*-----------------------------------------------\
@@ -60,10 +60,17 @@ class Module {
 	* @cached   use the cache engine
 	*/
 	protected $cached = true;
+	
 	/**
 	* @var (str)   comments block
 	*/
 	protected $comments = '';
+	
+	/**
+	* @var (str)   add comments form
+	*/
+	protected $comments_form = '';
+	
 	/**
 	* @var    database object
 	*/
@@ -134,12 +141,14 @@ class Module {
 	 * @var array
 	 */
 	protected $globalMarkers = array(
+		'module' => '',
 		'navigation' => '',
 		'pagination' => '',
 		'meta' => '',
 		'add_link' => '',
 		'comments_pagination' => '',
 		'comments' => '',
+        'comments_form' => '',
 		'fps_curr_page' => 1,
 		'fps_pagescnt' => 1,
 	);
@@ -288,7 +297,7 @@ class Module {
 	public function _view($content)
     {
         $Register = Register::getInstance();
-
+		
 		if (!empty($this->template) && $this->wrap == true) {
             Plugins::intercept('before_parse_layout', $this);
 			
@@ -312,23 +321,21 @@ class Module {
 				}
 			}
 			
-
+			
+			$boot_time = round(getMicroTime() - $Register['fps_boot_start_time'], 4);
+			$markers = array_merge($markers, array('boot_time' => $boot_time));
+			
 			$output = $this->render('main.html', $markers);
 		} else {
             $output = $content;
 		}
         
-     	
 		
-		$boot_time = round(getMicroTime() - $Register['fps_boot_start_time'], 4);
-		$output = $this->View->parseTemplate($output, array('boot_time' => $boot_time));
-		//$output = str_replace('{BOOT_TIME}', $boot_time, $output);
 		$output = Plugins::intercept('before_view', $output);
 		$this->afterRender();
 		
 		echo $output;
-		//die();
-		
+
 		
 		
 		if (Config::read('debug_mode') == 1 && !empty($_SESSION['db_querys'])) {
@@ -368,12 +375,14 @@ class Module {
         $Register = Register::getInstance();
 		$markers1 = $this->Parser->getGlobalMarkers($html);
         $markers2 = array(
+            'module' => $this->module,
             'title' => $this->page_title,
             'meta_description' => $this->page_meta_description,
             'meta_keywords' => $this->page_meta_keywords,
-            'module_name' => $this->module_title,
+            'module_title' => $this->module_title,
             'categories' => $this->categories,
             'comments' => $this->comments,
+			'comments_form' => $this->comments_form,
             'fps_curr_page' => (!empty($Register['page'])) ? intval($Register['page']) : 1,
             'fps_pagescnt' => (!empty($Register['pagescnt'])) ? intval($Register['pagescnt']) : 1,
             'fps_user' => (!empty($_SESSION['user'])) ? $_SESSION['user'] : array(),
