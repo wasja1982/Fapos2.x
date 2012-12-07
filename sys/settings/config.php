@@ -167,14 +167,6 @@ $set = array (
   array (
     'active' => '1',
   ),
-  'db' => 
-  array (
-    'host' => 'localhost',
-    'name' => 'fapos',
-    'user' => 'root',
-    'pass' => '',
-    'prefix' => '',
-  ),
   'news_on_home' => 1,
   'site_title' => 'CMS Fapos',
   'meta_keywords' => 'создание сайта, шаблоны',
