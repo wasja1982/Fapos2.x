@@ -299,7 +299,7 @@ class PrintText {
 		$message = preg_replace("#\[color=red\](.+)\[\/color\]#uisU",'<span style="color:#FF0000">\\1</span>',$message);
 		$message = preg_replace("#\[color=green\](.+)\[\/color\]#uisU",'<span style="color:#008000">\\1</span>',$message);
 		$message = preg_replace("#\[color=blue\](.+)\[\/color\]#uisU",'<span style="color:#0000FF">\\1</span>',$message);
-		$message = preg_replace("#\[color=([0-9a-z]{6})\](.+)\[\/color\]#uisU",'<span style="color:#\\1">\\2</span>',$message);
+		$message = preg_replace("#\[color=#([0-9a-z]{6})\](.+)\[\/color\]#uisU",'<span style="color:#\\1">\\2</span>',$message);
 		
 		
 		$message = preg_replace_callback("#\[list\]\s*((?:\[\*\].+)+)\[\/list\]#usiU",'getUnorderedList',$message);
@@ -307,7 +307,8 @@ class PrintText {
 		$message = $this->parseUrlBb($message);
 		
 		
-		$message = preg_replace("#\[size=(10|15|20|25)\]([^\[]*)\[/size\]#uisU", '<span style="font-size:\\1px;">\\2</span>', $message);
+		$message = preg_replace("#\[size=(10|15|20|25)\]([^\[]*)\[/size\]#uisU", '<span style="font-size:\\1px;">\\2</span>', $message); //для обратной совместимости
+		$message = preg_replace("#\[size=(50|85|100|150|200)\]([^\[]*)\[/size\]#uisU", '<span style="font-size:\\1%;">\\2</span>', $message);
 		$message = preg_replace("#\[center\]([^\[]*)\[/center\]#uisU", '<span style="display:block;width:100%;text-align:center;">\\1</span>', $message);
 		$message = preg_replace("#\[right\]([^\[]*)\[/right\]#uisU", '<span style="display:block;width:100%;text-align:right;">\\1</span>', $message);
 		$message = preg_replace("#\[left\]([^\[]*)\[/left\]#uisU", '<span style="display:block;width:100%;text-align:left;">\\1</span>', $message);
