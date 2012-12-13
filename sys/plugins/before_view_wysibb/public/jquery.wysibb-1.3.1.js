@@ -243,7 +243,8 @@ var wbbdebug=true;
 					hotkey: 'ctrl+shift+3',
 					//subInsert: true,
 					transform : { 
-						'<div class="quote">{SELTEXT}</div>':"[quote]{SELTEXT}[/quote]"
+						'<div class="bbQuoteBlock"><div class="bbQuoteName" style="padding-left: 5px; font-size: 7pt;"><b></b>Цитата</div><div class="quoteMessage" style="border: 2px inset ; overflow: auto; max-height: 200px;">{SELTEXT}</div></div>':"[quote]{SELTEXT}[/quote]",
+						'<div class="bbQuoteBlock" simple="false"><div class="bbQuoteName" style="padding-left: 5px; font-size: 7pt;"><b>{AUTHOR} пишет:</b></div><div class="quoteMessage" style="border: 2px inset ; overflow: auto; max-height: 200px;">{SELTEXT}</div></div>':'[quote="{AUTHOR}"]{SELTEXT}[/quote]'
 					}
 				},
 				code : {
@@ -409,7 +410,7 @@ var wbbdebug=true;
 					excmd: 'fontSize',
 					exvalue: "3",
 					transform: {
-						'<font size="3">{SELTEXT}</font>':'[size=100]{SELTEXT}[/size]'
+						'<font size="100%">{SELTEXT}</font>':'[size=100]{SELTEXT}[/size]'
 					}
 				},
 				fs_big: {
