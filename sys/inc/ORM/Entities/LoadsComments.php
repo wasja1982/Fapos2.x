@@ -51,7 +51,7 @@ class LoadsCommentsEntity extends FpsEntity
 		);
 		
 		$Register = Register::getInstance();
-		$Register['DB']->save('loads_comments', $data);
+		return ($Register['DB']->save('loads_comments', $data));
 	}
 	
 	

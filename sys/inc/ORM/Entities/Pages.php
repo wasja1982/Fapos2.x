@@ -58,6 +58,7 @@ class PagesEntity extends FpsEntity
 		$Register = Register::getInstance();
 		$id = $Register['DB']->save('pages', $params);
 		if($id) $this->setId($id);
+                return ($id);
 	}
 	
 	

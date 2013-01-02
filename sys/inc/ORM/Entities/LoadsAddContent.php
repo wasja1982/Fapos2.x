@@ -43,7 +43,7 @@ class LoadsAddContentEntity extends FpsEntity
 			'content' => $this->content,
 		);
 		$Register = Register::getInstance();
-		$Register['DB']->save('loads_add_content', $params, array('id' => $this->id));
+		return ($Register['DB']->save('loads_add_content', $params, array('id' => $this->id)));
 	}
 	
 	

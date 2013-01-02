@@ -43,7 +43,7 @@ class UsersAddContentEntity extends FpsEntity
 			'content' => $this->content,
 		);
 		$Register = Register::getInstance();
-		$Register['DB']->save('users_add_content', $params, array('id' => $this->id));
+		return ($Register['DB']->save('users_add_content', $params, array('id' => $this->id)));
 	}
 	
 	
