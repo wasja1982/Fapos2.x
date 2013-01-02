@@ -1438,8 +1438,10 @@ Class ForumModule extends Module {
 			'group_access'   => $gr_access, 
 		);
 		$theme = new ThemesEntity($data);
-		$theme->save();
-		$id_theme = mysql_insert_id();
+		$id_theme = $theme->save();
+		if (!is_int($id_theme)) {
+			$id_theme = mysql_insert_id();
+		}
 
 		
 		// add first post
@@ -1451,8 +1453,10 @@ Class ForumModule extends Module {
 			'id_theme'       => $id_theme 
 		);
 		$post = new PostsEntity($postData);
-		$post->save();
-		$post_id = mysql_insert_id();
+		$post_id = $post->save();
+		if (!is_int($post_id)) {
+			$post_id = mysql_insert_id();
+		}
 		
 		
 		/***** END ATTACH *****/
@@ -1488,8 +1492,8 @@ Class ForumModule extends Module {
 						'is_image'      => $is_image,
 					);
 					
-					$theme = new ThemesEntity($attach_file_data);
-					if ($theme->save()) {
+					$attach = new ForumAttachesEntity($attach_file_data);
+					if ($attach->save() != NULL) {
 						$attaches_exists = 1;
 					}
 				}
@@ -1498,7 +1502,7 @@ Class ForumModule extends Module {
 		if ($attaches_exists == 1) {
 			$postModel = $this->Register['ModManager']->getModelInstance('Posts');
 			$post = $postModel->getById($post_id);
-			$post->setAttaches(1);
+			$post->setAttaches('1');
 			$post->save();
 		}
 		/***** END ATTACH *****/
@@ -2151,7 +2155,7 @@ Class ForumModule extends Module {
                         if($is_image) $attach_file_data['is_image'] = $is_image;
 						
 						$attach = new ForumAttachesEntity($attach_file_data);
-						if ($attach->save()) {
+						if ($attach->save() != NULL) {
 							$attaches_exists = 1;
 						}
 					}
@@ -2160,7 +2164,7 @@ Class ForumModule extends Module {
 			
 			
 			if ($attaches_exists == 1) {
-				$post->setAttaches(1);
+				$post->setAttaches('1');
 				$post->save();
 			}
 			
@@ -2434,7 +2438,7 @@ Class ForumModule extends Module {
 			}
 		}
 		$attach_exists = $attachModel->getCollection(array('post_id' => $id));
-		$attach_exists = ($attach_exists > 0) ? 1 : 0;
+		$attach_exists = ($attach_exists > 0) ? '1' : '0';
 		/*****  END ATTACH   *****/
 
 		
@@ -2556,7 +2560,7 @@ Class ForumModule extends Module {
 			'order' => '`last_post` DESC',
 		));
 		$forum = $this->Model->getById($theme->getId_forum());
-		if (isset($deleteTheme)) {
+		if ($deleteTheme) {
 			$forum->setThemes($forum->getThemes() - 1);
 			$forum->setPosts($forum->getPosts() - 1);
 			$forum->setLast_theme_id($lastTheme->getId());
@@ -2781,7 +2785,7 @@ Class ForumModule extends Module {
 
 		/* clean cache DB */
 		$this->Register['DB']->cleanSqlCache();
-		if ($this->Log) $this->Log->write('unimportant post', 'post id(' . $id . '), theme id(' . $theme->getId_forum() . ')');
+		if ($this->Log) $this->Log->write('unimportant post', 'post id(' . $id . '), theme id(' . $theme->getId() . ')');
 		return $this->showInfoMessage(__('Operation is successful'), '/forum/view_forum/' . $theme->getId_forum());
 	}
 	
