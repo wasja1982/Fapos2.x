@@ -337,6 +337,13 @@ Class ForumModule extends Module {
 			
 			
 			
+			$themes = $themesClass->getCollection(array(
+				'id_forum' => $id_forum
+			), array (
+				'order' => 'important DESC, last_post DESC, id ASC',
+				'page' => $page,
+				'limit' => $this->Register['Config']->read('themes_per_page', 'forum'),
+			));
 			$cnt_themes_here = count($themes);
 			if ($cnt_themes_here > 0 && is_array($themes)) {
 				foreach ($themes as $theme) {
