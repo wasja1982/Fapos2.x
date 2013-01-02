@@ -751,6 +751,9 @@ Class ForumModule extends Module {
 					$this->deleteCollizions($post);
 				}
 				
+				if ($attachment != null) {
+					$post->setAttachment($attachment);
+				}
 				
 				$signature = ($post->getSignature()) 
 				? $this->Textarier->getSignature($post->getSignature(), $post->getStatus()) : '' ;
