@@ -1841,25 +1841,25 @@ Class ForumModule extends Module {
 		if ($id_theme < 1) redirect('/forum/');
 		
 		
-		$usersModel = $this->Register['ModManager']->getModelInstance('Users');
+		$postsModel = $this->Register['ModManager']->getModelInstance('Posts');
 		$themesModel = $this->Register['ModManager']->getModelInstance('Themes');
 		$theme = $themesModel->getById($id_theme);
 		if (!$theme) return $this->showInfoMessage(__('Topic not found'), '/forum/' );
 		
 		
 		// Сначала заблокируем сообщения (посты) темы
-		$users = $usersModel->getCollection(array('id_theme' => $id_theme));
-		if ($users) {
-			foreach ($users as $user) {
-				$user->setLocked('1');
-				$user->save();
+		$posts = $postsModel->getCollection(array('id_theme' => $id_theme));
+		if ($posts) {
+			foreach ($posts as $post) {
+				$post->setLocked('1');
+				$post->save();
 			}
 		}
 
 		// Теперь заблокируем тему
 		$theme->setLocked('1');
 		$theme->save();
-
+		
 		
 		//clean cache
 		$this->Cache->clean(CACHE_MATCHING_ANY_TAG, array('theme_id_' . $id_theme));
@@ -1881,25 +1881,25 @@ Class ForumModule extends Module {
 		if ($id_theme < 1) redirect('/forum/');
 		
 
-		$usersModel = $this->Register['ModManager']->getModelInstance('Users');
+		$postsModel = $this->Register['ModManager']->getModelInstance('Posts');
 		$themesModel = $this->Register['ModManager']->getModelInstance('Themes');
 		$theme = $themesModel->getById($id_theme);
 		if (!$theme) return $this->showInfoMessage(__('Topic not found'), '/forum/' );
 		
 		
 		// Сначала заблокируем сообщения (посты) темы
-		$users = $usersModel->getCollection(array('id_theme' => $id_theme));
-		if ($users) {
-			foreach ($users as $user) {
-				$user->setLocked('0');
-				$user->save();
+		$posts = $postsModel->getCollection(array('id_theme' => $id_theme));
+		if ($posts) {
+			foreach ($posts as $post) {
+				$post->setLocked('0');
+				$post->save();
 			}
 		}
 
 		// Теперь заблокируем тему
 		$theme->setLocked('0');
 		$theme->save();
-
+		
 		
 		//clean cache
 		$this->Cache->clean(CACHE_MATCHING_ANY_TAG, array('theme_id_' . $id_theme));
