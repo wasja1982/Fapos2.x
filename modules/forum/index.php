@@ -2464,7 +2464,7 @@ Class ForumModule extends Module {
 	* @return none
 	*/
 	public function delete_post($id = null) {
-		$id = (int)$id;
+		$id = intval($id);
 		if (empty($id) || $id < 1) redirect('/forum/');
 		
 
@@ -2507,6 +2507,7 @@ Class ForumModule extends Module {
 		
 		$userModel = $this->Register['ModManager']->getModelInstance('Users');
 		$user = $userModel->getById($theme->getId_author());
+		$deleteTheme = false;
 		if ($postscnt == 0) {
 			// Прежде чем удалять тему, надо обновить таблицу TABLE_USERS
 			$user->setThemes($user->getThemes() - 1); 
@@ -2522,7 +2523,7 @@ Class ForumModule extends Module {
 		$user->setPosts($user->getPosts() - 1);
 		$user->save();
 		// ... и таблицу .themes
-		if (!isset($deleteTheme)) {
+		if (!$deleteTheme) {
 			$lastPost = $postsModel->getCollection(array(
 				'id_theme' => $post->getId_theme(),
 			), array(
@@ -2530,7 +2531,6 @@ Class ForumModule extends Module {
 				'order' => 'id DESC'
 			));
 
-			$posts_cnt = $this->DB->select('posts', DB_COUNT, array('cond' => array('id_theme' => $post['id_theme'])));
 			$id_last_author = $lastPost[0]->getId_author();
 			$last_post = $lastPost[0]->getTime();
 			$theme->setId_last_author($id_last_author);
