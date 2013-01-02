@@ -1431,9 +1431,9 @@ Class ForumModule extends Module {
 			'title'          => $theme,
 			'description'    => $description,
 			'id_author'      => $_SESSION['user']['id'],
-			'time'           => 'NOW()',
+			'time'           => new Expr('NOW()'),
 			'id_last_author' => $_SESSION['user']['id'],
-			'last_post'      => 'NOW()',
+			'last_post'      => new Expr('NOW()'),
 			'id_forum'       => $id_forum, 
 			'group_access'   => $gr_access, 
 		);
