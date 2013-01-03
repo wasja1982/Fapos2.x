@@ -2,12 +2,12 @@
 /*---------------------------------------------\
 |											   |
 | @Author:       Andrey Brykin (Drunya)        |
-| @Version:      1.7.91                         |
+| @Version:      1.7.8                         |
 | @Project:      CMS                           |
 | @package       CMS Fapos                     |
 | @subpackege    Loads Module                  |
 | @copyright     ©Andrey Brykin 2010-20112     |
-| @last mod.     2012/11/12                    |
+| @last mod.     2012/10/03                    |
 |----------------------------------------------|
 |											   |
 | any partial or not partial extension         |
@@ -245,7 +245,7 @@ Class LoadsModule extends Module {
 
 
         $total = $this->Model->getTotal($query_params);
-        list ($pages, $page) = pagination( $total, $this->Register['Config']->read('per_page', 'loads'), '/loads/category/' . $id);
+        list ($pages, $page) = pagination( $total, Config::read('per_page', 'loads'), '/loads');
         $this->Register['pages'] = $pages;
         $this->Register['page'] = $page;
         $this->page_title .= ' (' . $page . ')';
@@ -415,8 +415,8 @@ Class LoadsModule extends Module {
             && $this->ACL->turn(array('loads', 'view_comments'), false)
             && $entity->getCommented() == 1) {
             if ($this->ACL->turn(array('loads', 'add_comments'), false))
-                $this->comments_form = $this->_add_comment_form($id);
-            $this->comments = $this->_get_comments($entity);
+                $this->comments  = $this->_add_comment_form($id);
+            $this->comments  = $this->_get_comments($entity) . $this->comments;
         }
         $this->Register['current_vars'] = $entity;
 
@@ -725,9 +725,14 @@ Class LoadsModule extends Module {
 
 		//Проверяем прикрепленный файл...
 		$file = '';
+        $filename = '';
 		if (!empty($_FILES['attach']['name'])) {
 			$file = $this->__saveFile($_FILES['attach']);
 		}
+
+        if ($file!='') {
+            $filename = $_FILES['attach']['name'];
+        }
 
 		// span protected
 		if ( isset( $_SESSION['unix_last_post'] ) and ( time() - $_SESSION['unix_last_post'] < 30 ) ) {
@@ -752,6 +757,7 @@ Class LoadsModule extends Module {
             'author_id' 	=> $_SESSION['user']['id'],
             'category_id' 	=> $in_cat,
             'download' 		=> $file,
+            'filename'      => $filename,
             'description'   => $description,
             'tags'          => $tags,
             'sourse'  	    => $sourse,
@@ -1024,11 +1030,14 @@ Class LoadsModule extends Module {
 		
 		//Проверяем прикрепленный файл...
 		$file = '';
+        $filename = '';
 		if (!empty($_FILES['attach']['name'])) {
 			$file = $this->__saveFile($_FILES['attach']);
 		}
 
-
+        if ($file!='') {
+            $filename = $_FILES['attach']['name'];
+        }
 
         // Check attaches size and format
         $max_attach = $this->Register['Config']->read('max_attaches', $this->module);
@@ -1101,7 +1110,10 @@ Class LoadsModule extends Module {
 			'commented'    => $commented,
 			'available'    => $available,
 		);
-		if (!empty($file)) $saveParams['download'] = $file;
+		if (!empty($file)) {
+            $saveParams['download'] = $file;
+            $saveParams['filename'] = $filename;
+        }
         $target->__construct($data);
         $target->save();
 
@@ -1341,7 +1353,7 @@ Class LoadsModule extends Module {
         $this->Register['DB']->cleanSqlCache();
 
 
-        $name = $entity->getDownload();
+        $name = $entity->getFilename();
         $filename = ROOT . '/sys/files/loads/' . $entity->getDownload();
 
 

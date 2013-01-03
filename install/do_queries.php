@@ -115,6 +115,7 @@ $array[] = "CREATE TABLE `{$set['db']['prefix']}loads` (
   `downloads` int(11) default '0',
   `rate` int(11) default '0',
   `download` varchar(255) NOT NULL,
+  `filename` varchar(255) NOT NULL,
   `download_url` VARCHAR( 255 ) NOT NULL,
   `download_url_size` bigint( 20 ) NOT NULL,
   `date` datetime NOT NULL default '0000-00-00 00:00:00',
