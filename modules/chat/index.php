@@ -73,6 +73,7 @@ class ChatModule extends Module {
 				
 				
 				foreach ($data as $key => $record) {
+					$data[$key]['message'] = $this->Textarier->print_page($record['message']);
 					/* view ip adres if admin */
 					if ($this->ACL->turn(array('chat', 'delete_materials'), false)) {
 						$data[$key]['ip'] = get_img('/sys/img/ip.png', array('title' => h($record['ip'])));
@@ -147,12 +148,13 @@ class ChatModule extends Module {
 		if (!$ACL->turn(array('chat', 'add_materials'), false)) {
 			return;
 		}
-		if (!isset($_POST['login']) || !isset($_POST['message'])) {
+		if (!isset($_POST['message'])) {
 			die(__('Needed fields is empty'));
 		}
 		
 		/* cut and trim values */
-		$name    = mb_substr( $_POST['login'], 0, 70 );
+		$user_id    = (!empty($_SESSION['user']['id'])) ? $_SESSION['user']['id'] : '0';
+		$name    = (!empty($_SESSION['user']['name'])) ? $_SESSION['user']['name'] : 'Гость';
 		$message = mb_substr( $_POST['message'], 0, $this->Register['Config']->read('max_lenght', 'chat'));
 		$name    = trim( $name );
 		$message = trim( $message );
@@ -163,10 +165,6 @@ class ChatModule extends Module {
 		// Check fields
 		$error  = '';
 		$valobj = $this->Register['Validate'];
-		if (empty($name))                          
-			$error = $error . '<li>' . __('Empty field "login"') . '</li>' . "\n";
-		elseif (!$valobj->cha_val($name, V_TITLE))  
-			$error = $error . '<li>' . __('Wrong chars in field "login"') . '</li>' . "\n";
 		if (empty($message))                       
 			$error = $error . '<li>' . __('Empty field "text"') . '</li>' . "\n";
 			
@@ -195,16 +193,11 @@ class ChatModule extends Module {
 			unset($_SESSION['captcha_keystring']);
 		}
 		
-		
-		/* remember name */
-		$_SESSION['chat_name'] = $name;
-		
 		/* if an errors */
 		if (!empty($error)) {
 			$_SESSION['addForm']            = array();
 			$_SESSION['addForm']['error']   = '<p class="errorMsg">' . __('Some error in form') . '</p>' . 
 				"\n" . '<ul class="errorMsg">' . "\n" . $error . '</ul>' . "\n";
-			$_SESSION['addForm']['name']    = $name;
 			$_SESSION['addForm']['message'] = $message;
 			die($_SESSION['addForm']['error']);
 		}
@@ -224,10 +217,12 @@ class ChatModule extends Module {
 			array_shift($data);
 		}
 		$data[] = array(
+			'user_id' => $user_id,
 			'name' => $name,
 			'message' => $message,
 			'ip' => $ip,
-			'date' => date("Y-m-d h:i"),
+			'date' => date("Y-m-d"),
+			'time' => date("h:i"),
 		);
 		
 		
@@ -262,14 +257,9 @@ class ChatModule extends Module {
 		/* if an errors */
 		if (isset($_SESSION['addForm'])) {
 			$message  = $_SESSION['addForm']['message'];
-			$name     = $_SESSION['addForm']['name'];
 			unset( $_SESSION['addForm'] );
-		} else if (isset($_SESSION['chat_name'])) {
-			$message = '';
-			$name    = (!empty($_SESSION['chat_name'])) ? $_SESSION['chat_name'] : '';
 		} else {
 			$message = '';
-			$name = (!empty($_SESSION['user']['name'])) ? $_SESSION['user']['name'] : '';
 		}
 		
 		
@@ -278,7 +268,6 @@ class ChatModule extends Module {
 			$kcaptcha = getCaptcha();
 		}
 		$markers['action'] = get_url('/chat/add/');
-		$markers['login'] = h($name);
 		$markers['message'] = h($message);
 		$markers['captcha'] = $kcaptcha;
 		

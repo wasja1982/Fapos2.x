@@ -1,11 +1,11 @@
 <script type="text/javascript">
 
 function sebmitChat(e) {
-	var name = $("input#chatModuleLogin").val();
 	var message = $("textarea#chatModule").val();
+	var message = encodeURIComponent(message);
 	var keystring = $("input[name='captcha_keystring']").val();
 
-	var params = 'login='+name+'&message='+message;
+	var params = 'message='+message;
 	if (typeof keystring != 'undefined') params = params + '&captcha_keystring='+keystring;
 	
 	$("#testAjax").show();
@@ -37,19 +37,13 @@ function responseData(resp, data) {
 <table class="chat-addfrom">
 	<tr>
 		<td colspan="2">
-		<span style="color:#4B4A4A;">Имя:</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-		<input id="chatModuleLogin" style="width:113px;" type="text" name="login" value="{{ data.login }}" />
-		</td>
-	</tr>
-	<tr>
-		<td colspan="2">
-		<textarea cols="19" rows="2" id="chatModule" name="message">{{ data.message }}</textarea>
+		<textarea cols="19" rows="2" id="chatModule" name="message" style="-moz-box-sizing: border-box;-webkit-box-sizing: border-box;box-sizing: border-box;width: 100%">{{ data.message }}</textarea>
 		</td>
 	</tr>
 		{{ data.captcha }}
 	<tr>
 		<td style="padding:0px;" colspan="2">
-			<input style="font-size:12px;" type="submit" name="send" value="Послать" />
+			<input style="font-size:12px;width: 100%;" type="submit" name="send" value="Послать" />
 		</td>
 	</tr>
 </table>

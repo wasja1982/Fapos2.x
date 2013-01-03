@@ -38,6 +38,7 @@ if (isset($_POST['send'])) {
 	$TempSet['stat']['per_page'] = $_POST['per_page'];
 	$TempSet['stat']['active'] = $_POST['active'];
 	//IMAGES
+	$TempSet['stat']['use_preview'] = (!empty($_POST['use_preview'])) ? 1 : 0;
 	$TempSet['stat']['img_size_x'] = $_POST['img_size_x'];
 	$TempSet['stat']['img_size_y'] = $_POST['img_size_y'];
 	$TempSet['stat']['max_attaches_size'] = $_POST['max_attaches_size'];
@@ -86,19 +87,20 @@ include_once ROOT . '/admin/template/header.php';
 <td><input type="text" name="per_page" value="<?php echo $set['stat']['per_page'] ?>"></td></tr>
 
 <!--#################### ATTACHED IMG ###################-->
+
 <tr class="small"><td class="group" colspan="2">Изображения</td></tr>
 
-<tr><td class="left">Размер по оси Х:<br></td><td>
-<input type="text" name="img_size_x" value="<?php echo $set['stat']['img_size_x'] ?>">&nbsp;<span class="comment">Пикселей(Число)</span><br></td></tr>
+<tr><td class="left">Генерация превьюшек:<br><small>Определяет возможность для больших изображений автоматически создавать превью-изображения.</small></td><td>
+<input type="checkbox" name="use_preview" value="1" <?php echo (!empty($set['stat']['use_preview'])) ? 'checked="checked"' : ''; ?> /><br></td></tr>
 
-<tr><td class="left">Размер по оси Y:<br></td><td>
-<input type="text" name="img_size_y" value="<?php echo $set['stat']['img_size_y'] ?>">&nbsp;<span class="comment">Пикселей(Число)</span><br></td></tr>
-
-<tr><td class="left">Максимальный "вес":<br></td><td>
-<input type="text" name="max_attaches_size" value="<?php echo $set['stat']['max_attaches_size'] ?>">&nbsp;<span class="comment">Кбайт</span><br></td></tr>
-
-<tr><td class="left">Максимальное кол-во:<br></td><td>
+<tr><td class="left">Максимальное кол-во:<br><small>Определяет максимальное количество изображений в форме добавления/редактирования материала.</small></td><td>
 <input type="text" name="max_attaches" value="<?php echo $set['stat']['max_attaches'] ?>">&nbsp;<span class="comment">Штук</span><br></td></tr>
+
+<tr><td class="left">Размеры уменьшенного изображения:<br><small>Система автоматически будет уменьшать большие изображения до нужных размеров. При этом, нажав на изображение, посетитель сможет увидеть его в полном размере.</small></td><td>
+<input type="text" name="img_size_x" style="width: 40px" value="<?php echo $set['stat']['img_size_x'] ?>">x<input type="text" name="img_size_y" style="width: 40px" value="<?php echo $set['stat']['img_size_y'] ?>"></td></tr>
+
+<tr><td class="left">Максимальный "вес":<br><small>Определяет максимальный возможный размер изображения в килобайтах.</small></td><td>
+<input type="text" name="max_attaches_size" value="<?php echo $set['stat']['max_attaches_size'] ?>">&nbsp;<span class="comment">Кбайт</span><br></td></tr>
 
 <!--#################### END ATTACHED IMG ###################-->
 
