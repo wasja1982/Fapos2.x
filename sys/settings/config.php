@@ -4,7 +4,7 @@ $set = array (
   'language' => 'russian',
   'cache_querys' => '0',
   'cookie_time' => '30',
-  'start_mod' => 'forum/',
+  'start_mod' => '',
   'open_reg' => '1',
   'debug_mode' => '0',
   'max_file_size' => '15000000',
@@ -54,6 +54,7 @@ $set = array (
     'max_attaches_size' => 5000000,
     'img_size_x' => '150',
     'img_size_y' => '350',
+    'use_preview' => 1,
     'fields' => 
     array (
     ),
@@ -74,6 +75,7 @@ $set = array (
     'max_attaches_size' => 5000000,
     'img_size_x' => 150,
     'img_size_y' => 200,
+    'use_preview' => 1,
     'fields' => 
     array (
     ),
@@ -99,6 +101,7 @@ $set = array (
     'max_attaches_size' => 5000000,
     'img_size_x' => 150,
     'img_size_y' => 200,
+    'use_preview' => 1,
     'fields' => 
     array (
     ),
@@ -146,6 +149,9 @@ $set = array (
     'active' => 1,
     'title' => 'Фото',
     'description' => 'Каталог Фотографий',
+    'comment_active' => 1,
+    'comment_per_page' => '50',
+    'comment_lenght' => '500',
     'per_page' => 20,
     'max_file_size' => 5000000,
     'acl' => 
@@ -160,14 +166,6 @@ $set = array (
   'statistics' => 
   array (
     'active' => '1',
-  ),
-  'db' => 
-  array (
-    'host' => 'localhost',
-    'name' => 'fapos',
-    'user' => 'root',
-    'pass' => '',
-    'prefix' => '',
   ),
   'news_on_home' => 1,
   'site_title' => 'CMS Fapos',

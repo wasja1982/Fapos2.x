@@ -290,6 +290,15 @@ Class FotoModule extends Module {
 		//category block
 		$this->_getCatsTree($entity->getCategory()->getId());
 
+		/* COMMENT BLOCK */
+		if (Config::read('comment_active', 'foto') == 1 
+		&& $this->ACL->turn(array('foto', 'view_comments'), false) 
+		&& $entity->getCommented() == 1) {
+			if ($this->ACL->turn(array('foto', 'add_comments'), false)) 
+				$this->comments  = $this->_add_comment_form($id);
+			$this->comments  = $this->_get_comments($entity) . $this->comments;
+		}
+
 		$this->Register['current_vars'] = $entity;
 		
 		
@@ -368,7 +377,7 @@ Class FotoModule extends Module {
 		
 
         // Check for preview or errors
-        $data = array('title' => null, 'in_cat' => null, 'description' => null);
+        $data = array('title' => null, 'in_cat' => null, 'description' => null, 'commented' => null);
         $data = Validate::getCurrentInputsValues($data);
 
 
@@ -388,6 +397,11 @@ Class FotoModule extends Module {
 		$markers = array();
 		$markers['action'] = get_url('/foto/add/');
 		$markers['cats_selector'] = $cats_change;
+
+		//comments and hide
+		$markers['commented'] = (!empty($commented) || !isset($_POST['submitForm'])) ? 'checked="checked"' : '';
+		if (!$this->ACL->turn(array('foto', 'record_comments_management'), false)) $markers['commented'] .= ' disabled="disabled"';
+
 		$markers['title'] = (!empty($title)) ? $title : '';
 		$markers['main_text'] = (!empty($description)) ? $description : '';
 		
@@ -407,7 +421,7 @@ Class FotoModule extends Module {
 
 
 
-	// Функция добавляет новую новость (новую запись в таблицу БД TABLE_NEWS)
+	// Функция добавляет новое изображение (новую запись в таблицу БД FOTO)
 	public function add() {
 		//turn access
 		$this->ACL->turn(array('foto', 'add_materials'));
@@ -424,6 +438,7 @@ Class FotoModule extends Module {
 		$title   	 = trim(mb_substr( $_POST['title'], 0, 128 ));
 		$description = trim($_POST['mainText']);
 		$in_cat 	 = intval($_POST['cats_selector']);
+		$commented = (!empty($_POST['commented'])) ? 1 : 0;
 
 
 		// Check fields
@@ -472,13 +487,15 @@ Class FotoModule extends Module {
 
 		// errors
 		if (!empty($error)) {
-			$data = array('title' => null, 'description' => null, 'in_cat' => $in_cat);
+			$data = array('title' => null, 'description' => null, 'in_cat' => $in_cat, 'commented' => null);
 			$data = array_merge($data, $_POST);
 			$data['error'] = '<p class="errorMsg">' . __('Some error in form') . '</p>'.
 				"\n".'<ul class="errorMsg">'."\n".$error.'</ul>'."\n";
 			$_SESSION['FpsForm'] = $data;
 			redirect('/foto/add_form/');
 		}
+
+		if (!$this->ACL->turn(array('foto', 'record_comments_management'), false)) $commented = '1';
 
 		// spam protected
 		if ( isset( $_SESSION['unix_last_post'] ) and ( time()-$_SESSION['unix_last_post'] < 10 ) ) {
@@ -498,6 +515,7 @@ Class FotoModule extends Module {
 			'author_id'    => $_SESSION['user']['id'],
 			'category_id'  => $in_cat,
 			'filename'  => '',
+			'commented'    => $commented,
 		);
 		$entity = new FotoEntity($res);
 		$entity->save();
@@ -657,6 +675,7 @@ Class FotoModule extends Module {
 		$title       = trim(mb_substr($_POST['title'], 0, 128));
 		$description = trim($_POST['mainText']);
 		$in_cat		 = intval($_POST['cats_selector']);
+		$commented = (!empty($_POST['commented'])) ? 1 : 0;
 		if (empty($in_cat)) $in_cat = $foto['category_id'];
 		
 		
@@ -681,13 +700,15 @@ Class FotoModule extends Module {
 		
 		// errors
 		if (!empty( $error )) {
-			$data = array('title' => $title, 'description' => $description, 'in_cat' => $in_cat);
+			$data = array('title' => $title, 'description' => $description, 'in_cat' => $in_cat, 'commented' => null);
 			$data['error'] = '<p class="errorMsg">' . __('Some error in form') 
 			. '</p>'."\n".'<ul class="errorMsg">'."\n".$error.'</ul>'."\n";
 			$_SESSION['FpsForm'] = $data;
 			redirect('/foto/edit_form/' . $id );
 		}
 		
+		if (!$this->ACL->turn(array('foto', 'record_comments_management'), false)) $commented = '1';
+
 		$description = mb_substr($description, 0, Config::read('description_lenght', 'foto'));
 		$entity->setTitle($title);
 		$entity->setDescription($description);
@@ -752,7 +773,83 @@ Class FotoModule extends Module {
 	}
 	
 
-	
+
+	/**
+	* add comment to stat
+	*
+	* @id (int) stat ID
+	* @return info message
+	*/
+	public function add_comment($id = null)
+	{
+		include_once(ROOT . '/sys/inc/includes/add_comment.php');
+	}
+
+
+	/**
+	* add comment form to stat
+	*
+	* @id (int) stat ID
+	* @return html form
+	*/
+	private function _add_comment_form($id = null)
+	{
+		include_once(ROOT . '/sys/inc/includes/_add_comment_form.php');
+		return $html;
+	}
+
+
+
+	/**
+	* edit comment form to stat
+	*
+	* @id (int) comment ID
+	* @return html form
+	*/
+	public function edit_comment_form($id = null)
+	{
+		include_once(ROOT . '/sys/inc/includes/edit_comment_form.php');
+	}
+
+
+
+	/**
+	* update comment
+	*
+	* @id (int) comment ID
+	* @return info message
+	*/
+	public function update_comment($id = null)
+	{
+		include_once(ROOT . '/sys/inc/includes/update_comment.php');
+	}
+
+
+
+	/**
+	* get comments for stat
+	*
+	* @id (int) stat ID
+	* @return html comments list
+	*/
+	private function _get_comments($entity = null)
+	{
+		include_once(ROOT . '/sys/inc/includes/_get_comments.php');
+		return $html;
+	}
+
+
+
+	/**
+	* delete comment
+	*
+	* @id (int) comment ID
+	* @return info message
+	*/
+	public function delete_comment($id = null)
+	{
+		include_once(R . 'sys/inc/includes/delete_comment.php');
+	}
 	
 	
 	
