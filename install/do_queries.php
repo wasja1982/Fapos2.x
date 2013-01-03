@@ -141,6 +141,7 @@ $array[] = "CREATE TABLE `{$set['db']['prefix']}loads_comments` (
   `ip` varchar(50) NOT NULL,
   `mail` varchar(150) NOT NULL,
   `date` DATETIME NOT NULL,
+  `editdate` DATETIME NOT NULL,
   PRIMARY KEY  (`id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci";
 #####################################################################
@@ -202,6 +203,7 @@ $array[] = "CREATE TABLE `{$set['db']['prefix']}news_comments` (
   `ip` varchar(50) NOT NULL,
   `mail` varchar(150) NOT NULL,
   `date` DATETIME NOT NULL,
+  `editdate` DATETIME NOT NULL,
   PRIMARY KEY  (`id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci";
 #####################################################################
@@ -274,6 +276,7 @@ $array[] = "CREATE TABLE `{$set['db']['prefix']}stat_comments` (
   `ip` varchar(50) NOT NULL,
   `mail` varchar(150) NOT NULL,
   `date` DATETIME NOT NULL,
+  `editdate` DATETIME NOT NULL,
   PRIMARY KEY  (`id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci";
 #####################################################################
@@ -401,6 +404,7 @@ $array[] = "CREATE TABLE `{$set['db']['prefix']}foto_comments` (
 `ip` varchar(50) NOT NULL,
 `mail` varchar(150) NOT NULL,
 `date` DATETIME NOT NULL,
+`editdate` DATETIME NOT NULL,
 PRIMARY KEY (`id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci";
 #############################################################################
