@@ -1352,8 +1352,18 @@ Class LoadsModule extends Module {
         $entity->save();
         $this->Register['DB']->cleanSqlCache();
 
-
-        $name = $entity->getFilename();
+        if (Config::read('filename_from_title', $this->module)) {
+            $ext = strrchr( $entity->getFilename(), "." );
+            $name = $entity->getTitle().Config::read('filename_postfix', $this->module).$ext;
+        } else {
+            if (Config::read('filename_postfix', $this->module)) {
+                $ext = strrchr( $entity->getFilename(), "." );
+                $nm = str_replace( $ext, '', $entity->getFilename()); // ну придумайте что-нить лучше :)
+                $name = $nm.Config::read('filename_postfix', $this->module).$ext;
+            } else {
+                $name = $entity->getFilename();
+            }
+        }
         $filename = ROOT . '/sys/files/loads/' . $entity->getDownload();
 
 
