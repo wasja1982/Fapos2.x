@@ -1358,7 +1358,7 @@ Class LoadsModule extends Module {
         } else {
             if ($entity->getFilename()!='') {
                 if (Config::read('filename_postfix', $this->module)) {
-                    $ext = strrchr( $entity->getFilename(), "." );
+                    $ext = strrchr( $entity->getDownload(), "." );
                     $nm = str_replace( $ext, '', $entity->getFilename()); // ну придумайте что-нить лучше :)
                     $name = $nm.Config::read('filename_postfix', $this->module).$ext;
                 } else {
