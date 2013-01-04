@@ -527,6 +527,7 @@ Class FotoModule extends Module {
 		$save_path = ROOT . '/sys/files/foto/full/' . $id . $ext;
 		$save_sempl_path = ROOT . '/sys/files/foto/preview/' . $id . $ext;
 		
+		$entity = new FotoEntity($res);
 		$entity->setFilename($id . $ext);
 		$entity->save();
 		
