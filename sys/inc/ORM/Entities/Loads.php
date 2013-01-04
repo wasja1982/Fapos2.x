@@ -34,6 +34,7 @@ class LoadsEntity extends FpsEntity
 	protected $downloads;
 	protected $rate;
 	protected $download;
+	protected $filename;
 	protected $download_url;
 	protected $download_url_size;
 	protected $date;
@@ -67,6 +68,7 @@ class LoadsEntity extends FpsEntity
 			'downloads' => intval($this->downloads),
 			'rate' => intval($this->rate),
 			'download' => $this->download,
+			'filename' => $this->filename,
 			'download_url' => $this->download_url,
 			'download_url_size' => $this->download_url_size,
 			'date' => $this->date,
