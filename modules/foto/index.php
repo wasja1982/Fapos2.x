@@ -527,9 +527,9 @@ Class FotoModule extends Module {
 		$save_path = ROOT . '/sys/files/foto/full/' . $id . $ext;
 		$save_sempl_path = ROOT . '/sys/files/foto/preview/' . $id . $ext;
 		
-		$entity = new FotoEntity($res);
-		$entity->setFilename($id . $ext);
-		$entity->save();
+		$entity2 = $this->Model->getById($id);
+		$entity2->setFilename($id . $ext);
+		$entity2->save();
 		
 		if (!move_uploaded_file($_FILES['foto']['tmp_name'], $save_path)) $error_flag = true;
 		if (!chmod($save_path, 0644)) $error_flag = true; 
