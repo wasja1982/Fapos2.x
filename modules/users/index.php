@@ -1755,7 +1755,7 @@ Class UsersModule extends Module {
         $data = array(
             'to_user' => $to,
             'from_user' => $from,
-            'sendtime' => 'NOW()',
+            'sendtime' => new Expr('NOW()'),
             'subject' => $subject,
             'message' => $message,
             'id_rmv' => 0,
@@ -2456,7 +2456,7 @@ Class UsersModule extends Module {
 				'to_user' => $to_id,
 				'comment' => $comment,
 				'points' => $points,
-				'date' => 'NOW()',
+				'date' => new Expr('NOW()'),
 			));
 			$voteEntity->save();
 			die('ok');
@@ -2656,7 +2656,7 @@ Class UsersModule extends Module {
 				'user_id' => $uid,
 				'admin_id' => $adm_id,
 				'points' => $points,
-				'date' => 'NOW()',
+				'date' => new Expr('NOW()'),
 				'cause' => $cause,
 			));
 			$votesEntity->save();
@@ -2672,7 +2672,7 @@ Class UsersModule extends Module {
 				'from_user' => $adm_id,
 				'subject' => __('You have new warnings'),
 				'message' => __('Warnings cause').$cause,
-				'sendtime' => 'NOW()',
+				'sendtime' => new Expr('NOW()'),
 				'id_rmv' => $adm_id,
 			));
 			$messEntity->save();

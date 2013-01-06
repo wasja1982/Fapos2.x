@@ -129,10 +129,10 @@ class ForumModel extends FpsModel
 	
 	public function deleteCollisions()
 	{
-		$this->getDbDriver()->query("DELETE FROM `" .$this->getDbDriver()->getFullTableName('themes') 
-		. "` WHERE id NOT IN (SELECT DISTINCT id_theme FROM `posts`)");
+		$this->getDbDriver()->query("DELETE FROM `" . $this->getDbDriver()->getFullTableName('themes') 
+                . "` WHERE id NOT IN (SELECT DISTINCT id_theme FROM `" . $this->getDbDriver()->getFullTableName('posts') . "`)");
 		$this->getDbDriver()->query("DELETE FROM `" . $this->getDbDriver()->getFullTableName('posts') 
-		. "` WHERE id_theme NOT IN (SELECT id FROM `themes`)");
+		. "` WHERE id_theme NOT IN (SELECT DISTINCT id FROM `" . $this->getDbDriver()->getFullTableName('themes') . "`)");
 	}
 	
 	

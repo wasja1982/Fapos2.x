@@ -337,6 +337,13 @@ Class ForumModule extends Module {
 			
 			
 			
+			$themes = $themesClass->getCollection(array(
+				'id_forum' => $id_forum
+			), array (
+				'order' => 'important DESC, last_post DESC, id ASC',
+				'page' => $page,
+				'limit' => $this->Register['Config']->read('themes_per_page', 'forum'),
+			));
 			$cnt_themes_here = count($themes);
 			if ($cnt_themes_here > 0 && is_array($themes)) {
 				foreach ($themes as $theme) {
@@ -751,6 +758,9 @@ Class ForumModule extends Module {
 					$this->deleteCollizions($post);
 				}
 				
+				if ($attachment != null) {
+					$post->setAttachment($attachment);
+				}
 				
 				$signature = ($post->getSignature()) 
 				? $this->Textarier->getSignature($post->getSignature(), $post->getStatus()) : '' ;
@@ -1431,15 +1441,17 @@ Class ForumModule extends Module {
 			'title'          => $theme,
 			'description'    => $description,
 			'id_author'      => $_SESSION['user']['id'],
-			'time'           => 'NOW()',
+			'time'           => new Expr('NOW()'),
 			'id_last_author' => $_SESSION['user']['id'],
-			'last_post'      => 'NOW()',
+			'last_post'      => new Expr('NOW()'),
 			'id_forum'       => $id_forum, 
 			'group_access'   => $gr_access, 
 		);
 		$theme = new ThemesEntity($data);
-		$theme->save();
-		$id_theme = mysql_insert_id();
+		$id_theme = $theme->save();
+		if (!is_int($id_theme)) {
+			$id_theme = mysql_insert_id();
+		}
 
 		
 		// add first post
@@ -1451,8 +1463,10 @@ Class ForumModule extends Module {
 			'id_theme'       => $id_theme 
 		);
 		$post = new PostsEntity($postData);
-		$post->save();
-		$post_id = mysql_insert_id();
+		$post_id = $post->save();
+		if (!is_int($post_id)) {
+			$post_id = mysql_insert_id();
+		}
 		
 		
 		/***** END ATTACH *****/
@@ -1496,8 +1510,8 @@ Class ForumModule extends Module {
 						'is_image'      => $is_image,
 					);
 					
-					$theme = new ThemesEntity($attach_file_data);
-					if ($theme->save()) {
+					$attach = new ForumAttachesEntity($attach_file_data);
+					if ($attach->save() != NULL) {
 						$attaches_exists = 1;
 					}
 				}
@@ -1506,7 +1520,7 @@ Class ForumModule extends Module {
 		if ($attaches_exists == 1) {
 			$postModel = $this->Register['ModManager']->getModelInstance('Posts');
 			$post = $postModel->getById($post_id);
-			$post->setAttaches(1);
+			$post->setAttaches('1');
 			$post->save();
 		}
 		/***** END ATTACH *****/
@@ -1849,25 +1863,25 @@ Class ForumModule extends Module {
 		if ($id_theme < 1) redirect('/forum/');
 		
 		
-		$usersModel = $this->Register['ModManager']->getModelInstance('Users');
+		$postsModel = $this->Register['ModManager']->getModelInstance('Posts');
 		$themesModel = $this->Register['ModManager']->getModelInstance('Themes');
 		$theme = $themesModel->getById($id_theme);
 		if (!$theme) return $this->showInfoMessage(__('Topic not found'), '/forum/' );
 		
 		
 		// Сначала заблокируем сообщения (посты) темы
-		$users = $usersModel->getCollection(array('id_theme' => $id_theme));
-		if ($users) {
-			foreach ($users as $user) {
-				$user->setLocked('1');
-				$user->save();
+		$posts = $postsModel->getCollection(array('id_theme' => $id_theme));
+		if ($posts) {
+			foreach ($posts as $post) {
+				$post->setLocked('1');
+				$post->save();
 			}
 		}
 
 		// Теперь заблокируем тему
 		$theme->setLocked('1');
 		$theme->save();
-
+		
 		
 		//clean cache
 		$this->Cache->clean(CACHE_MATCHING_ANY_TAG, array('theme_id_' . $id_theme));
@@ -1889,25 +1903,25 @@ Class ForumModule extends Module {
 		if ($id_theme < 1) redirect('/forum/');
 		
 
-		$usersModel = $this->Register['ModManager']->getModelInstance('Users');
+		$postsModel = $this->Register['ModManager']->getModelInstance('Posts');
 		$themesModel = $this->Register['ModManager']->getModelInstance('Themes');
 		$theme = $themesModel->getById($id_theme);
 		if (!$theme) return $this->showInfoMessage(__('Topic not found'), '/forum/' );
 		
 		
 		// Сначала заблокируем сообщения (посты) темы
-		$users = $usersModel->getCollection(array('id_theme' => $id_theme));
-		if ($users) {
-			foreach ($users as $user) {
-				$user->setLocked('0');
-				$user->save();
+		$posts = $postsModel->getCollection(array('id_theme' => $id_theme));
+		if ($posts) {
+			foreach ($posts as $post) {
+				$post->setLocked('0');
+				$post->save();
 			}
 		}
 
 		// Теперь заблокируем тему
 		$theme->setLocked('0');
 		$theme->save();
-
+		
 		
 		//clean cache
 		$this->Cache->clean(CACHE_MATCHING_ANY_TAG, array('theme_id_' . $id_theme));
@@ -2167,7 +2181,7 @@ Class ForumModule extends Module {
                         if($is_image) $attach_file_data['is_image'] = $is_image;
 						
 						$attach = new ForumAttachesEntity($attach_file_data);
-						if ($attach->save()) {
+						if ($attach->save() != NULL) {
 							$attaches_exists = 1;
 						}
 					}
@@ -2176,7 +2190,7 @@ Class ForumModule extends Module {
 			
 			
 			if ($attaches_exists == 1) {
-				$post->setAttaches(1);
+				$post->setAttaches('1');
 				$post->save();
 			}
 			
@@ -2458,7 +2472,7 @@ Class ForumModule extends Module {
 			}
 		}
 		$attach_exists = $attachModel->getCollection(array('post_id' => $id));
-		$attach_exists = ($attach_exists > 0) ? 1 : 0;
+		$attach_exists = ($attach_exists > 0) ? '1' : '0';
 		/*****  END ATTACH   *****/
 
 		
@@ -2488,7 +2502,7 @@ Class ForumModule extends Module {
 	* @return none
 	*/
 	public function delete_post($id = null) {
-		$id = (int)$id;
+		$id = intval($id);
 		if (empty($id) || $id < 1) redirect('/forum/');
 		
 
@@ -2531,6 +2545,7 @@ Class ForumModule extends Module {
 		
 		$userModel = $this->Register['ModManager']->getModelInstance('Users');
 		$user = $userModel->getById($theme->getId_author());
+		$deleteTheme = false;
 		if ($postscnt == 0) {
 			// Прежде чем удалять тему, надо обновить таблицу TABLE_USERS
 			$user->setThemes($user->getThemes() - 1); 
@@ -2546,7 +2561,7 @@ Class ForumModule extends Module {
 		$user->setPosts($user->getPosts() - 1);
 		$user->save();
 		// ... и таблицу .themes
-		if (!isset($deleteTheme)) {
+		if (!$deleteTheme) {
 			$lastPost = $postsModel->getCollection(array(
 				'id_theme' => $post->getId_theme(),
 			), array(
@@ -2554,7 +2569,6 @@ Class ForumModule extends Module {
 				'order' => 'id DESC'
 			));
 
-			$posts_cnt = $this->DB->select('posts', DB_COUNT, array('cond' => array('id_theme' => $post['id_theme'])));
 			$id_last_author = $lastPost[0]->getId_author();
 			$last_post = $lastPost[0]->getTime();
 			$theme->setId_last_author($id_last_author);
@@ -2580,7 +2594,7 @@ Class ForumModule extends Module {
 			'order' => '`last_post` DESC',
 		));
 		$forum = $this->Model->getById($theme->getId_forum());
-		if (isset($deleteTheme)) {
+		if ($deleteTheme) {
 			$forum->setThemes($forum->getThemes() - 1);
 			$forum->setPosts($forum->getPosts() - 1);
 			$forum->setLast_theme_id($lastTheme->getId());
@@ -2805,7 +2819,7 @@ Class ForumModule extends Module {
 
 		/* clean cache DB */
 		$this->Register['DB']->cleanSqlCache();
-		if ($this->Log) $this->Log->write('unimportant post', 'post id(' . $id . '), theme id(' . $theme->getId_forum() . ')');
+		if ($this->Log) $this->Log->write('unimportant post', 'post id(' . $id . '), theme id(' . $theme->getId() . ')');
 		return $this->showInfoMessage(__('Operation is successful'), '/forum/view_forum/' . $theme->getId_forum());
 	}
 	

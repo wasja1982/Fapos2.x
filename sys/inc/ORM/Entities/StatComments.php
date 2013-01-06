@@ -52,7 +52,7 @@ class StatCommentsEntity extends FpsEntity
 		);
 		
 		$Register = Register::getInstance();
-		$Register['DB']->save('stat_comments', $data);
+		return ($Register['DB']->save('stat_comments', $data));
 	}
 	
 	

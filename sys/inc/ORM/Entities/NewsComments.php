@@ -52,7 +52,7 @@ class NewsCommentsEntity extends FpsEntity
 		);
 		
 		$Register = Register::getInstance();
-		$Register['DB']->save('news_comments', $data);
+		return ($Register['DB']->save('news_comments', $data));
 	}
 	
 	
