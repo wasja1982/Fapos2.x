@@ -787,10 +787,10 @@ Class ForumModule extends Module {
 					$user_profile = '<span class="details">' . get_img('/sys/img/noavatar.png') 
 						. __('Unregister user') . '</span>';
 				}
-				$post->setAuthor_site($author_site);
-				$post->setProfile_url($user_profile);
-				$post->setEmail_url($email);
-				$post->setPm_url($privat_message);
+				$post->getAuthor()->setAuthor_site($author_site);
+				$post->getAuthor()->setProfile_url($user_profile);
+				$post->getAuthor()->setEmail_url($email);
+				$post->getAuthor()->setPm_url($privat_message);
 				
 				
 				// Если сообщение редактировалось...
