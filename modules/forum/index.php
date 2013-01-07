@@ -1490,6 +1490,14 @@ Class ForumModule extends Module {
 				$is_image = (in_array(strtolower($ext), $img_extentions)) ? 1 : 0;
 				// Перемещаем файл из временной директории сервера в директорию files
 				if (move_uploaded_file($_FILES[$attach_name]['tmp_name'], R . 'sys/files/forum/' . $file)) {
+					if ($is_image == '1') {
+						$watermark_path = R . 'sys/img/' . Config::read('watermark_img', 'foto');
+						if (Config::read('use_watermarks', 'foto') && !empty($watermark_path) && file_exists($watermark_path)) {
+							$waterObj = new FpsImg;
+							$save_path = R . 'sys/files/forum/' . $file;
+							$waterObj->createWaterMark($save_path, $watermark_path);
+						}
+					}
 					chmod(R . 'sys/files/forum/' . $file, 0644);
 					$attach_file_data = array(
 						'post_id'       => $post_id,
@@ -2152,6 +2160,14 @@ Class ForumModule extends Module {
 
 					// Перемещаем файл из временной директории сервера в директорию files
 					if (move_uploaded_file($_FILES[$attach_name]['tmp_name'], ROOT . '/sys/files/forum/' . $file)) {
+						if ($is_image == '1') {
+							$watermark_path = ROOT . 'sys/img/' . Config::read('watermark_img', 'foto');
+							if (Config::read('use_watermarks', 'foto') && !empty($watermark_path) && file_exists($watermark_path)) {
+								$waterObj = new FpsImg;
+								$save_path = ROOT . 'sys/files/forum/' . $file;
+								$waterObj->createWaterMark($save_path, $watermark_path);
+							}
+						}
 						chmod(ROOT . '/sys/files/forum/' . $file, 0644);
 						$attach_file_data = array(
 							'post_id'       => $post_id,
@@ -2430,6 +2446,14 @@ Class ForumModule extends Module {
 				
 				// Перемещаем файл из временной директории сервера в директорию files
 				if (move_uploaded_file($_FILES[$attach_name]['tmp_name'], ROOT . '/sys/files/forum/' . $file)) {
+					if ($is_image == '1') {
+						$watermark_path = ROOT . 'sys/img/' . Config::read('watermark_img', 'foto');
+						if (Config::read('use_watermarks', 'foto') && !empty($watermark_path) && file_exists($watermark_path)) {
+							$waterObj = new FpsImg;
+							$save_path = ROOT . 'sys/files/forum/' . $file;
+							$waterObj->createWaterMark($save_path, $watermark_path);
+						}
+					}
 					chmod(ROOT . '/sys/files/forum/' . $file, 0644);
 					$attach_file_data = array(
 						'post_id'       => $id,

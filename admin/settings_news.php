@@ -39,6 +39,7 @@ if (isset($_POST['send'])) {
 	$TempSet['news']['comment_per_page'] = $_POST['comment_per_page'];
 	//IMAGES
 	$TempSet['news']['use_preview'] = (!empty($_POST['use_preview'])) ? 1 : 0;
+	$TempSet['news']['use_watermarks'] = (!empty($_POST['use_watermarks'])) ? 1 : 0;
 	$TempSet['news']['img_size_x'] = $_POST['img_size_x'];
 	$TempSet['news']['img_size_y'] = $_POST['img_size_y'];
 	$TempSet['news']['max_attaches_size'] = $_POST['max_attaches_size'];
@@ -93,6 +94,9 @@ include_once ROOT . '/admin/template/header.php';
 
 <tr><td class="left">Генерация превьюшек:<br><small>Определяет возможность для больших изображений автоматически создавать превью-изображения.</small></td><td>
 <input type="checkbox" name="use_preview" value="1" <?php echo (!empty($set['news']['use_preview'])) ? 'checked="checked"' : ''; ?> /><br></td></tr>
+
+<tr><td class="left">Водяные знаки:<br></td>
+<td><input type="checkbox" name="use_watermarks" value="1" <?php if(!empty($set['news']['use_watermarks']) && $set['news']['use_watermarks'] == 1) echo 'checked="checked"'; ?>></td></tr>
 
 <tr><td class="left">Максимальное кол-во:<br><small>Определяет максимальное количество изображений в форме добавления/редактирования материала.</small></td><td>
 <input type="text" name="max_attaches" value="<?php echo $set['news']['max_attaches'] ?>">&nbsp;<span class="comment">Штук</span><br></td></tr>
