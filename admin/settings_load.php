@@ -38,8 +38,12 @@ if (isset($_POST['send'])) {
 	$TempSet['loads']['per_page'] = $_POST['per_page'];
 	$TempSet['loads']['max_file_size'] = $_POST['max_file_size'];
 	$TempSet['loads']['active'] = $_POST['active'];
+	//FILES
+	$TempSet['loads']['filename_from_title'] = (!empty($_POST['filename_from_title'])) ? 1 : 0;
+	$TempSet['loads']['filename_postfix'] = $_POST['filename_postfix'];
 	//IMAGES
 	$TempSet['loads']['use_preview'] = (!empty($_POST['use_preview'])) ? 1 : 0;
+	$TempSet['loads']['use_watermarks'] = (!empty($_POST['use_watermarks'])) ? 1 : 0;
 	$TempSet['loads']['img_size_x'] = $_POST['img_size_x'];
 	$TempSet['loads']['img_size_y'] = $_POST['img_size_y'];
 	$TempSet['loads']['max_attaches_size'] = $_POST['max_attaches_size'];
@@ -103,12 +107,24 @@ include_once ROOT . '/admin/template/header.php';
 <td><input type="text" name="max_file_size" value="<?php echo $set['loads']['max_file_size'] ?>">&nbsp;<span class="comment">Байт</span></td></tr>
 
 
+
+<tr class="small"><td class="group" colspan="2">Файлы</td></tr>
+
+<tr><td class="left">Формировать имя из заголовка:<br><small>Если включить то имена скачеваемых файлов будут иметь имя из заголовка материала</small></td><td>
+<input type="checkbox" name="filename_from_title" value="1" <?php echo (!empty($set['loads']['filename_from_title'])) ? 'checked="checked"' : ''; ?> /><br></td></tr>
+
+<tr><td class="left">Добавить подпись в названии файла:<br><small>После имени файла можно дописать какое-то слово, например название вашего сайта</small></td><td>
+<input type="text" name="filename_postfix" value="<?php echo $set['loads']['filename_postfix'] ?>"><br></td></tr>
+
 <!--#################### ATTACHED IMG ###################-->
 
 <tr class="small"><td class="group" colspan="2">Изображения</td></tr>
 
 <tr><td class="left">Генерация превьюшек:<br><small>Определяет возможность для больших изображений автоматически создавать превью-изображения.</small></td><td>
 <input type="checkbox" name="use_preview" value="1" <?php echo (!empty($set['loads']['use_preview'])) ? 'checked="checked"' : ''; ?> /><br></td></tr>
+
+<tr><td class="left">Водяные знаки:<br></td>
+<td><input type="checkbox" name="use_watermarks" value="1" <?php if(!empty($set['loads']['use_watermarks']) && $set['loads']['use_watermarks'] == 1) echo 'checked="checked"'; ?>></td></tr>
 
 <tr><td class="left">Максимальное кол-во:<br><small>Определяет максимальное количество изображений в форме добавления/редактирования материала.</small></td><td>
 <input type="text" name="max_attaches" value="<?php echo $set['loads']['max_attaches'] ?>">&nbsp;<span class="comment">Штук</span><br></td></tr>

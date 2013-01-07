@@ -93,6 +93,14 @@ function downloadAttaches($module, $entity_id) {
 
 			// Перемещаем файл из временной директории сервера в директорию files
 			if (move_uploaded_file($_FILES[$attach_name]['tmp_name'], $files_dir . $filename)) {
+				if ($is_image == '1') {
+					$watermark_path = R . 'sys/img/' . Config::read('watermark_img', 'foto');
+					if (Config::read('use_watermarks', $module) && !empty($watermark_path) && file_exists($watermark_path)) {
+						$waterObj = new FpsImg;
+						$save_path = $files_dir . $filename;
+						$waterObj->createWaterMark($save_path, $watermark_path);
+					}
+				}
 				chmod($files_dir . $filename, 0644);
 				$attach_file_data = array(
 					'entity_id'     => $entity_id,

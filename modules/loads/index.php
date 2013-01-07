@@ -2,7 +2,7 @@
 /*---------------------------------------------\
 |											   |
 | @Author:       Andrey Brykin (Drunya)        |
-| @Version:      1.7.91                         |
+| @Version:      1.7.91                        |
 | @Project:      CMS                           |
 | @package       CMS Fapos                     |
 | @subpackege    Loads Module                  |
@@ -725,9 +725,14 @@ Class LoadsModule extends Module {
 
 		//Проверяем прикрепленный файл...
 		$file = '';
+        $filename = '';
 		if (!empty($_FILES['attach']['name'])) {
 			$file = $this->__saveFile($_FILES['attach']);
 		}
+
+        if ($file!='') {
+            $filename = $_FILES['attach']['name'];
+        }
 
 		// span protected
 		if ( isset( $_SESSION['unix_last_post'] ) and ( time() - $_SESSION['unix_last_post'] < 30 ) ) {
@@ -752,6 +757,7 @@ Class LoadsModule extends Module {
             'author_id' 	=> $_SESSION['user']['id'],
             'category_id' 	=> $in_cat,
             'download' 		=> $file,
+            'filename'      => $filename,
             'description'   => $description,
             'tags'          => $tags,
             'sourse'  	    => $sourse,
@@ -1024,11 +1030,14 @@ Class LoadsModule extends Module {
 		
 		//Проверяем прикрепленный файл...
 		$file = '';
+        $filename = '';
 		if (!empty($_FILES['attach']['name'])) {
 			$file = $this->__saveFile($_FILES['attach']);
 		}
 
-
+        if ($file!='') {
+            $filename = $_FILES['attach']['name'];
+        }
 
         // Check attaches size and format
         $max_attach = $this->Register['Config']->read('max_attaches', $this->module);
@@ -1101,7 +1110,10 @@ Class LoadsModule extends Module {
 			'commented'    => $commented,
 			'available'    => $available,
 		);
-		if (!empty($file)) $saveParams['download'] = $file;
+		if (!empty($file)) {
+            $saveParams['download'] = $file;
+            $saveParams['filename'] = $filename;
+        }
         $target->__construct($data);
         $target->save();
 
@@ -1340,8 +1352,22 @@ Class LoadsModule extends Module {
         $entity->save();
         $this->Register['DB']->cleanSqlCache();
 
-
-        $name = $entity->getDownload();
+        if (Config::read('filename_from_title', $this->module)) {
+            $ext = strrchr( $entity->getDownload(), "." );
+            $name = $entity->getTitle().Config::read('filename_postfix', $this->module).$ext;
+        } else {
+            if ($entity->getFilename()!='') {
+                if (Config::read('filename_postfix', $this->module)) {
+                    $ext = strrchr( $entity->getDownload(), "." );
+                    $nm = str_replace( $ext, '', $entity->getFilename()); // ну придумайте что-нить лучше :)
+                    $name = $nm.Config::read('filename_postfix', $this->module).$ext;
+                } else {
+                    $name = $entity->getFilename();
+                }
+            } else {
+                $name = $entity->getDownload();
+            }
+        }
         $filename = ROOT . '/sys/files/loads/' . $entity->getDownload();
 
 

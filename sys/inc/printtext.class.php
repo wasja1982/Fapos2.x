@@ -299,7 +299,7 @@ class PrintText {
 		$message = preg_replace("#\[color=red\](.+)\[\/color\]#uisU",'<span style="color:#FF0000">\\1</span>',$message);
 		$message = preg_replace("#\[color=green\](.+)\[\/color\]#uisU",'<span style="color:#008000">\\1</span>',$message);
 		$message = preg_replace("#\[color=blue\](.+)\[\/color\]#uisU",'<span style="color:#0000FF">\\1</span>',$message);
-		$message = preg_replace("#\[color=#([0-9a-z]{6})\](.+)\[\/color\]#uisU",'<span style="color:#\\1">\\2</span>',$message);
+		$message = preg_replace("#\[color=\#([0-9a-z]{6})\](.+)\[\/color\]#uisU",'<span style="color:#\\1">\\2</span>',$message);
 		
 		
 		$message = preg_replace_callback("#\[list\]\s*((?:\[\*\].+)+)\[\/list\]#usiU",'getUnorderedList',$message);

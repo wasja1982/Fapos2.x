@@ -48,6 +48,7 @@ class StatCommentsEntity extends FpsEntity
 			'ip' => $this->ip,
 			'mail' => $this->mail,
 			'date' => $this->date,
+			'editdate' => $this->editdate,
 		);
 		
 		$Register = Register::getInstance();

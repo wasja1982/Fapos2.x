@@ -36,6 +36,7 @@ if (isset($_POST['send'])) {
 	$TempSet['forum']['max_post_lenght'] = $_POST['max_post_lenght'];
 	$TempSet['forum']['posts_per_page'] = $_POST['posts_per_page'];
 	$TempSet['forum']['themes_per_page'] = $_POST['themes_per_page'];
+	$TempSet['forum']['use_watermarks'] = (!empty($_POST['use_watermarks'])) ? 1 : 0;
 	$TempSet['forum']['active'] = $_POST['active'];
 
 	Config::write($TempSet);
@@ -79,6 +80,10 @@ include_once ROOT . '/admin/template/header.php';
 
 
 <tr class="small"><td class="group" colspan="2">Прочее</td></tr>
+
+<tr><td class="left">Водяные знаки:<br></td>
+<td><input type="checkbox" name="use_watermarks" value="1" <?php if(!empty($set['forum']['use_watermarks']) && $set['forum']['use_watermarks'] == 1) echo 'checked="checked"'; ?>></td></tr>
+
 <tr><td class="left">Статус :<br />
 <span class="comment">(Активирован/Деактивирован)</span></td>
 <td>
