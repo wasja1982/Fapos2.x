@@ -2598,13 +2598,13 @@ Class ForumModule extends Module {
 		if ($deleteTheme) {
 			$forum->setThemes($forum->getThemes() - 1);
 			$forum->setPosts($forum->getPosts() - 1);
-			$forum->setLast_theme_id($lastTheme->getId());
+			$forum->setLast_theme_id(count($lastTheme) > 0 ? $lastTheme[0]->getId() : '0');
 			$forum->save();
 			return $this->showInfoMessage(__('Operation is successful'), '/forum/view_forum/' . $theme->getId_forum());
 			
 		} else {
 			$forum->setPosts($forum->getPosts() - 1);
-			$forum->setLast_theme_id($lastTheme->getId());
+			$forum->setLast_theme_id(count($lastTheme) > 0 ? $lastTheme[0]->getId() : '0');
 			$forum->save();
 			return $this->showInfoMessage(__('Operation is successful'), getReferer());
 		}
