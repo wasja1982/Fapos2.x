@@ -2798,7 +2798,7 @@ Class ForumModule extends Module {
 
 		/* clean cache DB*/
 		$this->Register['DB']->cleanSqlCache();
-		if ($this->Log) $this->Log->write('important post', 'post id(' . $id . '), theme id(' . $theme->getId() . ')');
+		if ($this->Log) $this->Log->write('important post', 'theme id(' . $id . ')');
 		return $this->showInfoMessage(__('Operation is successful'), '/forum/view_forum/' . $theme->getId_forum());
 	}
 	
@@ -2819,7 +2819,7 @@ Class ForumModule extends Module {
 
 		/* clean cache DB */
 		$this->Register['DB']->cleanSqlCache();
-		if ($this->Log) $this->Log->write('unimportant post', 'post id(' . $id . '), theme id(' . $theme->getId() . ')');
+		if ($this->Log) $this->Log->write('unimportant post', 'theme id(' . $id . ')');
 		return $this->showInfoMessage(__('Operation is successful'), '/forum/view_forum/' . $theme->getId_forum());
 	}
 	
