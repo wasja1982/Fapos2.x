@@ -1389,7 +1389,7 @@ Class ForumModule extends Module {
 		$gr_access = array();
 		$groups = $this->Register['ACL']->getGroups();
 		foreach ($groups as $grid => $grval) {
-			if (!empty($_POST['gr_access_' . $grid])) $gr_access[] = $grid;
+			if (isset($_POST['gr_access_' . $grid])) $gr_access[] = $grid;
 		}
 		
 		
@@ -1681,7 +1681,7 @@ Class ForumModule extends Module {
 		$gr_access = array();
 		$groups = $this->Register['ACL']->getGroups();
 		foreach ($groups as $grid => $grval) {
-			if (!empty($_POST['gr_access_' . $grid])) $gr_access[] = $grid;
+			if (isset($_POST['gr_access_' . $grid])) $gr_access[] = $grid;
 		}
 		
 		
