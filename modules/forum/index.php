@@ -52,6 +52,11 @@ Class ForumModule extends Module {
 	
 	
 	/**
+	 * Types of images.
+	 */
+	private $allowedTypes = array('image/jpeg','image/jpg','image/gif','image/png');
+
+	/**
 	 * @return main forum page content
 	 */
 	public function index($cat_id = null) 
@@ -1475,21 +1480,20 @@ Class ForumModule extends Module {
 		$attaches_exists = 0;
 		// Массив недопустимых расширений файла вложения
 		$extentions = $this->denyExtentions;
-		$img_extentions = array('.png','.jpg','.gif','.jpeg', '.PNG','.JPG','.GIF','.JPEG');
+		$allowed_types = $this->allowedTypes;
 		/* delete collizions if exists */
 		$this->deleteCollizions($post, true);
 		for ($i = 1; $i < 6; $i++) {
 			$attach_name = 'attach' . $i;
 			if (!empty($_FILES[$attach_name]['name'])) {
 				// Извлекаем из имени файла расширение
-				$ext = strrchr($_FILES[$attach_name]['name'], ".");
-                $ext = strtolower($ext);
+				$ext = strtolower(strrchr($_FILES[$attach_name]['name'], "."));
 				// Формируем путь к файлу
-				if (in_array(strtolower($ext), $extentions))
+				if (in_array($ext, $extentions) || empty($ext))
 					$file = $post_id . '-' . $i . '-' . date("YmdHi") . '.txt';
 				else
 					$file = $post_id . '-' . $i . '-' . date("YmdHi") . $ext;
-				$is_image = (in_array(strtolower($ext), $img_extentions)) ? 1 : 0;
+				$is_image = (in_array($_FILES[$attach_name]['type'], $allowed_types) ? '1' : '0');
 				// Перемещаем файл из временной директории сервера в директорию files
 				if (move_uploaded_file($_FILES[$attach_name]['tmp_name'], R . 'sys/files/forum/' . $file)) {
 					if ($is_image == '1') {
@@ -2139,27 +2143,22 @@ Class ForumModule extends Module {
 			$attaches_exists = 0;
 			// Массив недопустимых расширений файла вложения
 			$extentions = $this->denyExtentions;
-			$img_extentions = array('.png','.jpg','.gif','.jpeg', '.PNG','.JPG','.GIF','.JPEG');
-			$file_types = array('image/jpeg','image/jpg','image/gif','image/png');
+			$allowed_types = $this->allowedTypes;
 			/* delete collizions if exists */
 			$this->deleteCollizions($post, true);
 			for ($i = 1; $i < 6; $i++) {
 				$attach_name = 'attach' . $i;
 				if (!empty($_FILES[$attach_name]['name'])) {
 					// Извлекаем из имени файла расширение
-					$ext = strrchr($_FILES[$attach_name]['name'], ".");
-                    $ext = strtolower($ext);
+					$ext = strtolower(strrchr($_FILES[$attach_name]['name'], "."));
 					// Формируем путь к файлу
-					if (in_array(strtolower($ext), $extentions) || empty($ext)) {
+					if (in_array($ext, $extentions) || empty($ext)) {
 						$file = $post_id . '-' . $i . '-' . date("YmdHi") . '.txt';
 					} else {
 						$file = $post_id . '-' . $i . '-' . date("YmdHi") . $ext;
 					}
 
-					$is_image = '0';
-					if (in_array($_FILES[$attach_name]['type'], $file_types)) {
-						$is_image = '1';
-					}
+					$is_image = (in_array($_FILES[$attach_name]['type'], $allowed_types) ? '1' : '0');
 
 					// Перемещаем файл из временной директории сервера в директорию files
 					if (move_uploaded_file($_FILES[$attach_name]['tmp_name'], ROOT . '/sys/files/forum/' . $file)) {
@@ -2410,9 +2409,8 @@ Class ForumModule extends Module {
 		
 		/*****   ATTACH   *****/
 		// Массив недопустимых расширений файла вложения
-		$extentions = array('.php', '.phtml', '.php3', '.html', '.htm', '.pl', '.PHP', '.PHTML', '.PHP3', '.HTML', '.HTM', '.PL');
-		$img_extentions = array('.png','.jpg','.gif','.jpeg', '.PNG','.JPG','.GIF','.JPEG');
-		$allowed_types = array('image/jpeg','image/jpg','image/gif','image/png');
+		$extentions = $this->denyExtentions;
+		$allowed_types = $this->allowedTypes;
 		$attachModel = $this->Register['ModManager']->getModelInstance('ForumAttaches');
 		for ($i = 1; $i <= 5; $i++) {
 			if (!empty($_POST['unlink' . $i]) || !empty($_FILES['attach' . $i]['name'])) {
@@ -2433,19 +2431,15 @@ Class ForumModule extends Module {
 			if (!empty($_FILES[$attach_name]['name'])) {
 			
 				// Извлекаем из имени файла расширение
-				$ext = strrchr($_FILES[$attach_name]['name'], ".");
-                $ext = strtolower($ext);
+				$ext = strtolower(strrchr($_FILES[$attach_name]['name'], "."));
 				// Формируем путь к файлу
-				if (in_array( $ext, $extentions)) {
+				if (in_array($ext, $extentions) || empty($ext)) {
 					$file = $id . '-' . $i . '-' . date("YmdHi") . '.txt';
 				} else {
 					$file = $id . '-' . $i . '-' . date("YmdHi") . $ext;
 				}
 				
-				$is_image = 0;
-				if (in_array($_FILES[$attach_name]['type'], $allowed_types)) {
-					$is_image = 1;
-				}
+				$is_image = (in_array($_FILES[$attach_name]['type'], $allowed_types) ? '1' : '0');
 				
 				
 				// Перемещаем файл из временной директории сервера в директорию files
