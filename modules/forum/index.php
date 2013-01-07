@@ -62,13 +62,13 @@ Class ForumModule extends Module {
 		
 		
 		// navigation block
-		$markets = array();
-		$markets['navigation'] = get_link(__('Home'), '/') . __('Separator') 
+		$markers = array();
+		$markers['navigation'] = get_link(__('Home'), '/') . __('Separator') 
 		. get_link(__('Forums list'), '/forum/') . "\n";
-		$markets['pagination'] = '';
-		$markets['add_link'] = '';
-		$markets['meta'] = '';
-		$this->_globalize($markets);
+		$markers['pagination'] = '';
+		$markers['add_link'] = '';
+		$markers['meta'] = '';
+		$this->_globalize($markers);
 		
 		
 		if ($this->cached && $this->Cache->check($this->cacheKey)) {
@@ -437,7 +437,7 @@ Class ForumModule extends Module {
 	private function __parseThemeTable($theme, $template = false) 
 	{
 		$htmltheme = null;
-		$markets = array();
+		$markers = array();
 		
 		//ICONS
 		$themeicon = $this->__getThemeIcon($theme); 
@@ -625,8 +625,9 @@ Class ForumModule extends Module {
 			$markers = array();
 			$markers['navigation'] = get_link(__('Forums list'), '/forum/') . __('Separator') . get_link($theme->getForum()->getTitle(), 
 			'/forum/view_forum/' .  $id_forum) . __('Separator') . get_link($theme->getTitle(), '/forum/view_theme/' . $id_theme);
+			$description = h($theme->getDescription());
 			if (!empty($description)) {
-				$markers['navigation'] .= ' (' . $theme->getDescription() . ')';
+				$markers['navigation'] .= ' (' . $description . ')';
 			}
 			
 			
@@ -1294,7 +1295,7 @@ Class ForumModule extends Module {
 		
 		
 		$html    = '';
-		$markets = array();
+		$markers = array();
 		
 		// preview
 		if (isset($_SESSION['viewMessage']) and !empty($_SESSION['viewMessage']['message'])) {
@@ -1347,7 +1348,8 @@ Class ForumModule extends Module {
 		$source = $this->render('addthemeform.html', array(
 			'context' => $markers,
 		));
-		return $this->_view($source);
+		$html = $html . $source;
+		return $this->_view($html);
 	}
 
 
@@ -1577,7 +1579,7 @@ Class ForumModule extends Module {
 		
 		$id_forum = $theme->getId_forum();
 		$html = '';
-		$markets = array();
+		$markers = array();
 		
 		
 		//check access
@@ -1643,7 +1645,8 @@ Class ForumModule extends Module {
 		$source = $this->render('editthemeform.html', array(
 			'context' => $data,
 		));
-		return $this->_view($source);
+		$html = $html . $source;
+		return $this->_view($html);
 	}
 
 
@@ -1690,7 +1693,7 @@ Class ForumModule extends Module {
 		$valobj = $this->Register['Validate'];
 		if (empty($name))                  
 			$error = $error. '<li>' . __('Empty field "theme"') . '</li>'."\n";
-		if (!$valobj->cha_val($name, V_TITLE)) 
+		elseif (!$valobj->cha_val($name, V_TITLE)) 
 			$error = $error. '<li>' . __('Wrong chars in "theme"') . '</li>'."\n";
 
 		// errors
@@ -1955,7 +1958,7 @@ Class ForumModule extends Module {
 
 				$message = '';
 				$html = '';
-				$markets = array();
+				$markers = array();
 				if (isset($_SESSION['viewMessage']) and !empty($_SESSION['viewMessage'])) {
 					$view = $this->render('previewmessage.html', array(
 						'context' => array(
@@ -2272,11 +2275,11 @@ Class ForumModule extends Module {
 
 		$message = $post->getMessage();
 		$html    = '';
-		$markets = array();
+		$markers = array();
 		
 		//if user vant preview message
 		if (isset($_SESSION['viewMessage']) and !empty($_SESSION['viewMessage'])) {
-			$view = $tis->render('previewmessage.html', array(
+			$view = $this->render('previewmessage.html', array(
 				'context' => array(
 					'message' => $this->Textarier->print_page($_SESSION['viewMessage'], $writer_status),
 				),
@@ -2288,7 +2291,7 @@ Class ForumModule extends Module {
 
 		// errors
 		if (isset($_SESSION['editPostForm'])) {
-			$info = $tis->render('infomessage.html', array(
+			$info = $this->render('infomessage.html', array(
 				'context' => array(
 					'info_message' => $_SESSION['editPostForm']['error'],
 				),
@@ -2309,7 +2312,7 @@ Class ForumModule extends Module {
 		/****  ATTACH  ****/
 		$unlinkfiles = array('att1' => '', 'att2' => '', 'att3' => '', 'att4' => '', 'att5' => '',);
 		if ($post->getAttaches()) {
-			$attahModel = $this->Register['ModManager']->getModelInstance('ForumAttaches');
+			$attachModel = $this->Register['ModManager']->getModelInstance('ForumAttaches');
 			$attach_files = $attachModel->getCollection(array('post_id' => $post->getId()));
 			if ($attach_files) {
 				foreach ($attach_files as $attach_file) {
@@ -2332,8 +2335,9 @@ Class ForumModule extends Module {
 		
 		
 		setReferer();
-		$source = $html . $this->render('editpostform.html', array('context' => $markers));
-		return $this->_view($source);
+		$source = $this->render('editpostform.html', array('context' => $markers));
+		$html = $html . $source;
+		return $this->_view($html);
 	}
 
 
@@ -2703,20 +2707,20 @@ Class ForumModule extends Module {
 	* @return forum statistic block
 	*/
 	protected function _get_stat() {
-		$markets = array();
+		$markers = array();
 		$result = $this->Model->getStats();
 		
 		
 		if (!empty($result[0]['last_user_id']) && !empty($result[0]['last_user_name'])) {
-			$markets['new_user'] = get_link(h($result[0]['last_user_name']), 
+			$markers['new_user'] = get_link(h($result[0]['last_user_name']), 
 			'/users/info/' . $result[0]['last_user_id']);
 		}
-		$markets['count_users'] = getAllUsersCount();
-		$markets['count_posts'] = (!empty($result[0]['posts_cnt'])) ? $result[0]['posts_cnt'] : 0;
-		$markets['count_themes'] = (!empty($result[0]['themes_cnt'])) ? $result[0]['themes_cnt'] : 0;
+		$markers['count_users'] = getAllUsersCount();
+		$markers['count_posts'] = (!empty($result[0]['posts_cnt'])) ? $result[0]['posts_cnt'] : 0;
+		$markers['count_themes'] = (!empty($result[0]['themes_cnt'])) ? $result[0]['themes_cnt'] : 0;
 
 		
-		$html = $this->render('get_stat.html', $markets);
+		$html = $this->render('get_stat.html', $markers);
 		return $html;
 	}
 
@@ -2731,6 +2735,7 @@ Class ForumModule extends Module {
 		$from = 0;
 		$size = filesize($path);
 		$to = $size;
+		$range = array();
 		if (isset($_SERVER['HTTP_RANGE'])) {
 			if (preg_match ('#bytes=-([0-9]*)#',$_SERVER['HTTP_RANGE'],$range)) {// если указан отрезок от конца файла
 				$from = $size-$range[1];
