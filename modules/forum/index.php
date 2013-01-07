@@ -2136,8 +2136,10 @@ Class ForumModule extends Module {
 				'id_theme'  => $id_theme
 			);
 			$post = new PostsEntity($post_data);
-			$post->save();
-			$post_id = mysql_insert_id();
+			$post_id = $post->save();
+			if (!is_int($post_id)) {
+				$post_id = mysql_insert_id();
+			}
 			
 			
 			$attaches_exists = 0;
@@ -2192,6 +2194,7 @@ Class ForumModule extends Module {
 			
 			
 			if ($attaches_exists == 1) {
+				$post = $postsModel->getById($post_id);
 				$post->setAttaches('1');
 				$post->save();
 			}
