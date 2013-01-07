@@ -1143,18 +1143,18 @@ Class ForumModule extends Module {
 		
 		$dforum = $this->Model->getCollection(array(
 			'pos < ' . $order_up, 
-			'in_cat' => $forum->getIn_cat()
+			'in_cat' => $forum->getIn_cat(),
+			'parent_forum_id' => $forum->getParent_forum_id(),
 		), array(
 			'order' => 'pos DESC',
 			'limit' => 1,
 		));
 		if (!$dforum) return $this->showInfoMessage(__('Forum is above all'), '/forum/' );
-		$dforum = $dforum[0];
+		if (is_array($dforum)) $dforum = $dforum[0];
 		
 	
 		// Порядок следования и ID форума, который находится выше и будет "опущен" вниз
 		// ( поменявшись местами с форумом, который "поднимается" вверх )
-		$id_forum_down = $dforum->getId();
 		$order_down    = $dforum->getPos();
 		
 		// replace forums
@@ -1204,18 +1204,18 @@ Class ForumModule extends Module {
 		
 		$dforum = $this->Model->getCollection(array(
 			'pos > ' . $order_down, 
-			'in_cat' => $forum->getIn_cat()
+			'in_cat' => $forum->getIn_cat(),
+			'parent_forum_id' => $forum->getParent_forum_id(),
 		), array(
-			'order' => 'pos',
+			'order' => 'pos ASC',
 			'limit' => 1,
 		));
-		if (!$dforum) return true;
-		$dforum = $dforum[0];
+		if (!$dforum) return $this->showInfoMessage(__('Some error occurred'), '/forum/' );
+		if (is_array($dforum)) $dforum = $dforum[0];
 		
 	
 		// Порядок следования и ID форума, который находится ниже и будет "поднят" вверх
 		// ( поменявшись местами с форумом, который "опускается" вниз )
-		$id_forum_up = $dforum->getId();
 		$order_up    = $dforum->getPos();
 		
 		// replace forums
