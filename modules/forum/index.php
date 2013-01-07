@@ -737,9 +737,11 @@ Class ForumModule extends Module {
 				
 				
 				$attachment = null;
-				if ($post->getAttacheslist()) {
-					foreach ($post->getAttacheslist() as $attach) {
-						$collizion = false;
+				$attach_list = $post->getAttacheslist();
+				if (is_array($attach_list)) {
+					$collizion = true;
+					foreach ($attach_list as $attach) {
+						$step = false;
 						if (file_exists(ROOT . '/sys/files/forum/' . $attach->getFilename())) {
 							$attachment .= __('Attachment') . $attach->getAttach_number() 
 								. ': ' . get_img('/sys/img/file.gif', array('alt' => __('Open file'), 'title' => __('Open file'))) 
@@ -748,15 +750,15 @@ Class ForumModule extends Module {
 								
 								
 							//if attach is image and isset markets for this image
-							if ($attach->getIs_image() == 1) {
+							if ($attach->getIs_image() == '1') {
 								$message = str_replace('{IMAGE' . $attach->getAttach_number() . '}', 
 									'[img]' . get_url('/sys/files/forum/' . $attach->getFilename()) . '[/img]',
 									$post->getMessage());
 								$post->setMessage($message);
 							}
-							$collizion = true;
-							continue;
+							$step = true;
 						}
+						$collizion = $collizion && $step;
 					}
 					/* may be collizion (paranoya mode) */
 					if (!$collizion) $this->deleteCollizions($post);
@@ -1801,7 +1803,7 @@ Class ForumModule extends Module {
 		$posts = $postsModel->getCollection(array(
 			'id_theme' => $id_theme,
 		));
-		if ($posts) {
+		if (is_array($posts)) {
 			foreach ($posts as $post) {
 				// Удаляем файл, если он есть
 				$attach_files = $attachModel->getCollection(array('post_id' => $post->getId()));
@@ -1826,7 +1828,7 @@ Class ForumModule extends Module {
 		
 		
 		$attach_files = $attachModel->getCollection(array('theme_id' => $id_theme));
-		if ($attach_files) {
+		if (is_array($attach_files)) {
 			foreach ($attach_files as $attach_file) {
 				if (file_exists(ROOT . '/sys/files/forum/' . $attach_file->getFilename())) {
 					if (@unlink(ROOT . '/sys/files/forum/' . $attach_file->getFilename())) {
@@ -2133,6 +2135,7 @@ Class ForumModule extends Module {
 				'message'   => $message,
 				'id_author' => $id_user,
 				'time'      => new Expr('NOW()'),
+				'edittime'  => new Expr('NOW()'),
 				'id_theme'  => $id_theme
 			);
 			$post = new PostsEntity($post_data);

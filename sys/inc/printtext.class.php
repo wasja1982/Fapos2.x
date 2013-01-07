@@ -173,7 +173,8 @@ class PrintText {
 	
 		
 		// Разрезаем слишком длинные слова
-		$message = wordwrap($message, 70, ' ', 1); 
+		// TODO: Заменить чем-то более адекватным, которое не портит ссылки внутри BBcode
+		// $message = wordwrap($message, 70, ' ', 1); 
 		//$message = preg_replace("#([^\s/\]\[]{100})#ui", "\\1 ", $message);	  
 				  
 
