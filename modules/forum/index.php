@@ -807,7 +807,7 @@ Class ForumModule extends Module {
 						$editor = __('Edit by author') . ' ' . $post->getEdittime();
 					} else {
 						$status_info = $this->ACL->get_user_group($post->getEditor()->getStatus());
-						$editor = __('Edited') . $post->getEditor()->getName() . '(' 
+						$editor = __('Edited') . ' ' . $post->getEditor()->getName() . '(' 
 							. $status_info['title'] . ') ' . $post->getEdittime();
 					}
 				} else {
