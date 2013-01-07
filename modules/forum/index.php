@@ -283,7 +283,7 @@ Class ForumModule extends Module {
 		
 			// Получаем информацию о форуме
 			$forum = $this->Model->getById($id_forum);
-			if (empty($forum)) {
+			if (!$forum) {
 				return $this->showInfoMessage(__('Can not find forum'), '/forum/');
 			}
 			
@@ -309,11 +309,11 @@ Class ForumModule extends Module {
 			$themesClass = new $themesClassName;
 			$themesClass->bindModel('author');
 			$themesClass->bindModel('last_author');
-			$themes = $themesClass->getCollection(array('id_forum' => $id_forum));
+			$total = $themesClass->getTotal(array('cond' => array('id_forum' => $id_forum)));
 			
 			
             list($pages, $page) = pagination(
-				count($themes), 
+				$total, 
 				$this->Register['Config']->read('themes_per_page', 'forum'), 
 				'/forum/view_forum/' . $id_forum
 			);
@@ -603,7 +603,7 @@ Class ForumModule extends Module {
 		$themeModel = $this->Register['ModManager']->getModelInstance('Themes');
 		$themeModel->bindModel('forum');
 		$theme = $themeModel->getById($id_theme);
-		if (!$theme->getForum())  return $this->showInfoMessage(__('Can not find forum'), '/forum/' );
+		if (!$theme || !$theme->getForum())  return $this->showInfoMessage(__('Can not find forum'), '/forum/' );
 
 		// Check access to this forum. May be locked by pass or posts count
 		$this->__checkForumAccess($theme->getForum());
