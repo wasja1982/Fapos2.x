@@ -1103,7 +1103,7 @@ Class UsersModule extends Module {
         , 'pol' => null, 'city' => null, 'telephone' => null, 'byear' => null, 'bmonth' => null, 'bday' => null
         , 'url' => null, 'about' => null, 'signature' => null);
         $data = Validate::getCurrentInputsValues($user, $data);
-        $name = $data->getLogin();
+        $name = $data->getName();
         //pr($data); die();
 
         $errors = $this->Parser->getErrors();
@@ -1257,7 +1257,7 @@ Class UsersModule extends Module {
 		$newpassword  = mb_substr($newpassword, 0, 30);
 		$confirm      = mb_substr($confirm, 0, 30);
 		$email        = mb_substr($email, 0, 60);
-		$oldEmail     = mb_substr($user['email'], 0, 60);
+		$oldEmail     = $user->getEmail() ? mb_substr($user->getEmail(), 0, 60) : '';
 		$icq          = mb_substr($icq, 0, 12);
 		$jabber    	  = mb_substr($jabber, 0, 100);
 		$city	      = mb_substr($city, 0, 50);
