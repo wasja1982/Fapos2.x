@@ -52,6 +52,11 @@ Class ForumModule extends Module {
 	
 	
 	/**
+	 * Types of images.
+	 */
+	private $allowedTypes = array('image/jpeg','image/jpg','image/gif','image/png');
+
+	/**
 	 * @return main forum page content
 	 */
 	public function index($cat_id = null) 
@@ -62,13 +67,13 @@ Class ForumModule extends Module {
 		
 		
 		// navigation block
-		$markets = array();
-		$markets['navigation'] = get_link(__('Home'), '/') . __('Separator') 
+		$markers = array();
+		$markers['navigation'] = get_link(__('Home'), '/') . __('Separator') 
 		. get_link(__('Forums list'), '/forum/') . "\n";
-		$markets['pagination'] = '';
-		$markets['add_link'] = '';
-		$markets['meta'] = '';
-		$this->_globalize($markets);
+		$markers['pagination'] = '';
+		$markers['add_link'] = '';
+		$markers['meta'] = '';
+		$this->_globalize($markers);
 		
 		
 		if ($this->cached && $this->Cache->check($this->cacheKey)) {
@@ -437,7 +442,7 @@ Class ForumModule extends Module {
 	private function __parseThemeTable($theme, $template = false) 
 	{
 		$htmltheme = null;
-		$markets = array();
+		$markers = array();
 		
 		//ICONS
 		$themeicon = $this->__getThemeIcon($theme); 
@@ -625,8 +630,9 @@ Class ForumModule extends Module {
 			$markers = array();
 			$markers['navigation'] = get_link(__('Forums list'), '/forum/') . __('Separator') . get_link($theme->getForum()->getTitle(), 
 			'/forum/view_forum/' .  $id_forum) . __('Separator') . get_link($theme->getTitle(), '/forum/view_theme/' . $id_theme);
+			$description = h($theme->getDescription());
 			if (!empty($description)) {
-				$markers['navigation'] .= ' (' . $theme->getDescription() . ')';
+				$markers['navigation'] .= ' (' . $description . ')';
 			}
 			
 			
@@ -1294,7 +1300,7 @@ Class ForumModule extends Module {
 		
 		
 		$html    = '';
-		$markets = array();
+		$markers = array();
 		
 		// preview
 		if (isset($_SESSION['viewMessage']) and !empty($_SESSION['viewMessage']['message'])) {
@@ -1347,7 +1353,8 @@ Class ForumModule extends Module {
 		$source = $this->render('addthemeform.html', array(
 			'context' => $markers,
 		));
-		return $this->_view($source);
+		$html = $html . $source;
+		return $this->_view($html);
 	}
 
 
@@ -1389,7 +1396,7 @@ Class ForumModule extends Module {
 		$gr_access = array();
 		$groups = $this->Register['ACL']->getGroups();
 		foreach ($groups as $grid => $grval) {
-			if (!empty($_POST['gr_access_' . $grid])) $gr_access[] = $grid;
+			if (isset($_POST['gr_access_' . $grid])) $gr_access[] = $grid;
 		}
 		
 		
@@ -1473,21 +1480,20 @@ Class ForumModule extends Module {
 		$attaches_exists = 0;
 		// Массив недопустимых расширений файла вложения
 		$extentions = $this->denyExtentions;
-		$img_extentions = array('.png','.jpg','.gif','.jpeg', '.PNG','.JPG','.GIF','.JPEG');
+		$allowed_types = $this->allowedTypes;
 		/* delete collizions if exists */
 		$this->deleteCollizions($post, true);
 		for ($i = 1; $i < 6; $i++) {
 			$attach_name = 'attach' . $i;
 			if (!empty($_FILES[$attach_name]['name'])) {
 				// Извлекаем из имени файла расширение
-				$ext = strrchr($_FILES[$attach_name]['name'], ".");
-                $ext = strtolower($ext);
+				$ext = strtolower(strrchr($_FILES[$attach_name]['name'], "."));
 				// Формируем путь к файлу
-				if (in_array(strtolower($ext), $extentions))
+				if (in_array($ext, $extentions) || empty($ext))
 					$file = $post_id . '-' . $i . '-' . date("YmdHi") . '.txt';
 				else
 					$file = $post_id . '-' . $i . '-' . date("YmdHi") . $ext;
-				$is_image = (in_array(strtolower($ext), $img_extentions)) ? 1 : 0;
+				$is_image = (in_array($_FILES[$attach_name]['type'], $allowed_types) ? '1' : '0');
 				// Перемещаем файл из временной директории сервера в директорию files
 				if (move_uploaded_file($_FILES[$attach_name]['tmp_name'], R . 'sys/files/forum/' . $file)) {
 					if ($is_image == '1') {
@@ -1577,7 +1583,7 @@ Class ForumModule extends Module {
 		
 		$id_forum = $theme->getId_forum();
 		$html = '';
-		$markets = array();
+		$markers = array();
 		
 		
 		//check access
@@ -1643,7 +1649,8 @@ Class ForumModule extends Module {
 		$source = $this->render('editthemeform.html', array(
 			'context' => $data,
 		));
-		return $this->_view($source);
+		$html = $html . $source;
+		return $this->_view($html);
 	}
 
 
@@ -1681,7 +1688,7 @@ Class ForumModule extends Module {
 		$gr_access = array();
 		$groups = $this->Register['ACL']->getGroups();
 		foreach ($groups as $grid => $grval) {
-			if (!empty($_POST['gr_access_' . $grid])) $gr_access[] = $grid;
+			if (isset($_POST['gr_access_' . $grid])) $gr_access[] = $grid;
 		}
 		
 		
@@ -1690,7 +1697,7 @@ Class ForumModule extends Module {
 		$valobj = $this->Register['Validate'];
 		if (empty($name))                  
 			$error = $error. '<li>' . __('Empty field "theme"') . '</li>'."\n";
-		if (!$valobj->cha_val($name, V_TITLE)) 
+		elseif (!$valobj->cha_val($name, V_TITLE)) 
 			$error = $error. '<li>' . __('Wrong chars in "theme"') . '</li>'."\n";
 
 		// errors
@@ -1955,7 +1962,7 @@ Class ForumModule extends Module {
 
 				$message = '';
 				$html = '';
-				$markets = array();
+				$markers = array();
 				if (isset($_SESSION['viewMessage']) and !empty($_SESSION['viewMessage'])) {
 					$view = $this->render('previewmessage.html', array(
 						'context' => array(
@@ -2129,34 +2136,31 @@ Class ForumModule extends Module {
 				'id_theme'  => $id_theme
 			);
 			$post = new PostsEntity($post_data);
-			$post->save();
-			$post_id = mysql_insert_id();
+			$post_id = $post->save();
+			if (!is_int($post_id)) {
+				$post_id = mysql_insert_id();
+			}
 			
 			
 			$attaches_exists = 0;
 			// Массив недопустимых расширений файла вложения
 			$extentions = $this->denyExtentions;
-			$img_extentions = array('.png','.jpg','.gif','.jpeg', '.PNG','.JPG','.GIF','.JPEG');
-			$file_types = array('image/jpeg','image/jpg','image/gif','image/png');
+			$allowed_types = $this->allowedTypes;
 			/* delete collizions if exists */
 			$this->deleteCollizions($post, true);
 			for ($i = 1; $i < 6; $i++) {
 				$attach_name = 'attach' . $i;
 				if (!empty($_FILES[$attach_name]['name'])) {
 					// Извлекаем из имени файла расширение
-					$ext = strrchr($_FILES[$attach_name]['name'], ".");
-                    $ext = strtolower($ext);
+					$ext = strtolower(strrchr($_FILES[$attach_name]['name'], "."));
 					// Формируем путь к файлу
-					if (in_array(strtolower($ext), $extentions) || empty($ext)) {
+					if (in_array($ext, $extentions) || empty($ext)) {
 						$file = $post_id . '-' . $i . '-' . date("YmdHi") . '.txt';
 					} else {
 						$file = $post_id . '-' . $i . '-' . date("YmdHi") . $ext;
 					}
 
-					$is_image = '0';
-					if (in_array($_FILES[$attach_name]['type'], $file_types)) {
-						$is_image = '1';
-					}
+					$is_image = (in_array($_FILES[$attach_name]['type'], $allowed_types) ? '1' : '0');
 
 					// Перемещаем файл из временной директории сервера в директорию files
 					if (move_uploaded_file($_FILES[$attach_name]['tmp_name'], ROOT . '/sys/files/forum/' . $file)) {
@@ -2190,6 +2194,7 @@ Class ForumModule extends Module {
 			
 			
 			if ($attaches_exists == 1) {
+				$post = $postsModel->getById($post_id);
 				$post->setAttaches('1');
 				$post->save();
 			}
@@ -2272,11 +2277,11 @@ Class ForumModule extends Module {
 
 		$message = $post->getMessage();
 		$html    = '';
-		$markets = array();
+		$markers = array();
 		
 		//if user vant preview message
 		if (isset($_SESSION['viewMessage']) and !empty($_SESSION['viewMessage'])) {
-			$view = $tis->render('previewmessage.html', array(
+			$view = $this->render('previewmessage.html', array(
 				'context' => array(
 					'message' => $this->Textarier->print_page($_SESSION['viewMessage'], $writer_status),
 				),
@@ -2288,7 +2293,7 @@ Class ForumModule extends Module {
 
 		// errors
 		if (isset($_SESSION['editPostForm'])) {
-			$info = $tis->render('infomessage.html', array(
+			$info = $this->render('infomessage.html', array(
 				'context' => array(
 					'info_message' => $_SESSION['editPostForm']['error'],
 				),
@@ -2309,7 +2314,7 @@ Class ForumModule extends Module {
 		/****  ATTACH  ****/
 		$unlinkfiles = array('att1' => '', 'att2' => '', 'att3' => '', 'att4' => '', 'att5' => '',);
 		if ($post->getAttaches()) {
-			$attahModel = $this->Register['ModManager']->getModelInstance('ForumAttaches');
+			$attachModel = $this->Register['ModManager']->getModelInstance('ForumAttaches');
 			$attach_files = $attachModel->getCollection(array('post_id' => $post->getId()));
 			if ($attach_files) {
 				foreach ($attach_files as $attach_file) {
@@ -2332,8 +2337,9 @@ Class ForumModule extends Module {
 		
 		
 		setReferer();
-		$source = $html . $this->render('editpostform.html', array('context' => $markers));
-		return $this->_view($source);
+		$source = $this->render('editpostform.html', array('context' => $markers));
+		$html = $html . $source;
+		return $this->_view($html);
 	}
 
 
@@ -2406,9 +2412,8 @@ Class ForumModule extends Module {
 		
 		/*****   ATTACH   *****/
 		// Массив недопустимых расширений файла вложения
-		$extentions = array('.php', '.phtml', '.php3', '.html', '.htm', '.pl', '.PHP', '.PHTML', '.PHP3', '.HTML', '.HTM', '.PL');
-		$img_extentions = array('.png','.jpg','.gif','.jpeg', '.PNG','.JPG','.GIF','.JPEG');
-		$allowed_types = array('image/jpeg','image/jpg','image/gif','image/png');
+		$extentions = $this->denyExtentions;
+		$allowed_types = $this->allowedTypes;
 		$attachModel = $this->Register['ModManager']->getModelInstance('ForumAttaches');
 		for ($i = 1; $i <= 5; $i++) {
 			if (!empty($_POST['unlink' . $i]) || !empty($_FILES['attach' . $i]['name'])) {
@@ -2429,19 +2434,15 @@ Class ForumModule extends Module {
 			if (!empty($_FILES[$attach_name]['name'])) {
 			
 				// Извлекаем из имени файла расширение
-				$ext = strrchr($_FILES[$attach_name]['name'], ".");
-                $ext = strtolower($ext);
+				$ext = strtolower(strrchr($_FILES[$attach_name]['name'], "."));
 				// Формируем путь к файлу
-				if (in_array( $ext, $extentions)) {
+				if (in_array($ext, $extentions) || empty($ext)) {
 					$file = $id . '-' . $i . '-' . date("YmdHi") . '.txt';
 				} else {
 					$file = $id . '-' . $i . '-' . date("YmdHi") . $ext;
 				}
 				
-				$is_image = 0;
-				if (in_array($_FILES[$attach_name]['type'], $allowed_types)) {
-					$is_image = 1;
-				}
+				$is_image = (in_array($_FILES[$attach_name]['type'], $allowed_types) ? '1' : '0');
 				
 				
 				// Перемещаем файл из временной директории сервера в директорию files
@@ -2703,20 +2704,20 @@ Class ForumModule extends Module {
 	* @return forum statistic block
 	*/
 	protected function _get_stat() {
-		$markets = array();
+		$markers = array();
 		$result = $this->Model->getStats();
 		
 		
 		if (!empty($result[0]['last_user_id']) && !empty($result[0]['last_user_name'])) {
-			$markets['new_user'] = get_link(h($result[0]['last_user_name']), 
+			$markers['new_user'] = get_link(h($result[0]['last_user_name']), 
 			'/users/info/' . $result[0]['last_user_id']);
 		}
-		$markets['count_users'] = getAllUsersCount();
-		$markets['count_posts'] = (!empty($result[0]['posts_cnt'])) ? $result[0]['posts_cnt'] : 0;
-		$markets['count_themes'] = (!empty($result[0]['themes_cnt'])) ? $result[0]['themes_cnt'] : 0;
+		$markers['count_users'] = getAllUsersCount();
+		$markers['count_posts'] = (!empty($result[0]['posts_cnt'])) ? $result[0]['posts_cnt'] : 0;
+		$markers['count_themes'] = (!empty($result[0]['themes_cnt'])) ? $result[0]['themes_cnt'] : 0;
 
 		
-		$html = $this->render('get_stat.html', $markets);
+		$html = $this->render('get_stat.html', $markers);
 		return $html;
 	}
 
@@ -2731,6 +2732,7 @@ Class ForumModule extends Module {
 		$from = 0;
 		$size = filesize($path);
 		$to = $size;
+		$range = array();
 		if (isset($_SERVER['HTTP_RANGE'])) {
 			if (preg_match ('#bytes=-([0-9]*)#',$_SERVER['HTTP_RANGE'],$range)) {// если указан отрезок от конца файла
 				$from = $size-$range[1];
@@ -2798,7 +2800,7 @@ Class ForumModule extends Module {
 
 		/* clean cache DB*/
 		$this->Register['DB']->cleanSqlCache();
-		if ($this->Log) $this->Log->write('important post', 'post id(' . $id . '), theme id(' . $theme->getId() . ')');
+		if ($this->Log) $this->Log->write('important post', 'theme id(' . $id . ')');
 		return $this->showInfoMessage(__('Operation is successful'), '/forum/view_forum/' . $theme->getId_forum());
 	}
 	
@@ -2819,7 +2821,7 @@ Class ForumModule extends Module {
 
 		/* clean cache DB */
 		$this->Register['DB']->cleanSqlCache();
-		if ($this->Log) $this->Log->write('unimportant post', 'post id(' . $id . '), theme id(' . $theme->getId() . ')');
+		if ($this->Log) $this->Log->write('unimportant post', 'theme id(' . $id . ')');
 		return $this->showInfoMessage(__('Operation is successful'), '/forum/view_forum/' . $theme->getId_forum());
 	}
 	
