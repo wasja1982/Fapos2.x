@@ -1075,10 +1075,8 @@ Class ForumModule extends Module {
 		
 
 		// Обрезаем переменные до длины, указанной в параметре maxlength тега input
-		$title       = mb_substr($_POST['title'], 0, 120 );
-		$description = mb_substr($_POST['description'], 0, 250 );
-		$title       = trim($title);
-		$description = trim($description);
+		$title       = trim(mb_substr($_POST['title'], 0, 120 ));
+		$description = trim(mb_substr($_POST['description'], 0, 250 ));
 
 		
 		// Check fields fo empty values and valid chars
@@ -1682,9 +1680,8 @@ Class ForumModule extends Module {
 
 		
 		// Обрезаем переменные до длины, указанной в параметре maxlength тега input
-		$from_forum = $theme->getId_forum();
-		$name = mb_substr($_POST['theme'], 0, 55);
-		$name = trim($name);
+		$id_from_forum = $theme->getId_forum();
+		$name = trim(mb_substr($_POST['theme'], 0, 55));
 		$description = trim(mb_substr($_POST['description'], 0, 128)); 
 		
 		$gr_access = array();
@@ -1726,32 +1723,33 @@ Class ForumModule extends Module {
 		// update theme
 		$theme->setTitle($name);
 		$theme->setDescription($description);
-		$theme->setId_forum($id_forum);
 		$theme->setGroup_access($gr_access);
 		$theme->save();
 		
 		
 		//update forums info
-		if ($from_forum != $id_forum) {
+		if ($id_from_forum != $id_forum) {
 			$new_forum = $this->Model->getById($id_forum);
 			if (!$new_forum) return $this->showInfoMessage(__('No forum for moving'), '/forum/');
 			
+			$theme->setId_forum($id_forum);
+			$theme->save();
 			
-			$postModel = $this->Register['ModManager']->getModelInstance();
+			$postModel = $this->Register['ModManager']->getModelInstance('Posts');
 			$posts_cnt = $postModel->getTotal(array('cond' => array('id_theme' => $id_theme)));
-			$from_forum = $this->Model->getById($from_forum);
+			
+			$from_forum = $this->Model->getById($id_from_forum);
 			$from_forum->setPosts($from_forum->getPosts() - $posts_cnt);
 			$from_forum->setThemes($from_forum->getThemes() - 1);
 			$from_forum->save();
 			
 			
-			$from_forum = $this->Model->getById($id_forum);
-			$from_forum->setPosts($from_forum->getPosts() + $posts_cnt);
-			$from_forum->setThemes($from_forum->getThemes() + 1);
-			$from_forum->save();
+			$new_forum->setPosts($new_forum->getPosts() + $posts_cnt);
+			$new_forum->setThemes($new_forum->getThemes() + 1);
+			$new_forum->save();
 
 			
-			$this->Model->upLastPost($from_forum, $id_forum);
+			$this->Model->upLastPost($id_from_forum, $id_forum);
 		}
 
 				
