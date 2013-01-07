@@ -1761,8 +1761,7 @@ Class UsersModule extends Module {
             'id_rmv' => 0,
             'viewed' => 0,
         );
-        $className = $this->Register['ModManager']->getEntityName('Messages');
-        $message = new $className($data);
+        $message = new MessagesEntity($data);
         $message->save();
 
 		/* clean DB cache */
