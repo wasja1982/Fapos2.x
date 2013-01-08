@@ -2,12 +2,12 @@
 /*---------------------------------------------\
 |											   |
 | @Author:       Andrey Brykin (Drunya)        |
-| @Version:      1.5.3                         |
+| @Version:      1.5.4                         |
 | @Project:      CMS                           |
 | @package       CMS Fapos                     |
 | @subpackege    Users Module                  |
-| @copyright     ©Andrey Brykin 2010-2012      |
-| @last mod      2012/09/25                    |
+| @copyright     ©Andrey Brykin 2010-2013      |
+| @last mod      2013/01/07                    |
 |----------------------------------------------|
 |											   |
 | any partial or not partial extension         |
@@ -207,12 +207,8 @@ Class UsersModule extends Module {
 
         $markers['captcha'] = get_url('/sys/inc/kcaptcha/kc.php?'.session_name().'='.session_id());
         $markers['name']    = $data['login'];
-        $markers['fpol']  	= (isset($data['pol']) && ($data['pol'] === 'f' || $data['pol'] === '0')) ? ' checked="checked"' : '';
-        $markers['mpol']  	= (!empty($data['pol']) && $data['pol'] !== 'f') ? ' checked="checked"' : '';
-        if (!isset($data['pol']) || $data['pol'] === '') {
-            $markers['fpol'] = '';
-            $markers['mpol'] ='';
-        }
+        $markers['fpol']  	= (!empty($data['pol']) && $data['pol'] === 'f') ? ' checked="checked"' : '';
+        $markers['mpol']  	= (!empty($data['pol']) && $data['pol'] === 'm') ? ' checked="checked"' : '';
 
 
 
@@ -269,20 +265,44 @@ Class UsersModule extends Module {
 
 
 		// Обрезаем переменные до длины, указанной в параметре maxlength тега input
-		$fields = array('login', 'password', 'confirm', 'email', 'icq', 'jabber', 'pol', 'city', 'telephone', 'byear', 'bmonth', 'bday', 'url', 'about', 'signature', 'keystring');
+		$fields = array(
+			'login', 
+			'password', 
+			'confirm', 
+			'email', 
+			'icq', 
+			'jabber', 
+			'pol', 
+			'city', 
+			'telephone', 
+			'byear', 
+			'bmonth', 
+			'bday', 
+			'url', 
+			'about', 
+			'signature', 
+			'keystring'
+		);
+		
 		$fields_settings = (array)$this->Register['Config']->read('fields', 'users');
 		$fields_settings = array_merge($fields_settings, array('email', 'login', 'password', 'confirm'));
+
+		
 		foreach ($fields as $field) {
-			if (empty($_POST[$field]) && '0' != $_POST[$field] && in_array($field, $fields_settings)) {
+			if (empty($_POST[$field]) && in_array($field, $fields_settings)) {
 				$error = $error.'<li>' . __('Empty field "'.$field.'"') . '</li>'."\n";
 				$$field = null;
+				
 			} else {
 				$$field = (isset($_POST[$field])) ? trim($_POST[$field]) : '';
 			}
 		}
-		if (isset($pol) && $pol == '1') $pol =  'm';
-		else if (!isset($pol) || '' === $pol) $pol = '';
-		else $pol = 'f';
+		
+		
+		if ('1' === $pol) $pol =  'm';
+		else if ('2' === $pol) $pol = 'f';
+		else $pol = '';
+
 		
 	
 		// Обрезаем переменные до длины, указанной в параметре maxlength тега input
@@ -312,6 +332,8 @@ Class UsersModule extends Module {
 		
 		
 		$valobj = $this->Register['Validate'];
+		
+		/*
 		if ( empty( $name ) )               		
 			$error = $error.'<li>' . __('Empty field "login"') . '</li>'."\n";
 		if ( empty( $password ) )                 
@@ -322,7 +344,7 @@ Class UsersModule extends Module {
 			$error = $error.'<li>' . __('Empty field "email"') . '</li>'."\n";
 		if ( empty( $keystring ) ) 					
 			$error = $error.'<li>' . __('Empty field "code"') . '</li>'."\n";
-		
+		*/
 		
 		// check login
 		if (!empty($name) and mb_strlen($name) < 3 || mb_strlen($name) > 20)
@@ -437,7 +459,6 @@ Class UsersModule extends Module {
 		// Уникальный код для активации учетной записи
 		$email_activate = $this->Register['Config']->read('email_activate');
 		$code = (!empty($email_activate)) ? md5(uniqid(rand(), true)) : '';
-		if ($pol !== 'f' && $pol !== 'm') $pol = '';
 		// Все поля заполнены правильно - продолжаем регистрацию
 		$data = array(
 			'name'  	=> $name,
@@ -538,7 +559,7 @@ Class UsersModule extends Module {
 
 		if (count($res) > 0 ) {
 			$id = $res[0]->getId();
-            $res[0]->setAcdtivation('');
+            $res[0]->setActivation('');
             $res[0]->setLast_visit(new Expr('NOW()'));
             $res[0]->save();
 			if ($this->Log) $this->Log->write('activate user', 'user id(' . $id . ')');
@@ -646,7 +667,7 @@ Class UsersModule extends Module {
                 $id = $user->getId();
 				$newPassword = $this->_getNewPassword();
 				$code = md5($newPassword);
-				// file_put_contents(R . 'sys/tmp/activate/'.$code, $id );
+				// file_put_contents(ROOT . '/sys/tmp/activate/'.$code, $id );
 				$fp = fopen( ROOT . '/sys/tmp/activate/' . $code, "w" );
 				fwrite($fp, $id);
 				fclose($fp);
@@ -767,7 +788,7 @@ Class UsersModule extends Module {
 
 
         $anket = $this->Model->getById((int)$_SESSION['user']['id']);
-		if (is_object($this->AddFields) && count($anket) > 0) {
+		if (is_object($this->AddFields) && $anket) {
 			$anket = $this->AddFields->mergeRecords(array($anket), true);
             $anket = $anket[0];
 		}
@@ -783,18 +804,18 @@ Class UsersModule extends Module {
         if (!empty($errors)) $data->setError($errors);
 
 
+	
+        $fpol = ($data->getPol() && $data->getPol() === 'f') ? ' checked="checked"' : '';
+        $data->setFpol($fpol);
+        $mpol = ($data->getPol() && $data->getPol() === 'm') ? ' checked="checked"' : '';
+        $data->setMpol($mpol);
+		
+		
         $data->setAction(get_url('/users/update/'));
         if ($data->getPol() === 'f') $data->setPol(__('f'));
         else if ($data->getPol() === 'm') $data->setPol(__('m'));
         else $data->setPol(__('no pol'));
-        $fpol = ($data->getPol() && ($data->getPol() === 'f' || $data->getPol() === '0')) ? ' checked="checked"' : '';
-        $data->setFpol($fpol);
-        $mpol = ($data->getPol() && $data->getPol() !== 'f') ? ' checked="checked"' : '';
-        $data->setMpol($mpol);
-        if (!$data->getMpol() || $data->getMpol() === '') {
-            $data->setFpol('');
-            $data->setMpol('');
-        }
+		
 
 
         if (file_exists(ROOT . '/sys/avatars/' . $anket->getId() . '.jpg')) {
@@ -828,7 +849,7 @@ Class UsersModule extends Module {
                 . __('Are you want delete file') . "\n";
         }
         $data->setUnlinkfile($unlinkfile);
-        //pr($data); die();
+       
 
         $source = $this->render('edituserform.html', array('context' => $data));
 
@@ -870,20 +891,40 @@ Class UsersModule extends Module {
         $markers = array();
 		
 		
-		$fields = array('email', 'icq', 'jabber', 'pol', 'city', 'telephone', 'byear', 'bmonth', 'bday', 'url', 'about', 'signature');
+		$fields = array(
+			'email', 
+			'icq', 
+			'jabber', 
+			'pol', 
+			'city', 
+			'telephone', 
+			'byear', 
+			'bmonth', 
+			'bday', 
+			'url', 
+			'about', 
+			'signature'
+		);
+		
 		$fields_settings = (array)$this->Register['Config']->read('fields', 'users');
 		$fields_settings = array_merge($fields_settings, array('email'));
+		
+		
 		foreach ($fields as $field) {
 			if (empty($_POST[$field]) && in_array($field, $fields_settings)) {
 				$error = $error.'<li>' . __('Empty field "'.$field.'"') . '</li>'."\n";
 				$$field = null;
+				
 			} else {
 				$$field = (isset($_POST[$field])) ? trim($_POST[$field]) : '';
 			}
 		}
-		if (isset($pol) && ($pol == '1' || $pol == 'm')) $pol =  'm';
-		else if (!isset($pol) || $pol === '') $pol = '';
-		else $pol = 'f';
+		
+		
+		
+		if ('1' === $pol) $pol =  'm';
+		else if ('2' === $pol) $pol = 'f';
+		else $pol = '';
 		
 
 		
@@ -901,7 +942,7 @@ Class UsersModule extends Module {
 		$icq          = mb_substr($icq, 0, 12);
 		$jabber    	  = mb_substr($jabber, 0, 100);
 		$city	      = mb_substr($city, 0, 50);
-		$telephone    = number_format(mb_substr($telephone, 0, 20), 0, '', '');
+		$telephone    = number_format(mb_substr((int)$telephone, 0, 20), 0, '', '');
 		$byear	      = intval(mb_substr($byear, 0, 4));
 		$bmonth	      = intval(mb_substr($bmonth, 0, 2));
 		$bday	      = intval(mb_substr($bday, 0, 2));
@@ -1007,7 +1048,7 @@ Class UsersModule extends Module {
 		}
 
 		// Если выставлен флажок "Удалить загруженный ранее файл"
-		if (isset( $_POST['unlink']) and is_file(R . 'sys/avatars/' . $_SESSION['user']['id'] . '.jpg')) {
+		if (isset( $_POST['unlink']) and is_file(ROOT . '/sys/avatars/' . $_SESSION['user']['id'] . '.jpg')) {
 			unlink(ROOT . '/sys/avatars/' . $_SESSION['user']['id'] . '.jpg');
 		}
 		/* copy and delete tmp image */
@@ -1103,7 +1144,7 @@ Class UsersModule extends Module {
         , 'pol' => null, 'city' => null, 'telephone' => null, 'byear' => null, 'bmonth' => null, 'bday' => null
         , 'url' => null, 'about' => null, 'signature' => null);
         $data = Validate::getCurrentInputsValues($user, $data);
-        $name = $data->getLogin();
+        $name = $data->getName();
         //pr($data); die();
 
         $errors = $this->Parser->getErrors();
@@ -1111,18 +1152,19 @@ Class UsersModule extends Module {
         if (!empty($errors)) $data->setError($errors);
 
 
+
+		
+        $fpol = ($data->getPol() && $data->getPol() === 'f' || $data->getPol() === '2') ? ' checked="checked"' : '';
+        $data->setFpol($fpol);
+        $mpol = ($data->getPol() && $data->getPol() === 'm' || $data->getPol() === '1') ? ' checked="checked"' : '';
+        $data->setMpol($mpol);
+		
+		
         $data->setAction(get_url('/users/update_by_admin/' . $id));
         if ($data->getPol() === 'f') $data->setPol(__('f'));
         else if ($data->getPol() === 'm') $data->setPol(__('m'));
         else $data->setPol(__('no pol'));
-        $fpol = ($data->getPol() && ($data->getPol() === 'f' || $data->getPol() === '0')) ? ' checked="checked"' : '';
-        $data->setFpol($fpol);
-        $mpol = ($data->getPol() && $data->getPol() !== 'f') ? ' checked="checked"' : '';
-        $data->setMpol($mpol);
-        if (!$data->getMpol() || $data->getMpol() === '') {
-            $data->setFpol('');
-            $data->setMpol('');
-        }
+		
 
 
         if (file_exists(ROOT . '/sys/avatars/' . $data->getId() . '.jpg')) {
@@ -1131,20 +1173,26 @@ Class UsersModule extends Module {
             $data->setAvatar(get_url('/sys/img/noavatar.png'));
         }
 
-
+		
         $options = '';
-        for ( $i = -12; $i <= 12; $i++ ) {
-            if ( $i < 1 )
-                $value = $i. __('Hours');
+        for ($i = -12; $i <= 12; $i++) {
+			
+			if ($i < 1)
+                $value = $i . __('Hours');
             else
-                $value = '+'.$i. __('Hours');
-            if ($data->getTimezone() && $i == $data->getTimezone())
-                $options = $options . '<option value="'.$i.'" selected>'.$value.'</option>'."\n";
+                $value = '+' . $i .  __('Hours');
+				
+				
+            if (($data->getTimezone() && $i == $data->getTimezone()) || ($i == 0 && !$data->getTimezone()))
+                $options = $options . '<option value="' . $i . '" selected>' . $value . '</option>' . "\n";
             else
-                $options = $options . '<option value="'.$i.'">'.$value.'</option>'."\n";
+                $options = $options . '<option value="' . $i . '">' . $value . '</option>' . "\n";
         }
+		
         $data->setOptions($options);
         $data->setServertime(date( "d.m.Y H:i:s" ));
+		
+		
         $data->setByears_selector(createOptionsFromParams(1950, 2008, $data->getByear()));
         $data->setBmonth_selector(createOptionsFromParams(1, 12, $data->getBmonth()));
         $data->setBday_selector(createOptionsFromParams(1, 31, $data->getBday()));
@@ -1182,7 +1230,7 @@ Class UsersModule extends Module {
 			. get_link(h($this->module_title), '/users/') . __('Separator') . __('Editing');
 		$this->_globalize($nav);
 
-
+		
         $source = $this->render('edituserformbyadmin.html', array('context' => $data));
 		
 		return $this->_view($source);
@@ -1219,8 +1267,8 @@ Class UsersModule extends Module {
 		
 		// Получаем данные о пользователе из БД
         $user = $this->Model->getById($id);
-        if (count($user) == 0) return $this->showInfoMessage(__('Can not find user'), '/users/' );
-        if (is_object($this->AddFields) && count($user) > 0) {
+        if (!$user) return $this->showInfoMessage(__('Can not find user'), '/users/' );
+        if (is_object($this->AddFields) && $user) {
             $user = $this->AddFields->mergeRecords(array($user), true);
             $user = $user[0];
         }
@@ -1228,10 +1276,25 @@ Class UsersModule extends Module {
 
 
 		$error = '';
-		$fields = array('email', 'oldEmail', 'icq', 'jabber', 'pol', 'city', 'telephone', 'byear', 'bmonth'
-        , 'bday', 'url', 'about', 'signature');
+		$fields = array(
+			'email', 
+			'oldEmail', 
+			'icq', 
+			'jabber', 
+			'pol', 
+			'city', 
+			'telephone', 
+			'byear', 
+			'bmonth',
+			'bday', 
+			'url', 
+			'about', 
+			'signature'
+		);
+		
 		$fields_settings = (array)$this->Register['Config']->read('fields', 'users');
 		$fields_settings = array_merge($fields_settings, array('email'));
+		
 		foreach ($fields as $field) {
 			if (empty($_POST[$field]) && in_array($field, $fields_settings)) {
 				$error = $error.'<li>' . __('Empty field "'.$field.'"') . '</li>'."\n";
@@ -1240,9 +1303,11 @@ Class UsersModule extends Module {
 				$$field = (isset($_POST[$field])) ? trim($_POST[$field]) : '';
 			}
 		}
-		if (isset($pol) && $pol == '1') $pol =  'm';
-		else if (!isset($pol) || $pol === '') $pol = '';
-		else $pol = 'f';
+		
+		
+		if ('1' === $pol) $pol =  'm';
+		else if ('2' === $pol) $pol = 'f';
+		else $pol = '';
 		
 
 		
@@ -1257,11 +1322,11 @@ Class UsersModule extends Module {
 		$newpassword  = mb_substr($newpassword, 0, 30);
 		$confirm      = mb_substr($confirm, 0, 30);
 		$email        = mb_substr($email, 0, 60);
-		$oldEmail     = mb_substr($user['email'], 0, 60);
+		$oldEmail     = mb_substr($user->getEmail(), 0, 60);
 		$icq          = mb_substr($icq, 0, 12);
 		$jabber    	  = mb_substr($jabber, 0, 100);
 		$city	      = mb_substr($city, 0, 50);
-		$telephone    = number_format(mb_substr($telephone, 0, 20), 0, '', '');
+		$telephone    = number_format(mb_substr((int)$telephone, 0, 20), 0, '', '');
 		$byear	      = intval(mb_substr($byear, 0, 4));
 		$bmonth	      = intval(mb_substr($bmonth, 0, 2));
 		$bday	      = intval(mb_substr($bday, 0, 2));
@@ -1296,7 +1361,7 @@ Class UsersModule extends Module {
 			if (!empty($confirm) and !$valobj->cha_val($confirm, V_LOGIN))
 				$error = $error.'<li>' . __('Wrong chars in field "confirm"') . '</li>'."\n";
 		}
-		if ( $email != $oldEmail ) { // хочет изменить e-mail
+		if (!empty($email) && $email != $oldEmail) { // хочет изменить e-mail
 			$changeEmail = true;
 			if (empty($email)) 		 	
 				$error = $error.'<li>' . __('Empty field "email"') . '</li>'."\n";

@@ -345,8 +345,8 @@ class PrintText {
 		if (!empty($_SESSION['user']['id'])) {
 			$message = preg_replace("#\[hide\](.*)\[/hide\]#isU", '\\1', $message);
 		} else {
-			$message = preg_replace("#\[hide\](.*)\[/hide\]#isU", '<div class="hide">Необходима авторизация. <a href="/' . R 
-					. 'users/add_form/">Регистрация</a></div>', $message);
+			$message = preg_replace("#\[hide\](.*)\[/hide\]#isU", '<div class="hide">Необходима авторизация. <a href="' . WWW_ROOT 
+					. '/users/add_form/">Регистрация</a></div>', $message);
 		}
 
 		
@@ -466,27 +466,27 @@ class PrintText {
 		$to = array();
 		
 		$from[] = ':)';
-		$to[] = '<img title="smile" src="' . R . '/sys/img/smiles/smile.gif" />';
+		$to[] = '<img title="smile" src="' . WWW_ROOT . '/sys/img/smiles/smile.gif" />';
 		$from[] = '=)';
-		$to[] = '<img title="smile" src="' . R . '/sys/img/smiles/tongue.gif" />';
+		$to[] = '<img title="smile" src="' . WWW_ROOT . '/sys/img/smiles/tongue.gif" />';
 		$from[] = '%)';
-		$to[] = '<img title="smile" src="' . R . '/sys/img/smiles/nifiga.gif" />';
+		$to[] = '<img title="smile" src="' . WWW_ROOT . '/sys/img/smiles/nifiga.gif" />';
 		$from[] = ':D';
-		$to[] = '<img title="smile" src="' . R . '/sys/img/smiles/lol.gif" />';
+		$to[] = '<img title="smile" src="' . WWW_ROOT . '/sys/img/smiles/lol.gif" />';
 		$from[] = 'gg)';
-		$to[] = '<img title="smile" src="' . R . '/sys/img/smiles/gg.gif" />';
+		$to[] = '<img title="smile" src="' . WWW_ROOT . '/sys/img/smiles/gg.gif" />';
 		$from[] = ':(';
-		$to[] = '<img title="smile" src="' . R . '/sys/img/smiles/plak.gif" />';
+		$to[] = '<img title="smile" src="' . WWW_ROOT . '/sys/img/smiles/plak.gif" />';
 		$from[] = '=0';
-		$to[] = '<img title="smile" src="' . R . '/sys/img/smiles/glaza.gif" />';
+		$to[] = '<img title="smile" src="' . WWW_ROOT . '/sys/img/smiles/glaza.gif" />';
 		$from[] = ';)';
-		$to[] = '<img title="smile" src="' . R . '/sys/img/smiles/biggrin2.gif" />';
+		$to[] = '<img title="smile" src="' . WWW_ROOT . '/sys/img/smiles/biggrin2.gif" />';
 		$from[] = ':0';
-		$to[] = '<img title="smile" src="' . R . '/sys/img/smiles/biggrin.gif" />';
+		$to[] = '<img title="smile" src="' . WWW_ROOT . '/sys/img/smiles/biggrin.gif" />';
 		$from[] = ':|';
-		$to[] = '<img title="smile" src="' . R . '/sys/img/smiles/cool.gif" />';
+		$to[] = '<img title="smile" src="' . WWW_ROOT . '/sys/img/smiles/cool.gif" />';
 		$from[] = '0_o';
-		$to[] = '<img title="smile" src="' . R . '/sys/img/smiles/fing.gif" />';
+		$to[] = '<img title="smile" src="' . WWW_ROOT . '/sys/img/smiles/fing.gif" />';
 		$str = str_replace($from, $to, $str);
 		
 

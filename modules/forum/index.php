@@ -776,21 +776,47 @@ Class ForumModule extends Module {
 				// Если автор сообщения (поста) - зарегистрированный пользователь
 				$email = '';
 				$privat_message = '';
+				$author_site = '';
+				$icon_params = array('class' => 'user-details');
 				if ($post->getId_author()) {
-					$user_profile = '&nbsp;' . get_link(get_img('/sys/img/icon_profile.gif', array('alt' => __('View profile'), 
-						'title' => __('View profile'))), '/users/info/' . $post->getId_author());
+					$user_profile = '&nbsp;' . get_link(
+						get_img(
+							'/sys/img/icon_profile.gif', 
+							array('alt' => __('View profile'
+						), 
+						'title' => __('View profile'))), 
+						'/users/info/' . $post->getId_author(), 
+						$icon_params
+					);
 					if (isset($_SESSION['user'])) {
-						$email = '&nbsp;' . get_link(get_img('/sys/img/icon_email.gif', 
-							array('alt' => __('Send mail'), 'title' => __('Send mail'))), 
-							'/users/send_mail_form/' . $post->getId_author());
-						$privat_message = '&nbsp;' . get_link(get_img('/sys/img/icon_pm.gif', 
-							array('alt' => __('PM'), 'title' => __('PM'))), 
-							'/users/send_msg_form/' . $post->getId_author());
+						$email = '&nbsp;' . get_link(
+							get_img(
+								'/sys/img/icon_email.gif', 
+								array('alt' => __('Send mail'), 'title' => __('Send mail'))
+							), 
+							'/users/send_mail_form/' . $post->getId_author(), 
+							$icon_params
+						);
+						$privat_message = '&nbsp;' . get_link(
+							get_img(
+								'/sys/img/icon_pm.gif', 
+								array('alt' => __('PM'), 'title' => __('PM'))
+							), 
+							'/users/send_msg_form/' . $post->getId_author(), 
+							$icon_params
+						);
 					}
-					$author_site = ($post->getAuthor()->getUrl()) ? '&nbsp;' . get_link(get_img('/sys/img/icon_www.gif', 
-						array('alt' => __('Author site'), 'title' => __('Author site'))), h($post->getAuthor()->getUrl()), array('target' => '_blank'), true) : '';
+					$author_site = ($post->getAuthor()->getUrl()) 
+						? '&nbsp;' . get_link(
+							get_img(
+								'/sys/img/icon_www.gif', 
+								array('alt' => __('Author site'), 'title' => __('Author site'))
+							), 
+							h($post->getAuthor()->getUrl()), 
+							array_merge($icon_params, array('target' => '_blank')), true) 
+						: '';
 				} else {
-					$user_profile = '<span class="details">' . get_img('/sys/img/noavatar.png') 
+					$user_profile = '<span class="user-details">' . get_img('/sys/img/noavatar.png') 
 						. __('Unregister user') . '</span>';
 				}
 				$post->getAuthor()->setAuthor_site($author_site);
@@ -1495,16 +1521,17 @@ Class ForumModule extends Module {
 					$file = $post_id . '-' . $i . '-' . date("YmdHi") . $ext;
 				$is_image = (in_array($_FILES[$attach_name]['type'], $allowed_types) ? '1' : '0');
 				// Перемещаем файл из временной директории сервера в директорию files
-				if (move_uploaded_file($_FILES[$attach_name]['tmp_name'], R . 'sys/files/forum/' . $file)) {
+
+				if (move_uploaded_file($_FILES[$attach_name]['tmp_name'], ROOT . 'sys/files/forum/' . $file)) {
 					if ($is_image == '1') {
-						$watermark_path = R . 'sys/img/' . Config::read('watermark_img', 'foto');
+						$watermark_path = ROOT . 'sys/img/' . Config::read('watermark_img', 'foto');
 						if (Config::read('use_watermarks', 'foto') && !empty($watermark_path) && file_exists($watermark_path)) {
 							$waterObj = new FpsImg;
-							$save_path = R . 'sys/files/forum/' . $file;
+							$save_path = ROOT . 'sys/files/forum/' . $file;
 							$waterObj->createWaterMark($save_path, $watermark_path);
 						}
 					}
-					chmod(R . 'sys/files/forum/' . $file, 0644);
+					chmod(ROOT . '/sys/files/forum/' . $file, 0644);
 					$attach_file_data = array(
 						'post_id'       => $post_id,
 						'theme_id'      => $id_theme,
