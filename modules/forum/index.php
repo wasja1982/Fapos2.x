@@ -283,7 +283,7 @@ Class ForumModule extends Module {
 		
 			// Получаем информацию о форуме
 			$forum = $this->Model->getById($id_forum);
-			if (empty($forum)) {
+			if (!$forum) {
 				return $this->showInfoMessage(__('Can not find forum'), '/forum/');
 			}
 			
@@ -309,11 +309,11 @@ Class ForumModule extends Module {
 			$themesClass = new $themesClassName;
 			$themesClass->bindModel('author');
 			$themesClass->bindModel('last_author');
-			$themes = $themesClass->getCollection(array('id_forum' => $id_forum));
+			$total = $themesClass->getTotal(array('cond' => array('id_forum' => $id_forum)));
 			
 			
             list($pages, $page) = pagination(
-				count($themes), 
+				$total, 
 				$this->Register['Config']->read('themes_per_page', 'forum'), 
 				'/forum/view_forum/' . $id_forum
 			);
@@ -603,7 +603,7 @@ Class ForumModule extends Module {
 		$themeModel = $this->Register['ModManager']->getModelInstance('Themes');
 		$themeModel->bindModel('forum');
 		$theme = $themeModel->getById($id_theme);
-		if (!$theme->getForum())  return $this->showInfoMessage(__('Can not find forum'), '/forum/' );
+		if (!$theme || !$theme->getForum())  return $this->showInfoMessage(__('Can not find forum'), '/forum/' );
 
 		// Check access to this forum. May be locked by pass or posts count
 		$this->__checkForumAccess($theme->getForum());
@@ -737,9 +737,11 @@ Class ForumModule extends Module {
 				
 				
 				$attachment = null;
-				if ($post->getAttacheslist()) {
-					foreach ($post->getAttacheslist() as $attach) {
-						$collizion = false;
+				$attach_list = $post->getAttacheslist();
+				if (is_array($attach_list)) {
+					$collizion = true;
+					foreach ($attach_list as $attach) {
+						$step = false;
 						if (file_exists(ROOT . '/sys/files/forum/' . $attach->getFilename())) {
 							$attachment .= __('Attachment') . $attach->getAttach_number() 
 								. ': ' . get_img('/sys/img/file.gif', array('alt' => __('Open file'), 'title' => __('Open file'))) 
@@ -748,15 +750,15 @@ Class ForumModule extends Module {
 								
 								
 							//if attach is image and isset markets for this image
-							if ($attach->getIs_image() == 1) {
+							if ($attach->getIs_image() == '1') {
 								$message = str_replace('{IMAGE' . $attach->getAttach_number() . '}', 
 									'[img]' . get_url('/sys/files/forum/' . $attach->getFilename()) . '[/img]',
 									$post->getMessage());
 								$post->setMessage($message);
 							}
-							$collizion = true;
-							continue;
+							$step = true;
 						}
+						$collizion = $collizion && $step;
 					}
 					/* may be collizion (paranoya mode) */
 					if (!$collizion) $this->deleteCollizions($post);
@@ -831,7 +833,7 @@ Class ForumModule extends Module {
 						$editor = __('Edit by author') . ' ' . $post->getEdittime();
 					} else {
 						$status_info = $this->ACL->get_user_group($post->getEditor()->getStatus());
-						$editor = __('Edited') . $post->getEditor()->getName() . '(' 
+						$editor = __('Edited') . ' ' . $post->getEditor()->getName() . '(' 
 							. $status_info['title'] . ') ' . $post->getEdittime();
 					}
 				} else {
@@ -1052,8 +1054,8 @@ Class ForumModule extends Module {
 			$description = h($_SESSION['editForumForm']['description']);			
 			unset($_SESSION['editForumForm']);
 		} else {
-			$title       = h($forum['title']);
-			$description = h($forum['description']);
+			$title       = h($forum->getTitle());
+			$description = h($forum->getDescription());
 		}
 		
 		
@@ -1099,10 +1101,8 @@ Class ForumModule extends Module {
 		
 
 		// Обрезаем переменные до длины, указанной в параметре maxlength тега input
-		$title       = mb_substr($_POST['title'], 0, 120 );
-		$description = mb_substr($_POST['description'], 0, 250 );
-		$title       = trim($title);
-		$description = trim($description);
+		$title       = trim(mb_substr($_POST['title'], 0, 120 ));
+		$description = trim(mb_substr($_POST['description'], 0, 250 ));
 
 		
 		// Check fields fo empty values and valid chars
@@ -1167,18 +1167,18 @@ Class ForumModule extends Module {
 		
 		$dforum = $this->Model->getCollection(array(
 			'pos < ' . $order_up, 
-			'in_cat' => $forum->getIn_cat()
+			'in_cat' => $forum->getIn_cat(),
+			'parent_forum_id' => $forum->getParent_forum_id(),
 		), array(
 			'order' => 'pos DESC',
 			'limit' => 1,
 		));
 		if (!$dforum) return $this->showInfoMessage(__('Forum is above all'), '/forum/' );
-		$dforum = $dforum[0];
+		if (is_array($dforum)) $dforum = $dforum[0];
 		
 	
 		// Порядок следования и ID форума, который находится выше и будет "опущен" вниз
 		// ( поменявшись местами с форумом, который "поднимается" вверх )
-		$id_forum_down = $dforum->getId();
 		$order_down    = $dforum->getPos();
 		
 		// replace forums
@@ -1228,18 +1228,18 @@ Class ForumModule extends Module {
 		
 		$dforum = $this->Model->getCollection(array(
 			'pos > ' . $order_down, 
-			'in_cat' => $forum->getIn_cat()
+			'in_cat' => $forum->getIn_cat(),
+			'parent_forum_id' => $forum->getParent_forum_id(),
 		), array(
-			'order' => 'pos',
+			'order' => 'pos ASC',
 			'limit' => 1,
 		));
-		if (!$dforum) return true;
-		$dforum = $dforum[0];
+		if (!$dforum) return $this->showInfoMessage(__('Some error occurred'), '/forum/' );
+		if (is_array($dforum)) $dforum = $dforum[0];
 		
 	
 		// Порядок следования и ID форума, который находится ниже и будет "поднят" вверх
 		// ( поменявшись местами с форумом, который "опускается" вниз )
-		$id_forum_up = $dforum->getId();
 		$order_up    = $dforum->getPos();
 		
 		// replace forums
@@ -1707,9 +1707,8 @@ Class ForumModule extends Module {
 
 		
 		// Обрезаем переменные до длины, указанной в параметре maxlength тега input
-		$from_forum = $theme->getId_forum();
-		$name = mb_substr($_POST['theme'], 0, 55);
-		$name = trim($name);
+		$id_from_forum = $theme->getId_forum();
+		$name = trim(mb_substr($_POST['theme'], 0, 55));
 		$description = trim(mb_substr($_POST['description'], 0, 128)); 
 		
 		$gr_access = array();
@@ -1751,32 +1750,33 @@ Class ForumModule extends Module {
 		// update theme
 		$theme->setTitle($name);
 		$theme->setDescription($description);
-		$theme->setId_forum($id_forum);
 		$theme->setGroup_access($gr_access);
 		$theme->save();
 		
 		
 		//update forums info
-		if ($from_forum != $id_forum) {
+		if ($id_from_forum != $id_forum) {
 			$new_forum = $this->Model->getById($id_forum);
 			if (!$new_forum) return $this->showInfoMessage(__('No forum for moving'), '/forum/');
 			
+			$theme->setId_forum($id_forum);
+			$theme->save();
 			
-			$postModel = $this->Register['ModManager']->getModelInstance();
+			$postModel = $this->Register['ModManager']->getModelInstance('Posts');
 			$posts_cnt = $postModel->getTotal(array('cond' => array('id_theme' => $id_theme)));
-			$from_forum = $this->Model->getById($from_forum);
+			
+			$from_forum = $this->Model->getById($id_from_forum);
 			$from_forum->setPosts($from_forum->getPosts() - $posts_cnt);
 			$from_forum->setThemes($from_forum->getThemes() - 1);
 			$from_forum->save();
 			
 			
-			$from_forum = $this->Model->getById($id_forum);
-			$from_forum->setPosts($from_forum->getPosts() + $posts_cnt);
-			$from_forum->setThemes($from_forum->getThemes() + 1);
-			$from_forum->save();
+			$new_forum->setPosts($new_forum->getPosts() + $posts_cnt);
+			$new_forum->setThemes($new_forum->getThemes() + 1);
+			$new_forum->save();
 
 			
-			$this->Model->upLastPost($from_forum, $id_forum);
+			$this->Model->upLastPost($id_from_forum, $id_forum);
 		}
 
 				
@@ -1828,7 +1828,7 @@ Class ForumModule extends Module {
 		$posts = $postsModel->getCollection(array(
 			'id_theme' => $id_theme,
 		));
-		if ($posts) {
+		if (is_array($posts)) {
 			foreach ($posts as $post) {
 				// Удаляем файл, если он есть
 				$attach_files = $attachModel->getCollection(array('post_id' => $post->getId()));
@@ -1853,7 +1853,7 @@ Class ForumModule extends Module {
 		
 		
 		$attach_files = $attachModel->getCollection(array('theme_id' => $id_theme));
-		if ($attach_files) {
+		if (is_array($attach_files)) {
 			foreach ($attach_files as $attach_file) {
 				if (file_exists(ROOT . '/sys/files/forum/' . $attach_file->getFilename())) {
 					if (@unlink(ROOT . '/sys/files/forum/' . $attach_file->getFilename())) {
@@ -2160,6 +2160,7 @@ Class ForumModule extends Module {
 				'message'   => $message,
 				'id_author' => $id_user,
 				'time'      => new Expr('NOW()'),
+				'edittime'  => new Expr('NOW()'),
 				'id_theme'  => $id_theme
 			);
 			$post = new PostsEntity($post_data);
@@ -2625,13 +2626,13 @@ Class ForumModule extends Module {
 		if ($deleteTheme) {
 			$forum->setThemes($forum->getThemes() - 1);
 			$forum->setPosts($forum->getPosts() - 1);
-			$forum->setLast_theme_id($lastTheme->getId());
+			$forum->setLast_theme_id(count($lastTheme) > 0 ? $lastTheme[0]->getId() : '0');
 			$forum->save();
 			return $this->showInfoMessage(__('Operation is successful'), '/forum/view_forum/' . $theme->getId_forum());
 			
 		} else {
 			$forum->setPosts($forum->getPosts() - 1);
-			$forum->setLast_theme_id($lastTheme->getId());
+			$forum->setLast_theme_id(count($lastTheme) > 0 ? $lastTheme[0]->getId() : '0');
 			$forum->save();
 			return $this->showInfoMessage(__('Operation is successful'), getReferer());
 		}

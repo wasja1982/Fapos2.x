@@ -1322,7 +1322,7 @@ Class UsersModule extends Module {
 		$newpassword  = mb_substr($newpassword, 0, 30);
 		$confirm      = mb_substr($confirm, 0, 30);
 		$email        = mb_substr($email, 0, 60);
-		$oldEmail     = mb_substr($user->getEmail(), 0, 60);
+		$oldEmail     = $user->getEmail() ? mb_substr($user->getEmail(), 0, 60) : '';
 		$icq          = mb_substr($icq, 0, 12);
 		$jabber    	  = mb_substr($jabber, 0, 100);
 		$city	      = mb_substr($city, 0, 50);
@@ -1826,8 +1826,7 @@ Class UsersModule extends Module {
             'id_rmv' => 0,
             'viewed' => 0,
         );
-        $className = $this->Register['ModManager']->getEntityName('Messages');
-        $message = new $className($data);
+        $message = new MessagesEntity($data);
         $message->save();
 
 		/* clean DB cache */
