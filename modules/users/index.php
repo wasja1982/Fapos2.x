@@ -387,7 +387,7 @@ Class UsersModule extends Module {
 		if (!empty($about) and !$valobj->cha_val($about, V_TEXT))         
 			$error = $error.'<li>' . __('Wrong chars in field "interes"') . '</li>'."\n";
 		if (!empty($signature) and !$valobj->cha_val($signature, V_TEXT)) 
-			$error = $error.'<li>' . __('Wrong chars in field "gignature"') . '</li>'."\n";
+			$error = $error.'<li>' . __('Wrong chars in field "signature"') . '</li>'."\n";
 		// Проверяем корректность e-mail
 		if (!empty($email) and !$valobj->cha_val($email, V_MAIL))
 			$error = $error.'<li>' . __('Wrong chars in filed "e-mail"') . '</li>'."\n";
@@ -991,7 +991,7 @@ Class UsersModule extends Module {
 		if (!empty($about) and !$valobj->cha_val($about, V_TEXT))
 			$error = $error.'<li>' . __('Wrong chars in field "interes"') . '</li>'."\n";
 		if (!empty($signature) and !$valobj->cha_val($signature, V_TEXT))
-			$error = $error.'<li>' . __('Wrong chars in field "gignature"') . '</li>'."\n";
+			$error = $error.'<li>' . __('Wrong chars in field "signature"') . '</li>'."\n";
 		if (!empty($url) and !$valobj->cha_val($url, V_URL))
 			$error = $error.'<li>' . __('Wrong chars in filed "URL"') . '</li>'."\n";
 		if (!empty($jabber) && !$valobj->cha_val($jabber, V_MAIL))
@@ -1376,7 +1376,7 @@ Class UsersModule extends Module {
 		if (!empty($about) and !$valobj->cha_val($about, V_TEXT))
 			$error = $error.'<li>' . __('Wrong chars in field "interes"') . '</li>'."\n";
 		if (!empty($signature) and !$valobj->cha_val($signature, V_TEXT))
-			$error = $error.'<li>' . __('Wrong chars in field "gignature"') . '</li>'."\n";
+			$error = $error.'<li>' . __('Wrong chars in field "signature"') . '</li>'."\n";
 		if (!empty($url) and !$valobj->cha_val($url, V_URL))
 			$error = $error.'<li>' . __('Wrong chars in filed "URL"') . '</li>'."\n";
 		if (!empty($jabber) && !$valobj->cha_val($jabber, V_MAIL))
