@@ -292,7 +292,7 @@ Class StatModule extends Module {
 			$announce = $result->getMain();
 			// replace image tags in text
 			$attaches = $result->getAttaches();
-<<<<<<< HEAD
+
             if (!empty($attaches) && count($attaches) > 0) {
                 $attachDir = ROOT . '/sys/files/' . $this->module . '/';
                 $previewDir = ROOT . '/sys/tmp/previews/' . $this->module . '/';
@@ -319,18 +319,7 @@ Class StatModule extends Module {
                     }
                 }
             }
-=======
-			if (!empty($attaches) && count($attaches) > 0) {
-				$attachDir = ROOT . '/sys/files/' . $this->module . '/';
-				foreach ($attaches as $attach) {
-					if ($attach->getIs_image() == 1 && file_exists($attachDir . $attach->getFilename())) {
-						$announce = str_replace('{IMAGE'.$attach->getAttach_number().'}'
-						, '[img]' . get_url('/sys/files/'.$this->module.'/'.$attach->getFilename()).'[/img]'
-						, $announce);
-					}
-				}
-			}
->>>>>>> drunya/fapos_2.1_alpha4
+
 			$announce = $this->Textarier->getAnnounce($announce
 				, $entry_url
 				, 0 
