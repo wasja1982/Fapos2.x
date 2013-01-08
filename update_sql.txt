@@ -1,0 +1,32 @@
+Здесь буду писать все запросы к БД, которые нужно выполнить при обновлении до новой версии движка. При новой установке они выполнятся автоматически.
+
+>>> Jan 08, 2013
+ALTER TABLE `users` ADD `template` VARCHAR( 255 ) NOT NULL
+
+
+
+
+>>> Jan 03, 2013
+ALTER TABLE `news_comments` ADD `editdate` DATETIME NOT NULL
+ALTER TABLE `stat_comments` ADD `editdate` DATETIME NOT NULL
+ALTER TABLE `loads_comments` ADD `editdate` DATETIME NOT NULL
+ALTER TABLE `foto_comments` ADD `editdate` DATETIME NOT NULL
+
+ALTER TABLE `loads` ADD `filename` VARCHAR( 255 ) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL AFTER `download`
+
+
+
+
+>>> Oct 06, 2012
+ALTER TABLE `foto` ADD `commented` ENUM( '0', '1' ) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL DEFAULT '1'
+
+CREATE TABLE `new`.`foto_comments` (`id` int( 11 ) NOT NULL AUTO_INCREMENT ,
+`entity_id` int( 11 ) NOT NULL ,
+`user_id` int( 11 ) NOT NULL DEFAULT '0',
+`name` varchar( 100 ) NOT NULL ,
+`message` text NOT NULL ,
+`ip` varchar( 50 ) NOT NULL ,
+`mail` varchar( 150 ) NOT NULL ,
+`date` datetime NOT NULL ,
+PRIMARY KEY ( `id` )
+) ENGINE = MYISAM DEFAULT CHARSET = utf8;
