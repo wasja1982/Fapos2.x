@@ -1063,7 +1063,7 @@ Class UsersModule extends Module {
 			redirect('/users/edit_form/');
 		}
 
-		if (empty($template)) {
+		if ($template!=null) {
 			$_SESSION['user']['template'] = $template;
 		}
 
