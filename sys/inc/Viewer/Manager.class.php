@@ -82,6 +82,9 @@ class Fps_Viewer_Manager
 	public function getTemplateFilePath($fileName)
 	{
 		$Register = Register::getInstance();
+		if ($_SESSION['user']['template']=='' or !is_dir(ROOT . '/template/' . $_SESSION['user']['template'].'/')) {
+			$_SESSION['user']['template'] = $Register['Config']->read('template');
+		}
 		$path = ROOT . '/template/' . $Register['Config']->read('template') . '/html/' . '%s' . '/' . $fileName;
 		if (file_exists(sprintf($path, $this->moduleTitle))) $path = sprintf($path, $this->moduleTitle);
 		else $path = sprintf($path, 'default');

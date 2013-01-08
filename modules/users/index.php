@@ -842,6 +842,15 @@ Class UsersModule extends Module {
         $data->setBmonth_selector(createOptionsFromParams(1, 12, $data->getBmonth()));
         $data->setBday_selector(createOptionsFromParams(1, 31, $data->getBday()));
 
+        $dir = opendir(ROOT . '/template');
+        $template = '';
+        while ($tempdef = readdir($dir)) {
+            if ($tempdef{0} != '.') {
+                $tempdef = str_replace('.css', '', $tempdef);
+                $template .= '<option' . ($_SESSION['user']['template'] == $tempdef ? ' selected="selected">' : '>') . $tempdef . '</option>';
+            }
+        }
+        $data->setTemplate($template);
 
         $unlinkfile = '';
         if (is_file(ROOT . '/sys/avatars/' . $_SESSION['user']['id'] . '.jpg')) {
@@ -903,7 +912,8 @@ Class UsersModule extends Module {
 			'bday', 
 			'url', 
 			'about', 
-			'signature'
+			'signature',
+			'template'
 		);
 		
 		$fields_settings = (array)$this->Register['Config']->read('fields', 'users');
@@ -949,6 +959,7 @@ Class UsersModule extends Module {
 		$url          = mb_substr($url, 0, 60);
 		$about        = mb_substr($about, 0, 1000);
 		$signature    = mb_substr($signature, 0, 500);
+		$template    = mb_substr($template, 0, 255);
 
 
 		// Additional fields
@@ -1006,7 +1017,9 @@ Class UsersModule extends Module {
 			$error = $error.'<li>' . __('Wrong chars in field "bmonth"') . '</li>'."\n";
 		if (!empty($bday) && !$valobj->cha_val($bday, V_INT))
 			$error = $error.'<li>' . __('Wrong chars in field "bday"') . '</li>'."\n";
-		
+		if (!empty($template) and !$valobj->cha_val($template, V_TEXT))
+			$error = $error.'<li>' . __('Wrong chars in field "template"') . '</li>'."\n";
+
 		
 		$tmp_key = rand(0, 9999999);
 		if (!empty($_FILES['avatar']['name'])) {
@@ -1038,6 +1051,9 @@ Class UsersModule extends Module {
 		$timezone = (int)$_POST['timezone'];
 		if ($timezone < -12 || $timezone > 12) $timezone = 0;
 
+		if (!empty($template) and ($template{0}=='.' or !is_dir(ROOT . '/template/' . $template))) {
+			$error = $error.'<li>' . __('Wrong chars in field "template"') . '</li>'."\n";
+		}
 		
 		// if an Errors
 		if (!empty($error)) {
@@ -1045,6 +1061,10 @@ Class UsersModule extends Module {
 			$_SESSION['FpsForm']['error']     = '<p class="errorMsg">' . __('Some error in form') . '</p>'.
 			"\n".'<ul class="errorMsg">'."\n".$error.'</ul>'."\n";
 			redirect('/users/edit_form/');
+		}
+
+		if (empty($template)) {
+			$_SESSION['user']['template'] = $template;
 		}
 
 		// Если выставлен флажок "Удалить загруженный ранее файл"
@@ -1086,6 +1106,7 @@ Class UsersModule extends Module {
         $user->setBday($bday);
         $user->setAbout($about);
         $user->setSignature($signature);
+        $user->setTemplate($template);
         $user->save();
 
 		// Additional fields saving
@@ -1197,6 +1218,15 @@ Class UsersModule extends Module {
         $data->setBmonth_selector(createOptionsFromParams(1, 12, $data->getBmonth()));
         $data->setBday_selector(createOptionsFromParams(1, 31, $data->getBday()));
 
+        $dir = opendir(ROOT . '/template');
+        $template = '';
+        while ($tempdef = readdir($dir)) {
+            if ($tempdef{0} != '.') {
+                $tempdef = str_replace('.css', '', $tempdef);
+                $template .= '<option' . ($_SESSION['user']['template'] == $tempdef ? ' selected="selected">' : '>') . $tempdef . '</option>';
+            }
+        }
+        $data->setTemplate($template);
 
         $unlinkfile = '';
         if (is_file(ROOT . '/sys/avatars/' . $_SESSION['user']['id'] . '.jpg')) {
@@ -1289,7 +1319,8 @@ Class UsersModule extends Module {
 			'bday', 
 			'url', 
 			'about', 
-			'signature'
+			'signature',
+			'template'
 		);
 		
 		$fields_settings = (array)$this->Register['Config']->read('fields', 'users');
@@ -1333,6 +1364,7 @@ Class UsersModule extends Module {
 		$url          = mb_substr($url, 0, 60);
 		$about        = mb_substr($about, 0, 1000);
 		$signature    = mb_substr($signature, 0, 500);
+		$template     = mb_substr($template, 0, 255);
 		
 
 
@@ -1391,7 +1423,9 @@ Class UsersModule extends Module {
 			$error = $error.'<li>' . __('Wrong chars in field "bmonth"') . '</li>'."\n";
 		if (!empty($bday) && !$valobj->cha_val($bday, V_INT))
 			$error = $error.'<li>' . __('Wrong chars in field "bday"') . '</li>'."\n";
-		
+		if (!empty($template) and !$valobj->cha_val($template, V_TEXT))
+			$error = $error.'<li>' . __('Wrong chars in field "template"') . '</li>'."\n";
+
 		
 		$tmp_key = rand(0, 9999999);
 		if (!empty($_FILES['avatar']['name'])) {
@@ -1424,6 +1458,10 @@ Class UsersModule extends Module {
 		$status = (int)$_POST['status'];
 		$timezone = (int)$_POST['timezone'];
 		if ( $timezone < -12 or $timezone > 12 ) $timezone = 0;
+
+		if (!empty($template) and ($template{0}=='.' or !is_dir(ROOT . '/template/' . $template))) {
+			$error = $error.'<li>' . __('Wrong chars in field "template"') . '</li>'."\n";
+		}
 
 		// Errors
 		if (!empty($error)) {
@@ -1487,6 +1525,7 @@ Class UsersModule extends Module {
         $user->setBday($bday);
         $user->setAbout($about);
         $user->setSignature($signature);
+        $user->setTemplate($template);
         $user->save();
 
 
@@ -1952,7 +1991,7 @@ Class UsersModule extends Module {
         foreach ($messages as $message) {
             // Если сообщение еще не прочитано
             $icon = ($message->getViewed() == 0) ? 'folder_new' : 'folder';
-            $message->setIcon(get_img('/template/'.Config::read('template').'/img/' . $icon . '.gif'));
+            $message->setIcon(get_img('/template/'.$_SESSION['user']['template'].'/img/' . $icon . '.gif'));
             $message->setTheme(get_link(h($message->getSubject()), '/users/get_message/' . $message->getId()));
             $message->setDelete(get_link(__('Delete'), '/users/delete_message/' . $message->getId(), array('onClick' => "return confirm('" . __('Are you sure') . "')")));
         }
@@ -1993,7 +2032,7 @@ Class UsersModule extends Module {
         foreach ($messages as $message) {
             // Если сообщение еще не прочитано
             $icon = ($message->getViewed() == 0) ? 'folder_new' : 'folder';
-            $message->setIcon(get_img('/template/'.Config::read('template').'/img/' . $icon . '.gif'));
+            $message->setIcon(get_img('/template/'.$_SESSION['user']['template'].'/img/' . $icon . '.gif'));
             $message->setTheme(get_link(h($message->getSubject()), '/users/get_message/' . $message->getId()));
             $message->setDelete(get_link(__('Delete'), '/users/delete_message/' . $message->getId(), array('onClick' => "return confirm('" . __('Are you sure') . "')")));
         }

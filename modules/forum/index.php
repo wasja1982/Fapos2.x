@@ -296,7 +296,7 @@ Class ForumModule extends Module {
 			
 			// reply link
 			$addLink = (isset($_SESSION['user'])) 
-			? get_link(get_img('/template/' . $this->Register['Config']->read('template').'/img/add_theme_button.png', 
+			? get_link(get_img('/template/' . $_SESSION['user']['template'].'/img/add_theme_button.png', 
 			array('alt' => __('New topic'))), '/forum/add_theme_form/' . $id_forum) : '';
 			
 			
@@ -547,26 +547,26 @@ Class ForumModule extends Module {
 			if (isset($_SESSION['newThemes']) and in_array($theme->getiId(), $_SESSION['newThemes'])) {
 				if ($theme->getLocked() == 0) // тема открыта
 					if ($theme->getPosts() > $hot_theme_limit)
-						$themeicon = get_img('/template/'.$this->Register['Config']->read('template').'/img/folder_hot_new.gif'
+						$themeicon = get_img('/template/'.$_SESSION['user']['template'].'/img/folder_hot_new.gif'
 						, array('width' => '19', 'height' => '18', 'alt' => __('New posts'), 'title' => __('New posts')));
 					else
-						$themeicon = get_img('/template/'.$this->Register['Config']->read('template').'/img/folder_new.gif'
+						$themeicon = get_img('/template/'.$_SESSION['user']['template'].'/img/folder_new.gif'
 						, array('width' => '19', 'height' => '18', 'alt' => __('New posts'), 'title' => __('New posts')));
 				else // тема закрыта
-					$themeicon = get_img('/template/'.$this->Register['Config']->read('template').'/img/folder_lock_new.gif'
+					$themeicon = get_img('/template/'.$_SESSION['user']['template'].'/img/folder_lock_new.gif'
 					, array('width' => '19', 'height' => '18', 'alt' => __('New posts'), 'title' => __('New posts')));
 						
 						
 			} else {
 				if ( $theme->getLocked() == 0 ) // тема открыта
 					if ($theme->getPosts() > $hot_theme_limit)
-						$themeicon = get_img('/template/'.$this->Register['Config']->read('template').'/img/folder_hot.gif'
+						$themeicon = get_img('/template/'.$_SESSION['user']['template'].'/img/folder_hot.gif'
 						, array('width' => '19', 'height' => '18', 'alt' => __('No new posts'), 'title' => __('No new posts')));
 					else
-						$themeicon = get_img('/template/'.$this->Register['Config']->read('template').'/img/folder.gif'
+						$themeicon = get_img('/template/'.$_SESSION['user']['template'].'/img/folder.gif'
 						, array('width' => '19', 'height' => '18', 'alt' => __('No new posts'), 'title' => __('No new posts')));
 				else // тема закрыта
-					$themeicon = get_img('/template/'.$this->Register['Config']->read('template').'/img/folder_lock.gif'
+					$themeicon = get_img('/template/'.$_SESSION['user']['template'].'/img/folder_lock.gif'
 					, array('width' => '19', 'height' => '18', 'alt' => __('No new posts'), 'title' => __('No new posts')));
 			}
 			
@@ -574,13 +574,13 @@ Class ForumModule extends Module {
 		} else { // это для не зарегистрированного пользователя
 			if ( $theme->getLocked() == 0 ) // тема открыта
 				if ($theme->getPosts() > $hot_theme_limit)
-					$themeicon = get_img('/template/'.$this->Register['Config']->read('template').'/img/folder_hot.gif'
+					$themeicon = get_img('/template/'.$_SESSION['user']['template'].'/img/folder_hot.gif'
 					, array('width' => '19', 'height' => '18'));
 				else
-					$themeicon = get_img('/template/'.$this->Register['Config']->read('template').'/img/folder.gif'
+					$themeicon = get_img('/template/'.$_SESSION['user']['template'].'/img/folder.gif'
 					, array('width' => '19', 'height' => '18'));
 			else // тема закрыта
-				$themeicon = get_img('/template/'.$this->Register['Config']->read('template').'/img/folder_lock.gif'
+				$themeicon = get_img('/template/'.$_SESSION['user']['template'].'/img/folder_lock.gif'
 				, array('width' => '19', 'height' => '18'));
 		}
 		
@@ -672,7 +672,7 @@ Class ForumModule extends Module {
 			// Ссылка "Ответить" (если тема закрыта - выводим сообщение "Тема закрыта")
 			if ($theme->getLocked() == 0) {
 				$markers['add_link'] = get_link(get_img('/template/' 
-				. $this->Register['Config']->read('template').'/img/reply.png', array('alt' => __('Answer'), 
+				. $_SESSION['user']['template'].'/img/reply.png', array('alt' => __('Answer'), 
 				'title' => __('Answer'))), '/forum/view_theme/' . $id_theme . '#sendForm');
 			} else {
 				$markers['add_link'] = get_img('/sys/img/reply_locked.png', 

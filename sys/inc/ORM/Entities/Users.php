@@ -55,7 +55,7 @@ class UsersEntity extends FpsEntity
 	protected $activation;
 	protected $warnings;
 	protected $ban_expire;
-
+    protected $template;
 
 
 
@@ -89,6 +89,7 @@ class UsersEntity extends FpsEntity
             'activation' => $this->activation,
             'warnings' => $this->warnings,
             'ban_expire' => $this->ban_expire,
+            'template' => $this->template,
         );
         if ($this->id) $params['id'] = $this->id;
         $Register = Register::getInstance();

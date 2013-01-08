@@ -219,7 +219,7 @@ class Document_Parser {
 		
 		
 		$markets['counter'] = get_url('/sys/img/counter.png');
-		$markets['template_path'] = get_url('/template/' . Config::read('template'));
+		$markets['template_path'] = get_url('/template/' . $_SESSION['user']['template']);
 		$markets['www_root'] = WWW_ROOT;
 		
 		
