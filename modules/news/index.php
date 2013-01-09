@@ -1144,7 +1144,7 @@ Class NewsModule extends Module {
 	*/
 	public function delete_comment($id = null)
     {
-		include_once(R . 'sys/inc/includes/delete_comment.php');
+		include_once(ROOT . '/sys/inc/includes/delete_comment.php');
 	}	
 	
 	
@@ -1317,7 +1317,7 @@ Class NewsModule extends Module {
 	 *
      */
     public function rss() {
-		include_once R . 'sys/inc/includes/rss.php';
+		include_once ROOT . '/sys/inc/includes/rss.php';
     }
 	
 	

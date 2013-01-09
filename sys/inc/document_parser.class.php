@@ -219,7 +219,7 @@ class Document_Parser {
 		
 		
 		$markets['counter'] = get_url('/sys/img/counter.png');
-		$markets['template_path'] = get_url('/template/' . Config::read('template'));
+		$markets['template_path'] = get_url('/template/' . $_SESSION['user']['template']);
 		$markets['www_root'] = WWW_ROOT;
 		
 		
@@ -314,7 +314,7 @@ class Document_Parser {
 	 */
 	public function builMainMenu()
     {
-		$menu_conf_file = R . 'sys/settings/menu.dat';	
+		$menu_conf_file = ROOT . '/sys/settings/menu.dat';	
 		if (!file_exists($menu_conf_file)) return false;
 		$menudata = unserialize(file_get_contents($menu_conf_file));
 	

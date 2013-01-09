@@ -72,13 +72,14 @@ class ChatModule extends Module {
 				$data = array_reverse($data);
 				
 				
-				foreach ($data as $key => $record) {
-					$data[$key]['message'] = $this->Textarier->print_page($record['message']);
+				foreach ($data as $key => &$record) {
+					
+					$record['message'] = $this->Textarier->print_page($record['message']);
 					/* view ip adres if admin */
 					if ($this->ACL->turn(array('chat', 'delete_materials'), false)) {
-						$data[$key]['ip'] = get_img('/sys/img/ip.png', array('title' => h($record['ip'])));
+						$record['ip'] = get_img('/sys/img/ip.png', array('title' => h($record['ip'])));
 					} else {
-						$data[$key]['ip'] = '';
+						$record['ip'] = '';
 					}
 				}
 				
