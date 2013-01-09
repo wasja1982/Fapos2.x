@@ -694,9 +694,10 @@ Class ForumModule extends Module {
 			
 			
 			
+			$usersModel = $this->Register['ModManager']->getModelInstance('Users');
 			foreach ($posts as $post) {
 				// Если автор сообщения (поста) - зарегистрированный пользователь
-				$postAuthor = $post->getAuthor();
+				$postAuthor = $usersModel->getById($post->getId_author());
 				if ($postAuthor) {
 					// Аватар
 					if (is_file(ROOT . '/sys/avatars/' . $post->getId_author() . '.jpg')) {
@@ -769,7 +770,7 @@ Class ForumModule extends Module {
 				if ($attachment != null) {
 					$post->setAttachment($attachment);
 				}
-				
+
 				$signature = ($postAuthor->getSignature()) 
 				? $this->Textarier->getSignature($postAuthor->getSignature(), $postAuthor->getStatus()) : '' ;
 				$postAuthor->setSignature($signature);
@@ -808,23 +809,26 @@ Class ForumModule extends Module {
 							$icon_params
 						);
 					}
-					$author_site = ($post->getAuthor()->getUrl()) 
+					$author_site = ($postAuthor->getUrl()) 
 						? '&nbsp;' . get_link(
 							get_img(
 								'/sys/img/icon_www.gif', 
 								array('alt' => __('Author site'), 'title' => __('Author site'))
 							), 
-							h($post->getAuthor()->getUrl()), 
+							h($postAuthor->getUrl()), 
 							array_merge($icon_params, array('target' => '_blank')), true) 
 						: '';
 				} else {
 					$user_profile = '<span class="user-details">' . get_img('/sys/img/noavatar.png') 
 						. __('Unregister user') . '</span>';
 				}
-				$post->getAuthor()->setAuthor_site($author_site);
-				$post->getAuthor()->setProfile_url($user_profile);
-				$post->getAuthor()->setEmail_url($email);
-				$post->getAuthor()->setPm_url($privat_message);
+				$postAuthor->setAuthor_site($author_site);
+				$postAuthor->setProfile_url($user_profile);
+				$postAuthor->setEmail_url($email);
+				$postAuthor->setPm_url($privat_message);
+
+				
+				$post->setAuthor($postAuthor);
 				
 				
 				// Если сообщение редактировалось...
