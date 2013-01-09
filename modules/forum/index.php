@@ -770,9 +770,9 @@ Class ForumModule extends Module {
 					$post->setAttachment($attachment);
 				}
 				
-				$signature = ($post->getSignature()) 
-				? $this->Textarier->getSignature($post->getSignature(), $post->getStatus()) : '' ;
-				$post->setSignature($signature);
+				$signature = ($postAuthor->getSignature()) 
+				? $this->Textarier->getSignature($postAuthor->getSignature(), $postAuthor->getStatus()) : '' ;
+				$postAuthor->setSignature($signature);
 				
 				
 				// Если автор сообщения (поста) - зарегистрированный пользователь
