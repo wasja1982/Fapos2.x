@@ -64,6 +64,7 @@ Class LoadsModule extends Module {
 	 */
 	function index($tag = null)
     {
+		
 		//turn access
 		$this->ACL->turn(array('loads', 'view_list'));
 		
@@ -419,6 +420,7 @@ Class LoadsModule extends Module {
             $this->comments = $this->_get_comments($entity);
         }
         $this->Register['current_vars'] = $entity;
+		
 
 
         //производим замену соответствующих участков в html шаблоне нужной информацией

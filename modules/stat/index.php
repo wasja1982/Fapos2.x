@@ -124,6 +124,7 @@ Class StatModule extends Module {
 			$announce = $result->getMain();
 			// replace image tags in text
 			$attaches = $result->getAttaches();
+
             if (!empty($attaches) && count($attaches) > 0) {
                 $attachDir = ROOT . '/sys/files/' . $this->module . '/';
                 $previewDir = ROOT . '/sys/tmp/previews/' . $this->module . '/';
@@ -291,6 +292,7 @@ Class StatModule extends Module {
 			$announce = $result->getMain();
 			// replace image tags in text
 			$attaches = $result->getAttaches();
+
             if (!empty($attaches) && count($attaches) > 0) {
                 $attachDir = ROOT . '/sys/files/' . $this->module . '/';
                 $previewDir = ROOT . '/sys/tmp/previews/' . $this->module . '/';
@@ -317,6 +319,7 @@ Class StatModule extends Module {
                     }
                 }
             }
+
 			$announce = $this->Textarier->getAnnounce($announce
 				, $entry_url
 				, 0 
@@ -1278,7 +1281,7 @@ Class StatModule extends Module {
 	 *
      */
     function rss() {
-		include_once R . 'sys/inc/includes/rss.php';
+		include_once ROOT . '/sys/inc/includes/rss.php';
     }	
 	
 }
