@@ -322,7 +322,8 @@ Class ForumModule extends Module {
 			
 			// Nav block
 			$markers = array();
-			$markers['navigation'] = get_link(__('Forums list'), '/forum/') . __('Separator') 
+			$markers['navigation'] = get_link(__('Home'), '/') . __('Separator') 
+			. get_link(__('Forums list'), '/forum/') . __('Separator') 
 			. get_link(h($forum->getTitle()), '/forum/view_forum/' . $id_forum);
 			$markers['pagination'] = $pages;
 			$markers['add_link'] = '';
@@ -628,7 +629,8 @@ Class ForumModule extends Module {
 			
 			
 			$markers = array();
-			$markers['navigation'] = get_link(__('Forums list'), '/forum/') . __('Separator') . get_link($theme->getForum()->getTitle(), 
+			$markers['navigation'] = get_link(__('Home'), '/') . __('Separator') 
+			. get_link(__('Forums list'), '/forum/') . __('Separator') . get_link($theme->getForum()->getTitle(), 
 			'/forum/view_forum/' .  $id_forum) . __('Separator') . get_link($theme->getTitle(), '/forum/view_theme/' . $id_theme);
 			$description = h($theme->getDescription());
 			if (!empty($description)) {
@@ -981,7 +983,8 @@ Class ForumModule extends Module {
 		
 		$cntPages = ceil($total / $perPage);
 		$recOnPage = ($page == $cntPages) ? ($total % $perPage) : $perPage;
-		$nav['navigation'] = get_link(__('Forums list'), '/forum/') . __('Separator') . __('Last update');
+		$nav['navigation'] = get_link(__('Home'), '/') . __('Separator') 
+			. get_link(__('Forums list'), '/forum/') . __('Separator') . __('Last update');
 		$nav['meta'] = __('Count all topics') . $total . '. ' . __('Count visible') . $recOnPage;
 		$this->_globalize($nav);
 		
@@ -1079,7 +1082,8 @@ Class ForumModule extends Module {
 		
 		// nav block
 		$navi = array(
-			'navigation' => get_link(__('Forums list'), '/forum/') . __('Separator') . __('Edit forum'),
+			'navigation' => get_link(__('Home'), '/') . __('Separator') 
+			. get_link(__('Forums list'), '/forum/') . __('Separator') . __('Edit forum'),
 		);
 		$this->_globalize($navi);
 		
@@ -1378,7 +1382,8 @@ Class ForumModule extends Module {
 		
 		// nav block
 		$navi = array();
-		$navi['navigation'] = get_link(__('Forums list'), '/forum/') . __('Separator') 
+		$navi['navigation'] = get_link(__('Home'), '/') . __('Separator') 
+			. get_link(__('Forums list'), '/forum/') . __('Separator') 
 			. get_link(h($forum->getTitle()), '/forum/view_forum/' . $id_forum);
 		$this->_globalize($navi);
 		
@@ -1676,7 +1681,8 @@ Class ForumModule extends Module {
 		
 		// nav block
 		$navi = array();
-		$navi['navigation'] = get_link(__('Forums list'), '/forum/') . __('Separator') . __('Edit theme');
+		$navi['navigation'] = get_link(__('Home'), '/') . __('Separator') 
+			. get_link(__('Forums list'), '/forum/') . __('Separator') . __('Edit theme');
 		$this->_globalize($navi);
 		
 		
@@ -2366,7 +2372,8 @@ Class ForumModule extends Module {
 		
 		// nav block
 		$navi = array();
-		$navi['navigation'] = get_link(__('Forums list'), '/forum/') . __('Separator')
+		$navi['navigation'] = get_link(__('Home'), '/') . __('Separator') 
+			. get_link(__('Forums list'), '/forum/') . __('Separator')
 		. get_link('Просмотр темы', '/forum/view_theme/' . $id_theme) . __('Separator') . __('Edit message');
 		$this->_globalize($navi);
 		
@@ -2681,7 +2688,8 @@ Class ForumModule extends Module {
 		
 		$recOnPage = ($page == $this->Register['pagecnt']) ? ($total % $perPage) : $perPage;
         if ($recOnPage > $total) $recOnPage = $total;
-		$nav['navigation'] = get_link(__('Forums list'), '/forum/') . __('Separator') . __('User messages');
+		$nav['navigation'] = get_link(__('Home'), '/') . __('Separator') 
+			. get_link(__('Forums list'), '/forum/') . __('Separator') . __('User messages');
 		$nav['meta'] = __('Count all topics') . $total . '. ' . __('Count visible') . $recOnPage;
 		$this->_globalize($nav);
 		
