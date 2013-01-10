@@ -732,9 +732,10 @@ Class ForumModule extends Module {
 					}
 
 					// Если пользователь заблокирован
-					if ($postAuthor->getBlocked())
+					if ($postAuthor->getBlocked()) {
 						$postAuthor->setStatus_on('<span class="statusBlock">' . __('Banned') . '</span>');
 						$postAuthor->setStatus_line('');
+					}
 
 				} else { // Если автор сообщения - незарегистрированный пользователь
 				    $postAuthor->setAvatar(get_url('/sys/img/noavatar.png'));
