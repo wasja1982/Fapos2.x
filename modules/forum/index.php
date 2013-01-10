@@ -723,13 +723,16 @@ Class ForumModule extends Module {
 					$users_on_line = getOnlineUsers(); 
 					if (isset($users_on_line) &&  isset($users_on_line[$post->getId_author()])) {
 						$postAuthor->setStatus_on(__('Online'));
+						$postAuthor->setStatus_line('Online');
 					} else {
 						$postAuthor->setStatus_on(__('Offline'));
+						$postAuthor->setStatus_line('Offline');
 					}
 
 					// Если пользователь заблокирован
 					if ($postAuthor->getBlocked())
 						$postAuthor->setStatus_on('<span class="statusBlock">' . __('Banned') . '</span>');
+						$postAuthor->setStatus_line('');
 
 				} else { // Если автор сообщения - незарегистрированный пользователь
 				    $postAuthor->setAvatar(get_url('/sys/img/noavatar.png'));
