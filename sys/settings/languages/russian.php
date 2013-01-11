@@ -279,6 +279,8 @@ $language = array(
 	'Priority' => 'Приоритеты',
 	'Throught coma' => 'Через запятую',
 	'Status' => 'Статус',
+	'This module disabled' => 'Этот модуль отключен',
+	'Pages' => '&nbsp;Страницы: ',
 );
 
 

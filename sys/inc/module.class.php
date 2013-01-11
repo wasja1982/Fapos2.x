@@ -197,8 +197,8 @@ class Module {
 		$this->beforeRender();
 		
 		if ($this->Register['Config']->read('active', $params[0]) == 0) {
-			if ('chat' === $params[0]) die('Этот модуль отключен');
-			return $this->showInfoMessage('Этот модуль отключен', '/');
+			if ('chat' === $params[0]) die(__('This module disabled'));
+			return $this->showInfoMessage(__('This module disabled'), '/');
 		}
 		
 		$this->page_title = ($this->Register['Config']->read('title', $this->module))
