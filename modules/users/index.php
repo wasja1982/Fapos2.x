@@ -847,7 +847,7 @@ Class UsersModule extends Module {
         while ($tempdef = readdir($dir)) {
             if ($tempdef{0} != '.') {
                 $tempdef = str_replace('.css', '', $tempdef);
-                $template .= '<option' . ($_SESSION['user']['template'] == $tempdef ? ' selected="selected">' : '>') . $tempdef . '</option>';
+                $template .= '<option' . (getTemplateName() == $tempdef ? ' selected="selected">' : '>') . $tempdef . '</option>';
             }
         }
         $data->setTemplate($template);
@@ -1223,7 +1223,7 @@ Class UsersModule extends Module {
         while ($tempdef = readdir($dir)) {
             if ($tempdef{0} != '.') {
                 $tempdef = str_replace('.css', '', $tempdef);
-                $template .= '<option' . ($_SESSION['user']['template'] == $tempdef ? ' selected="selected">' : '>') . $tempdef . '</option>';
+                $template .= '<option' . (getTemplateName() == $tempdef ? ' selected="selected">' : '>') . $tempdef . '</option>';
             }
         }
         $data->setTemplate($template);
@@ -1991,7 +1991,7 @@ Class UsersModule extends Module {
         foreach ($messages as $message) {
             // Если сообщение еще не прочитано
             $icon = ($message->getViewed() == 0) ? 'folder_new' : 'folder';
-            $message->setIcon(get_img('/template/'.$_SESSION['user']['template'].'/img/' . $icon . '.gif'));
+            $message->setIcon(get_img('/template/'.getTemplateName().'/img/' . $icon . '.gif'));
             $message->setTheme(get_link(h($message->getSubject()), '/users/get_message/' . $message->getId()));
             $message->setDelete(get_link(__('Delete'), '/users/delete_message/' . $message->getId(), array('onClick' => "return confirm('" . __('Are you sure') . "')")));
         }
@@ -2032,7 +2032,7 @@ Class UsersModule extends Module {
         foreach ($messages as $message) {
             // Если сообщение еще не прочитано
             $icon = ($message->getViewed() == 0) ? 'folder_new' : 'folder';
-            $message->setIcon(get_img('/template/'.$_SESSION['user']['template'].'/img/' . $icon . '.gif'));
+            $message->setIcon(get_img('/template/'.getTemplateName().'/img/' . $icon . '.gif'));
             $message->setTheme(get_link(h($message->getSubject()), '/users/get_message/' . $message->getId()));
             $message->setDelete(get_link(__('Delete'), '/users/delete_message/' . $message->getId(), array('onClick' => "return confirm('" . __('Are you sure') . "')")));
         }

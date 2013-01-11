@@ -656,3 +656,15 @@ function _unlink($path) {
 function memoryUsage($base_memory_usage) {
     printf("Bytes diff: %s<br />\n", getSimpleFileSize(memory_get_usage() - $base_memory_usage));
 }
+
+/**
+* Get correct name of template for current user
+*/
+function getTemplateName()
+{
+	$Register = Register::getInstance();
+	$template = (isset($_SESSION['user']) && 
+				isset($_SESSION['user']['template']) && 
+				!empty($_SESSION['user']['template']) ? $_SESSION['user']['template'] : $Register['Config']->read('template'));
+	return $template;
+}
