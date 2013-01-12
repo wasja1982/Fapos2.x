@@ -456,9 +456,9 @@ Class FotoModule extends Module {
 			$errors = $errors.'<li>'.__('Empty field "title"').'</li>'."\n";
 		elseif (!$valobj->cha_val($title, V_TITLE))  
 			$errors = $errors.'<li>'.__('Wrong chars in "title"').'</li>'."\n";
-		if (empty($description) && Config::read('description_requred', 'foto')) {
+		$foto_fields = Config::read('fields', 'foto');
+		if (empty($description) && !empty($foto_fields['description'])) 
 			$errors = $errors.'<li>'.__('Empty field "description"').'</li>'."\n";
-		}
 		if (mb_strlen($description) > Config::read('description_lenght', 'foto'))
 			$errors = $errors .'<li>'.sprintf(__('Wery big "description"'), Config::read('description_lenght', 'foto')).'</li>'."\n";
 		
@@ -701,7 +701,8 @@ Class FotoModule extends Module {
 			$errors = $errors.'<li>'.__('Empty field "title"').'</li>'."\n";
 		if (!$Validate->cha_val($title, V_TITLE))  
 			$errors = $errors.'<li>'.__('Wrong chars in "title"').'</li>'."\n";
-		if (empty($description) && Config::read('description_requred', 'foto')) 
+		$foto_fields = Config::read('fields', 'foto');
+		if (empty($description) && !empty($foto_fields['description'])) 
 			$errors = $errors.'<li>'.__('Empty field "description"').'</li>'."\n";
 		if (mb_strlen($description) > Config::read('description_lenght', 'foto'))
 			$errors = $errors.'<li>'.sprintf(__('Wery big "description"'), Config::read('description_lenght', 'foto')).'</li>'."\n";
