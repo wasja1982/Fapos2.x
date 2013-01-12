@@ -626,9 +626,10 @@ class Module {
 	}
 	
 	
+	// Вспомогательная функция - после выполнения пользователем каких-либо действий
+	// выдает информационное сообщение и делает редирект на нужную страницу с задержкой
 	function showInfoMessage($message, $queryString = null) 
 	{
-		//pr(h('Refresh: ' . $this->Register['Config']->read('redirect_delay') . '; url=http://' . $_SERVER['SERVER_NAME'] . get_url($queryString))); die();
 		header( 'Refresh: ' . $this->Register['Config']->read('redirect_delay') . '; url=http://' . $_SERVER['SERVER_NAME'] . get_url($queryString));
 		$output = $this->render('infomessagegrand.html', array('data' => array('info_message' => $message)));
 		echo $output;

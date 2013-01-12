@@ -380,9 +380,9 @@ Class NewsModule extends Module {
 		
 		if (empty($entity)) redirect('/error.php?ac=404');
 		if ($entity->getAvailable() == 0 && !$this->ACL->turn(array('other', 'can_see_hidden'), false)) 
-			return showInfoMessage(__('Permission denied'), '/news/');
+			return $this->showInfoMessage(__('Permission denied'), '/news/');
 		if (!$this->ACL->checkCategoryAccess($entity->getCategory()->getNo_access())) 
-			return showInfoMessage(__('Permission denied'), '/news/');
+			return $this->showInfoMessage(__('Permission denied'), '/news/');
 			
 		
 		// Some gemor with add fields
@@ -816,6 +816,8 @@ Class NewsModule extends Module {
 		$available = ($data->getAvailable()) ? 'checked="checked"' : '';
         if (!$this->ACL->turn(array('loads', 'hide_material'), false)) $available .= ' disabled="disabled"';
 		$action = get_url('/news/update/' . $data->getId());
+        $data->setCommented($commented);
+        $data->setAvailable($available);
 		
 		
 		$attaches = $data->getAttaches();
@@ -1053,7 +1055,7 @@ Class NewsModule extends Module {
 		if (!$this->ACL->turn(array('news', 'delete_materials'), false) 
 		&& (!empty($_SESSION['user']['id']) && $target->getAuthor_id() == $_SESSION['user']['id'] 
 		&& $this->ACL->turn(array('news', 'delete_mine_materials'), false)) === false) {
-			return showInfoMessage(__('Permission denied'), '/news/');
+			return $this->showInfoMessage(__('Permission denied'), '/news/');
 		}
 		
 		

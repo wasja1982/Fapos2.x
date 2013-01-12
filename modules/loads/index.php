@@ -215,9 +215,9 @@ Class LoadsModule extends Module {
         $SectionsModel = $this->_loadModel(ucfirst($this->module) . 'Sections');
         $category = $SectionsModel->getById($id);
         if (!$category)
-            return showInfoMessage(__('Can not find category'), '/loads/');
+            return $this->showInfoMessage(__('Can not find category'), '/loads/');
         if (!$this->ACL->checkCategoryAccess($category->getNo_access()))
-            return showInfoMessage(__('Permission denied'), '/loads/');
+            return $this->showInfoMessage(__('Permission denied'), '/loads/');
 
 
         $this->page_title = h($category->getTitle()) . ' - ' . $this->page_title;
@@ -738,7 +738,7 @@ Class LoadsModule extends Module {
 
 		// span protected
 		if ( isset( $_SESSION['unix_last_post'] ) and ( time() - $_SESSION['unix_last_post'] < 30 ) ) {
-			return showInfoMessage(__('Your message has been added'), '/loads/');
+			return $this->showInfoMessage(__('Your message has been added'), '/loads/');
 		}
 		
 		

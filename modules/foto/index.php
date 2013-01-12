@@ -103,7 +103,6 @@ Class FotoModule extends Module {
 		
 		
 		// create markets
-		$addParams = array();
 		foreach ($records as $result) {
 			$this->Register['current_vars'] = $result;
 			$_addParams = array();
@@ -157,9 +156,9 @@ Class FotoModule extends Module {
 		$SectionsModel = $this->_loadModel(ucfirst($this->module) . 'Sections');
 		$category = $SectionsModel->getById($id);
 		if (!$category)
-			return showInfoMessage(__('Can not find category'), '/foto/');
+			return $this->showInfoMessage(__('Can not find category'), '/foto/');
 		if (!$this->ACL->checkCategoryAccess($category->getNo_access())) 
-			return showInfoMessage(__('Permission denied'), '/foto/');
+			return $this->showInfoMessage(__('Permission denied'), '/foto/');
 		
 		
 		$this->page_title = h($category->getTitle()) . ' - ' . $this->page_title;
@@ -176,11 +175,10 @@ Class FotoModule extends Module {
 	
 		// we need to know whether to show hidden
 		$childCats = $SectionsModel->getOneField('id', array('parent_id' => $id));
-		$childCats = implode(', ', $childCats);
 		$query_params = array('cond' => array(
 			'`category_id` = ' . $id
 		));
-		if ($childCats) $query_params['cond'] .= ' OR `category_id` IN (' . $childCats . ')';
+		if ($childCats) $query_params['cond'] .= ' OR `category_id` IN (' . implode(', ', $childCats) . ')';
 		
 
 		$total = $this->Model->getTotal($query_params);
@@ -376,30 +374,38 @@ Class FotoModule extends Module {
 		$this->_getCatsTree();
 		
 
-        // Check for preview or errors
-        $data = array('title' => null, 'in_cat' => null, 'description' => null, 'commented' => null);
-        $data = Validate::getCurrentInputsValues($data);
-
+		// Check for preview or errors
+		$data = Validate::getCurrentInputsValues(array(
+			'title' => null, 
+			'in_cat' => null, 
+			'description' => null, 
+			'commented' => '1'
+		));
+		$in_cat = $data['in_cat'];
+		$commented = $data['commented'];
+		$title = $data['title'];
+		$description = $data['description'];
+		
+		
 
 		$html = '';
-        $errors = $this->Parser->getErrors();
-        if (isset($_SESSION['FpsForm'])) unset($_SESSION['FpsForm']);
-        if (!empty($errors)) $html = $errors;
+		$errors = $this->Parser->getErrors();
+		if (isset($_SESSION['FpsForm'])) unset($_SESSION['FpsForm']);
+		if (!empty($errors)) $html = $errors;
 
 		
 		//categories list
-		$className = $this->Register['ModManager']->getModelNameFromModule('fotoSections');
-		$catModel = new $className;
-		$sql = $catModel->getCollection();
-		$cats_change = $this->_buildSelector($sql, ((!empty($data['in_cat'])) ? $data['in_cat'] : false));
+		$catsModel = $this->Register['ModManager']->getModelInstance('FotoSections');
+		$cats = $catsModel->getCollection();
+		$cats_selector = $this->_buildSelector($cats, (!empty($in_cat) ? $in_cat : false));
 		
 
 		$markers = array();
 		$markers['action'] = get_url('/foto/add/');
-		$markers['cats_selector'] = $cats_change;
+		$markers['cats_selector'] = $cats_selector;
 
 		//comments and hide
-		$markers['commented'] = (!empty($commented) || !isset($_POST['submitForm'])) ? 'checked="checked"' : '';
+		$markers['commented'] = !empty($commented) ? 'checked="checked"' : '';
 		if (!$this->ACL->turn(array('foto', 'record_comments_management'), false)) $markers['commented'] .= ' disabled="disabled"';
 
 		$markers['title'] = (!empty($title)) ? $title : '';
@@ -414,7 +420,8 @@ Class FotoModule extends Module {
 		
 		$source = $this->render('addform.html', array('data' => $markers));
 		
-		return $this->_view($html . $source);
+		$html = $html . $source;
+		return $this->_view($html);
 	}
 
 
@@ -435,62 +442,64 @@ Class FotoModule extends Module {
 
 
 		// Обрезаем переменные до длины, указанной в параметре maxlength тега input
-		$title   	 = trim(mb_substr( $_POST['title'], 0, 128 ));
+		$title = trim(mb_substr( $_POST['title'], 0, 128 ));
 		$description = trim($_POST['mainText']);
-		$in_cat 	 = intval($_POST['cats_selector']);
-		$commented = (!empty($_POST['commented'])) ? 1 : 0;
+		$in_cat = intval($_POST['cats_selector']);
+		$commented = (!empty($_POST['commented'])) ? '1' : '0';
 
 
 		// Check fields
-		$error = '';
+		$errors = '';
 		$valobj = $this->Register['Validate'];
-		if (empty($in_cat))                          
-			$error = $error.'<li>'.__('Category not selected').'</li>'."\n";
-		if (empty($title))                           
-			$error = $error.'<li>'.__('Empty field "title"').'</li>'."\n";
+		if (empty($in_cat))
+			$errors = $errors.'<li>'.__('Category not selected').'</li>'."\n";
+		if (empty($title))
+			$errors = $errors.'<li>'.__('Empty field "title"').'</li>'."\n";
 		elseif (!$valobj->cha_val($title, V_TITLE))  
-			$error = $error.'<li>'.__('Wrong chars in "title"').'</li>'."\n";
+			$errors = $errors.'<li>'.__('Wrong chars in "title"').'</li>'."\n";
 		if (empty($description) && $this->Register['Config']->read('description_requred', 'foto')) {
-			$error = $error.'<li>'.__('Empty field "description"').'</li>'."\n";
+			$errors = $errors.'<li>'.__('Empty field "description"').'</li>'."\n";
 		}
 		if (mb_strlen($description) > $this->Register['Config']->read('description_lenght', 'foto'))
-			$error = $error .'<li>'.sprintf(__('Wery big "description"'), $this->Register['Config']->read('description_lenght', 'foto')).'</li>'."\n";
+			$errors = $errors .'<li>'.sprintf(__('Wery big "description"'), $this->Register['Config']->read('description_lenght', 'foto')).'</li>'."\n";
 		
 		
 		
 		/* check file */
 		if (empty($_FILES['foto']['name']))	{
-			$error = $error .'<li>'.__('Not attaches').'</li>'. "\n";
+			$errors = $errors .'<li>'.__('Not attaches').'</li>'. "\n";
 		} else {
 			if ($_FILES['foto']['size'] > $this->Register['Config']->read('max_file_size', 'foto')) 
-				$error = $error .'<li>'. sprintf(__('Wery big file2'), $this->Register['Config']->read('max_file_size', 'foto')/1000) .'</li>'."\n";
+				$errors = $errors .'<li>'. sprintf(__('Wery big file2'), $this->Register['Config']->read('max_file_size', 'foto')/1000) .'</li>'."\n";
 			if ($_FILES['foto']['type'] != 'image/jpeg' &&
 			$_FILES['foto']['type'] != 'image/gif' &&
 			//$_FILES['foto']['type'] != 'image/bmp' &&
 			$_FILES['foto']['type'] != 'image/png') 
-				$error = $error .'<li>'.__('Wrong file format').'</li>'."\n";
+				$errors = $errors .'<li>'.__('Wrong file format').'</li>'."\n";
 				
-			$ext = strrchr($_FILES['foto']['name'], ".");
-			$ext = strtolower($ext);
+			$ext = strtolower(strrchr($_FILES['foto']['name'], "."));
 			if (!in_array($ext, $this->allowedExtentions))
-				$error = $error .'<li>'.__('Wrong file format').'</li>'."\n";
+				$errors = $errors .'<li>'.__('Wrong file format').'</li>'."\n";
 		}
 		
 		
 		//categories list
-		$className = $this->Register['ModManager']->getModelNameFromModule('fotoSections');
-		$catModel = new $className;
-		$sql = $catModel->getCollection(array('id' => $in_cat));
+		$catsModel = $this->Register['ModManager']->getModelInstance('FotoSections');
+		$cat = $catsModel->getById($in_cat);
 
-		if (empty($sql)) $error = $error.'<li>'.__('Can not find category').'</li>'."\n";
+		if (empty($cat)) $errors = $errors . '<li>' . __('Can not find category') . '</li>' . "\n";
 		
 
 		// errors
-		if (!empty($error)) {
-			$data = array('title' => null, 'description' => null, 'in_cat' => $in_cat, 'commented' => null);
-			$data = array_merge($data, $_POST);
+		if (!empty($errors)) {
+			$data = array(
+				'title' => $title,
+				'description' => $description,
+				'in_cat' => $in_cat,
+				'commented' => $commented,
+			);
 			$data['error'] = '<p class="errorMsg">' . __('Some error in form') . '</p>'.
-				"\n".'<ul class="errorMsg">'."\n".$error.'</ul>'."\n";
+				"\n".'<ul class="errorMsg">'."\n" . $errors . '</ul>'."\n";
 			$_SESSION['FpsForm'] = $data;
 			redirect('/foto/add_form/');
 		}
@@ -507,19 +516,18 @@ Class FotoModule extends Module {
 		
 		
 		// Формируем SQL-запрос на добавление темы	
-		$description = mb_substr($description, 0, $this->Register['Config']->read('description_lenght', 'foto'));
 		$res = array(
 			'title'        => $title,
-			'description'  => $description,
+			'description'  => mb_substr($description, 0, $this->Register['Config']->read('description_lenght', 'foto')),
 			'date'         => new Expr('NOW()'),
 			'author_id'    => $_SESSION['user']['id'],
 			'category_id'  => $in_cat,
-			'filename'  => '',
+			'filename'     => '',
 			'commented'    => $commented,
 		);
 		$entity = new FotoEntity($res);
-		$entity->save();
-		$id = mysql_insert_id();
+		$id = $entity->save();
+		$entity->setId($id);
  
  
 		/* save full and resample images */
@@ -527,24 +535,27 @@ Class FotoModule extends Module {
 		$save_path = ROOT . '/sys/files/foto/full/' . $id . $ext;
 		$save_sempl_path = ROOT . '/sys/files/foto/preview/' . $id . $ext;
 		
-		$entity2 = $this->Model->getById($id);
-		$entity2->setFilename($id . $ext);
-		$entity2->save();
-		
 		if (!move_uploaded_file($_FILES['foto']['tmp_name'], $save_path)) $error_flag = true;
-		if (!chmod($save_path, 0644)) $error_flag = true; 
+		elseif (!chmod($save_path, 0644)) $error_flag = true; 
 		
+//		$entity = $this->Model->getById($id);
 		
 		/* if an error when coping */
-		if (!empty($error_flag)) {
+		if (!empty($error_flag) && $error_flag) {
 			$entity->delete();
-			
-			$data = array('title' => null, 'description' => null, 'in_cat' => $in_cat);
-			$data = array_merge($data, $_POST);
+			$data = array(
+				'title' => $title,
+				'description' => $description,
+				'in_cat' => $in_cat,
+				'commented' => $commented,
+			);
 			$data['error'] = '<p class="errorMsg">Произошла ошибка:</p>'
 				. "\n" . '<ul class="errorMsg">'."\n".'Неизвесная ошибка. Попробуйте начать заново.</ul>'."\n";
 			$_SESSION['FpsForm'] = $data;
 			redirect('/foto/add_form/');
+		} else {
+			$entity->setFilename($id . $ext);
+			$entity->save();
 		}
 		
 		
@@ -563,7 +574,7 @@ Class FotoModule extends Module {
 		$this->Cache->clean(CACHE_MATCHING_TAG, array('module_foto'));
 		$this->Register['DB']->cleanSqlCache();
 		if ($this->Log) $this->Log->write('adding foto', 'foto id(' . $id . ')');
-		return showInfoMessage(__('Material successful added'), '/foto/' );		  
+		return $this->showInfoMessage(__('Material successful added'), '/foto/' );		  
 	}
 
 
@@ -611,26 +622,29 @@ Class FotoModule extends Module {
 		$this->_globalize($navi);
 		
 		
-        // Check for preview or errors
-        $data = array('title' => null, 'in_cat' => $entity->getCategory_id(), 'description' => null);
-        $data = Validate::getCurrentInputsValues($entity, $data);
+		$in_cat = $entity->getCategory_id();
+		// Check for preview or errors
+		$data = Validate::getCurrentInputsValues($entity, array(
+			'title' => null,
+			'description' => null,
+			'in_cat' => $in_cat,
+			'commented' => null,
+		));
 	
 	
-        $errors = $this->Parser->getErrors();
-        if (isset($_SESSION['FpsForm'])) unset($_SESSION['FpsForm']);
-        if (!empty($errors)) $html = $errors . $html;
+		$errors = $this->Parser->getErrors();
+		if (isset($_SESSION['FpsForm'])) unset($_SESSION['FpsForm']);
+		if (!empty($errors)) $html = $errors . $html;
 	
 	
 		//categories list
-		$className = $this->Register['ModManager']->getModelNameFromModule('fotoSections');
-		$catModel = new $className;
-		$cats = $catModel->getCollection();
-		$selectedCatId = (!empty($in_cat)) ? $in_cat : $entity->getCategory_id();
-		$cats_change = $this->_buildSelector($cats, $selectedCatId);
+		$catsModel = $this->Register['ModManager']->getModelInstance('FotoSections');
+		$cats = $catsModel->getCollection();
+		$cats_selector = $this->_buildSelector($cats, (!empty($in_cat)) ? $in_cat : $entity->getCategory_id());
 		
 		
 		$data->setAction(get_url('/foto/update/' . $id));
-		$data->setCats_selector($cats_change);
+		$data->setCats_selector($cats_selector);
 		$data->setMain_text($this->Textarier->print_page($data->getDescription(), $data->getAuthor()->geteStatus()));
 		
 		
@@ -668,52 +682,57 @@ Class FotoModule extends Module {
 		if (!$this->ACL->turn(array('foto', 'edit_materials'), false) 
 		&& (empty($_SESSION['user']['id']) || $entity->getAuthor_id() !== $_SESSION['user']['id'] 
 		|| !$this->ACL->turn(array('foto', 'edit_mine_materials'), false))) {
-			return showInfoMessage(__('Permission denied'), '/foto/' );
+			return $this->showInfoMessage(__('Permission denied'), '/foto/' );
 		}
 		
 		
 		// Обрезаем переменные до длины, указанной в параметре maxlength тега input
-		$title       = trim(mb_substr($_POST['title'], 0, 128));
+		$title = trim(mb_substr($_POST['title'], 0, 128));
 		$description = trim($_POST['mainText']);
-		$in_cat		 = intval($_POST['cats_selector']);
+		$in_cat = intval($_POST['cats_selector']);
 		$commented = (!empty($_POST['commented'])) ? 1 : 0;
-		if (empty($in_cat)) $in_cat = $foto['category_id'];
+		if (empty($in_cat)) $in_cat = $entity['category_id'];
 		
 		
 		// Check fields
 		$Validate = $this->Register['Validate'];
-		$error = '';
-		if (empty($title))                    
-			$error = $error.'<li>'.__('Empty field "title"').'</li>'."\n";
+		$errors = '';
+		if (empty($title))
+			$errors = $errors.'<li>'.__('Empty field "title"').'</li>'."\n";
 		if (!$Validate->cha_val($title, V_TITLE))  
-			$error = $error.'<li>'.__('Wrong chars in "title"').'</li>'."\n";
+			$errors = $errors.'<li>'.__('Wrong chars in "title"').'</li>'."\n";
 		if (empty($description) && $this->Register['Config']->read('description_requred', 'foto')) 
-			$error = $error.'<li>'.__('Empty field "description"').'</li>'."\n";
+			$errors = $errors.'<li>'.__('Empty field "description"').'</li>'."\n";
 		if (mb_strlen($description) > $this->Register['Config']->read('description_lenght', 'foto'))
-			$error = $error.'<li>'.sprintf(__('Wery big "description"'), $this->Register['Config']->read('description_lenght', 'foto')).'</li>'."\n";
+			$errors = $errors.'<li>'.sprintf(__('Wery big "description"'), $this->Register['Config']->read('description_lenght', 'foto')).'</li>'."\n";
 			
 			
-		$className = $this->Register['ModManager']->getModelNameFromModule('fotoSections');
-		$catModel = new $className;
-		$cats = $catModel->getById($in_cat);	
-		if (!$cats) $error = $error .'<li>' . __('Can not find category') .'</li>'."\n";
+		$catsModel = $this->Register['ModManager']->getModelInstance('FotoSections');
+		$cat = $catsModel->getById($in_cat);
+
+		if (empty($cat)) $errors = $errors . '<li>' . __('Can not find category') . '</li>' . "\n";
 
 		
 		// errors
-		if (!empty( $error )) {
-			$data = array('title' => $title, 'description' => $description, 'in_cat' => $in_cat, 'commented' => null);
+		if (!empty( $errors )) {
+			$data = array(
+				'title' => $title,
+				'description' => $description,
+				'in_cat' => $in_cat,
+				'commented' => $commented
+			);
 			$data['error'] = '<p class="errorMsg">' . __('Some error in form') 
-			. '</p>'."\n".'<ul class="errorMsg">'."\n".$error.'</ul>'."\n";
+			. '</p>'."\n".'<ul class="errorMsg">'."\n".$errors.'</ul>'."\n";
 			$_SESSION['FpsForm'] = $data;
 			redirect('/foto/edit_form/' . $id );
 		}
 		
 		if (!$this->ACL->turn(array('foto', 'record_comments_management'), false)) $commented = '1';
 
-		$description = mb_substr($description, 0, Config::read('description_lenght', 'foto'));
 		$entity->setTitle($title);
-		$entity->setDescription($description);
+		$entity->setDescription(mb_substr($description, 0, Config::read('description_lenght', 'foto')));
 		$entity->setCategory_id($in_cat);
+		$entity->setCommented($commented);
 		$entity->save();
 
 		

@@ -201,9 +201,9 @@ Class StatModule extends Module {
 		$SectionsModel = $this->_loadModel(ucfirst($this->module) . 'Sections');
 		$category = $SectionsModel->getById($id);
 		if (!$category)
-			return showInfoMessage(__('Can not find category'), '/stat/');
+			return $this->showInfoMessage(__('Can not find category'), '/stat/');
 		if (!$this->ACL->checkCategoryAccess($category->getNo_access())) 
-			return showInfoMessage(__('Permission denied'), '/stat/');
+			return $this->showInfoMessage(__('Permission denied'), '/stat/');
 		
 		
 		$this->page_title = h($category->getTitle()) . ' - ' . $this->page_title;
@@ -374,9 +374,9 @@ Class StatModule extends Module {
 		
 		if (empty($entity)) redirect('/error.php?ac=404');
 		if ($entity->getAvailable() == 0 && !$this->ACL->turn(array('other', 'can_see_hidden'), false)) 
-			return showInfoMessage(__('Permission denied'), '/stat/');
+			return $this->showInfoMessage(__('Permission denied'), '/stat/');
 		if (!$this->ACL->checkCategoryAccess($entity->getCategory()->getNo_access())) 
-			return showInfoMessage(__('Permission denied'), '/stat/');
+			return $this->showInfoMessage(__('Permission denied'), '/stat/');
 			
 		
 		// Some gemor with add fields
@@ -1053,7 +1053,7 @@ Class StatModule extends Module {
 		if (!$this->ACL->turn(array('stat', 'delete_materials'), false) 
 		&& (!empty($_SESSION['user']['id']) && $target->getAuthor_id() == $_SESSION['user']['id'] 
 		&& $this->ACL->turn(array('stat', 'delete_mine_materials'), false)) === false) {
-			return showInfoMessage(__('Permission denied'), '/stat/');
+			return $this->showInfoMessage(__('Permission denied'), '/stat/');
 		}
 		
 		

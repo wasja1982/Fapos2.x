@@ -41,10 +41,12 @@ class Validate {
 
 	public static function getCurrentInputsValues($entity, $pattern = array())
     {
+		$session = array();
         if (!empty($_SESSION['viewMessage'])) {
 			$session = $_SESSION['viewMessage'];
-        } else if (!empty($_SESSION['FpsForm'])) {
-            $session = $_SESSION['FpsForm'];
+        }
+		if (!empty($_SESSION['FpsForm'])) {
+            $session = array_merge($session, $_SESSION['FpsForm']);
         }
 		
 		
@@ -54,13 +56,13 @@ class Validate {
 			if (is_object($entity)) {
 				$getter = 'get' . ucfirst($key);
 				$setter = 'set' . ucfirst($key);
-				if (!empty($session[$key])) {
+				if (isset($session[$key])) {
 					$entity->$setter($session[$key]);
 				} else if (!$entity->$getter()) {
 					$entity->$setter($value);
 				}
 			} else if (is_array($entity)) {
-				if (!empty($session[$key])) {
+				if (isset($session[$key])) {
 					$entity[$key] = $session[$key];
 				} else if (!isset($entity[$key])) {
 					$entity[$key] = $value;
