@@ -41,7 +41,7 @@ $settingsInfo = array(
 		'type' => 'text',
 		'title' => 'Максимальная длина описания',
 		'description' => '',
-		'help' => '',
+		'help' => 'Символов',
 	),
 	
 	
@@ -76,6 +76,35 @@ $settingsInfo = array(
 		'value' => 'description',
 		'fields' => 'fields',
 		'checked' => '1',
+	),
+	
+	
+	'Комментарии' => 'Комментарии',
+	'comment_active' => array(
+		'type' => 'checkbox',
+		'title' => 'Разрешить использование комментариев',
+		'description' => '',
+        'value' => '1',
+        'checked' => '1',
+	),
+	'comment_per_page' => array(
+		'type' => 'text',
+		'title' => 'Комментариев на странице',
+		'description' => '',
+		'help' => '',
+	),
+    'comment_lenght' => array(
+        'type' => 'text',
+        'title' => 'Максимальный размер',
+		'description' => '',
+		'help' => 'Символов',
+    ),
+	'comments_order' => array(
+		'type' => 'checkbox',
+		'title' => 'Новые сверху',
+		'description' => '',
+        'value' => '1',
+        'checked' => '1',
 	),
 	
 	

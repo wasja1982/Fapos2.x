@@ -68,7 +68,7 @@ Class FotoModule extends Module {
 		
 		//Узнаем кол-во материалов в БД
 		$total = $this->Model->getTotal(array());
-		list ($pages, $page) = pagination( $total, $this->Register['Config']->read('per_page', 'foto'), '/foto/');
+		list ($pages, $page) = pagination( $total, Config::read('per_page', 'foto'), '/foto/');
 		$this->Register['pages'] = $pages;
 		$this->Register['page'] = $page;
 		$this->page_title .= ' (' . $page . ')';
@@ -91,7 +91,7 @@ Class FotoModule extends Module {
 		
 		$params = array(
 			'page' => $page,
-			'limit' => $this->Register['Config']->read('per_page', 'foto'),
+			'limit' => Config::read('per_page', 'foto'),
 			'order' => getOrderParam(__CLASS__),
 		);
 		$where = array();
@@ -207,7 +207,7 @@ Class FotoModule extends Module {
 	  
 		$params = array(
 			'page' => $page,
-			'limit' => $this->Register['Config']->read('per_page', 'foto'),
+			'limit' => Config::read('per_page', 'foto'),
 			'order' => getOrderParam(__CLASS__),
 		);
 		$where = $query_params['cond'];
@@ -293,10 +293,9 @@ Class FotoModule extends Module {
 		&& $this->ACL->turn(array('foto', 'view_comments'), false) 
 		&& $entity->getCommented() == 1) {
 			if ($this->ACL->turn(array('foto', 'add_comments'), false)) 
-				$this->comments  = $this->_add_comment_form($id);
-			$this->comments  = $this->_get_comments($entity) . $this->comments;
+				$this->comments_form = $this->_add_comment_form($id);
+			$this->comments  = $this->_get_comments($entity);
 		}
-
 		$this->Register['current_vars'] = $entity;
 		
 		
@@ -457,11 +456,11 @@ Class FotoModule extends Module {
 			$errors = $errors.'<li>'.__('Empty field "title"').'</li>'."\n";
 		elseif (!$valobj->cha_val($title, V_TITLE))  
 			$errors = $errors.'<li>'.__('Wrong chars in "title"').'</li>'."\n";
-		if (empty($description) && $this->Register['Config']->read('description_requred', 'foto')) {
+		if (empty($description) && Config::read('description_requred', 'foto')) {
 			$errors = $errors.'<li>'.__('Empty field "description"').'</li>'."\n";
 		}
-		if (mb_strlen($description) > $this->Register['Config']->read('description_lenght', 'foto'))
-			$errors = $errors .'<li>'.sprintf(__('Wery big "description"'), $this->Register['Config']->read('description_lenght', 'foto')).'</li>'."\n";
+		if (mb_strlen($description) > Config::read('description_lenght', 'foto'))
+			$errors = $errors .'<li>'.sprintf(__('Wery big "description"'), Config::read('description_lenght', 'foto')).'</li>'."\n";
 		
 		
 		
@@ -469,8 +468,8 @@ Class FotoModule extends Module {
 		if (empty($_FILES['foto']['name']))	{
 			$errors = $errors .'<li>'.__('Not attaches').'</li>'. "\n";
 		} else {
-			if ($_FILES['foto']['size'] > $this->Register['Config']->read('max_file_size', 'foto')) 
-				$errors = $errors .'<li>'. sprintf(__('Wery big file2'), $this->Register['Config']->read('max_file_size', 'foto')/1000) .'</li>'."\n";
+			if ($_FILES['foto']['size'] > Config::read('max_file_size', 'foto')) 
+				$errors = $errors .'<li>'. sprintf(__('Wery big file2'), Config::read('max_file_size', 'foto')/1000) .'</li>'."\n";
 			if ($_FILES['foto']['type'] != 'image/jpeg' &&
 			$_FILES['foto']['type'] != 'image/gif' &&
 			//$_FILES['foto']['type'] != 'image/bmp' &&
@@ -518,7 +517,7 @@ Class FotoModule extends Module {
 		// Формируем SQL-запрос на добавление темы	
 		$res = array(
 			'title'        => $title,
-			'description'  => mb_substr($description, 0, $this->Register['Config']->read('description_lenght', 'foto')),
+			'description'  => mb_substr($description, 0, Config::read('description_lenght', 'foto')),
 			'date'         => new Expr('NOW()'),
 			'author_id'    => $_SESSION['user']['id'],
 			'category_id'  => $in_cat,
@@ -537,8 +536,6 @@ Class FotoModule extends Module {
 		
 		if (!move_uploaded_file($_FILES['foto']['tmp_name'], $save_path)) $error_flag = true;
 		elseif (!chmod($save_path, 0644)) $error_flag = true; 
-		
-//		$entity = $this->Model->getById($id);
 		
 		/* if an error when coping */
 		if (!empty($error_flag) && $error_flag) {
@@ -560,8 +557,8 @@ Class FotoModule extends Module {
 		
 		
 		// Create watermark and resample image
-		$watermark_path = ROOT . '/sys/img/' . $this->Register['Config']->read('watermark_img', 'foto');
-		if ($this->Register['Config']->read('use_watermarks', 'foto') && !empty($watermark_path) && file_exists($watermark_path)) {
+		$watermark_path = ROOT . '/sys/img/' . Config::read('watermark_img', 'foto');
+		if (Config::read('use_watermarks', 'foto') && !empty($watermark_path) && file_exists($watermark_path)) {
 			$waterObj = new FpsImg;
 			$waterObj->createWaterMark($save_path, $watermark_path);
 		}
@@ -630,7 +627,10 @@ Class FotoModule extends Module {
 			'in_cat' => $in_cat,
 			'commented' => null,
 		));
-	
+		$commented = $data->getCommented();
+		$commented = !empty($commented) ? ' checked="checked"' : '';
+		if (!$this->ACL->turn(array('foto', 'record_comments_management'), false)) $commented .= ' disabled="disabled"';
+		$data->setCommented($commented);
 	
 		$errors = $this->Parser->getErrors();
 		if (isset($_SESSION['FpsForm'])) unset($_SESSION['FpsForm']);
@@ -701,10 +701,10 @@ Class FotoModule extends Module {
 			$errors = $errors.'<li>'.__('Empty field "title"').'</li>'."\n";
 		if (!$Validate->cha_val($title, V_TITLE))  
 			$errors = $errors.'<li>'.__('Wrong chars in "title"').'</li>'."\n";
-		if (empty($description) && $this->Register['Config']->read('description_requred', 'foto')) 
+		if (empty($description) && Config::read('description_requred', 'foto')) 
 			$errors = $errors.'<li>'.__('Empty field "description"').'</li>'."\n";
-		if (mb_strlen($description) > $this->Register['Config']->read('description_lenght', 'foto'))
-			$errors = $errors.'<li>'.sprintf(__('Wery big "description"'), $this->Register['Config']->read('description_lenght', 'foto')).'</li>'."\n";
+		if (mb_strlen($description) > Config::read('description_lenght', 'foto'))
+			$errors = $errors.'<li>'.sprintf(__('Wery big "description"'), Config::read('description_lenght', 'foto')).'</li>'."\n";
 			
 			
 		$catsModel = $this->Register['ModManager']->getModelInstance('FotoSections');

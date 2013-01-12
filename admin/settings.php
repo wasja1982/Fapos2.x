@@ -77,13 +77,14 @@ include_once ROOT . '/sys/settings/conf_properties.php';
 
 
 // Get current module(group of settings)
-if (empty($_GET['m']) || !is_string($_GET['m'])) $_GET['m'] = 'system';
+if (empty($_GET['m']) || !is_string($_GET['m'])) redirect('/admin/');
 $module = trim($_GET['m']);
 if (in_array($module, $sysMods)) {
-	$settingsInfo = $settingsInfo[$module];
+	redirect('/admin/');
 } else {
 	$pathToModInfo = ROOT . '/modules/' . $module . '/info.php';
-	include ($pathToModInfo);
+	if (file_exists($pathToModInfo)) include ($pathToModInfo);
+	else redirect('/admin/');
 }
 
 

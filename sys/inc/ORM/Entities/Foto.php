@@ -37,6 +37,7 @@ class FotoEntity extends FpsEntity
 	protected $author_id;
 	protected $author = null;
 	protected $comments;
+	protected $commented;
 	protected $filename = null;
 
 	
@@ -51,6 +52,7 @@ class FotoEntity extends FpsEntity
 			'category_id' => $this->category_id,
 			'author_id' => $this->author_id,
 			'comments' => (!empty($this->comments)) ? intval($this->comments) : 0,
+			'commented' => (!empty($this->commented)) ? 1 : 0,
 			'filename' => $this->filename,
 		);
 		if ($this->id) $params['id'] = $this->id;
