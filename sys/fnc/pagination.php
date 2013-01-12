@@ -26,16 +26,16 @@
 // Функция возвращает html меню для постраничной навигации
 function pagination( $total, $perPage, $url )
 {
-    $cntPages = ceil( $total / $perPage );
-    if ( isset($_GET['page']) ) {
-        $page = (int)$_GET['page'];
-        if ( $page < 1 ) $page = 1;
-    } else {
-        $page = 1;
-    }
-    if ($page > $cntPages) $page = $cntPages;
-    $Register = Register::getInstance();
-    $Register['pagescnt'] = $cntPages;
+	$cntPages = ceil( $total / $perPage );
+	if ( isset($_GET['page']) ) {
+		$page = (int)$_GET['page'];
+		if ( $page < 1 ) $page = 1;
+	} else {
+		$page = 1;
+	}
+	if ($page > $cntPages) $page = $cntPages;
+	$Register = Register::getInstance();
+	$Register['pagescnt'] = $cntPages;
 
 
 
@@ -50,7 +50,7 @@ function pagination( $total, $perPage, $url )
 
 
 	$url = get_url($url);
-	$html = ___('Pages');
+	$html = __('Pages');
 	// Проверяем нужна ли стрелка "В начало"
 	if ( $page > 3 )
 		$startpage = '<a class="pages" href="'.$url.'&page=1"><<</a> ... ';
