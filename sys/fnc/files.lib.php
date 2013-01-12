@@ -29,20 +29,18 @@ function getFileSize( $file )
 
 
 
-function deleteAttach($module, $matId, $attachNum) {
+function deleteAttach($module, $entity_id, $attachNum) {
     $Register = Register::getInstance();
-   	$FpsDB = $Register['DB'];
 
-	
-	$className = $Register['ModManager']->getModelNameFromModule($module . 'Attaches');
-	$Model = new $className;
-	$where = array(
-		'entity_id' => $matId,
+	$attachModel = new $Register['ModManager']->getModelNameFromModule($module . 'Attaches');
+	$attach = $attachModel->getCollection(array(
+		'entity_id' => $entity_id,
 		'attach_number' => $attachNum,
-	);
-	$attach = $Model->getCollection($where, array('limit' => 1));
+	), array(
+		'limit' => 1
+	));
 
-    if (count($attach) && is_array($attach)) {
+    if (count($attach) > 0 && is_array($attach) && !empty($attach[0])) {
         $filePath = ROOT . '/sys/files/' . $module . '/' . $attach[0]->getFilename();
         if (file_exists($filePath)) {
             _unlink($filePath);
@@ -60,17 +58,15 @@ function deleteAttach($module, $matId, $attachNum) {
  */
 function downloadAttaches($module, $entity_id) {
 	$Register = Register::getInstance();
-	$FpsDB = $Register['DB'];
 
 	$attaches = true;
 	if (empty($entity_id) || !is_numeric($entity_id)) return false;
-	$img_extentions = array('.png','.jpg','.gif','.jpeg', '.PNG','.JPG','.GIF','.JPEG');
 	$files_dir = ROOT . '/sys/files/' . $module . '/';
 	// delete collizions if exists 
 	//$this->deleteCollizions(array('id' => $post_id), true);
 	
 	
-	$max_attach = $Register['Config']->read('max_attaches', $module);
+	$max_attach = Config::read('max_attaches', $module);
 	if (empty($max_attach) || !is_numeric($max_attach)) $max_attach = 5;
 	for ($i = 1; $i <= $max_attach; $i++) {
 		$attach_name = 'attach' . $i;
@@ -81,15 +77,7 @@ function downloadAttaches($module, $entity_id) {
 			$filename = getSecureFilename($_FILES[$attach_name]['name'], $files_dir);
 			$ext = strrchr($_FILES[$attach_name]['name'], ".");
 
-			
-			$is_image = 0;
-			if (($_FILES[$attach_name]['type'] == 'image/jpeg'
-			|| $_FILES[$attach_name]['type'] == 'image/jpg'
-			|| $_FILES[$attach_name]['type'] == 'image/gif'
-			|| $_FILES[$attach_name]['type'] == 'image/png')
-			&& in_array(strtolower($ext), $img_extentions)) {
-				$is_image = 1;
-			}
+			$is_image = isImageFile($_FILES[$attach_name]['type'], $ext) ? 1 : 0;
 
 			// Перемещаем файл из временной директории сервера в директорию files
 			if (move_uploaded_file($_FILES[$attach_name]['tmp_name'], $files_dir . $filename)) {
@@ -137,16 +125,38 @@ function getSecureFilename($filename, $dirToCheck) {
 	}
 	
 	
-	$extentions = array('.php', '.phtml', '.php3', '.html', '.htm', '.pl', '.PHP', '.PHTML', '.PHP3', '.HTML', '.HTM', '.PL', '.js', '.JS');
 	$ext = strrchr($filename, ".");
-	$ext = (in_array( $ext, $extentions) || empty($ext)) ? '.txt' : $ext;
-	$filename = mb_substr($filename, 0, mb_strlen($filename) - mb_strlen($ext));
+	$ext = (isPermittedFile($ext)) ? $ext : '.txt';
 
 	
-	$filename = preg_replace('#[^a-z\d_\-]+#iu', 'x', $filename);
+	$filename = preg_replace('#[^a-z\d_\-]+#iu', 'x', mb_substr($filename, 0, mb_strlen($filename) - mb_strlen($ext)));
 	while (file_exists($dirToCheck . $filename . $ext)) {
 		$filename .= rand(0, 999);
 		clearstatcache();
 	}
 	return $filename . $ext;
+}
+
+function isImageFile($mime, $ext = null) {
+	/**
+	 * Types of images
+	 */
+	$allowed_types = array('image/jpeg','image/jpg','image/gif','image/png');
+	/**
+	 * Images extensions
+	 */
+	$img_extentions = array('.png','.jpg','.gif','.jpeg');
+	
+	$is_image = in_array($mime, $allowed_types);
+	if (!empty($ext)) $is_image = $is_image && in_array(strtolower($ext), $img_extentions);
+	return $is_image;
+}
+
+function isPermittedFile($ext) {
+	/**
+	 * Wrong extention for download files
+	 */
+	$deny_extentions = array('.php', '.phtml', '.php3', '.html', '.htm', '.pl', '.js');
+	
+	return !(empty($ext) || in_array(strtolower($ext), $deny_extentions));
 }

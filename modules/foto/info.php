@@ -136,10 +136,7 @@ $settingsInfo = array(
 if (!function_exists('fotoSaveWaterMark')) {
 	function fotoSaveWaterMark($settings)
 	{
-		if ($_FILES['watermark_img']['type'] == 'image/jpg'
-		|| $_FILES['watermark_img']['type'] == 'image/gif'
-		|| $_FILES['watermark_img']['type'] == 'image/jpeg'
-		|| $_FILES['watermark_img']['type'] == 'image/png') {
+		if (isImageFile($_FILES['watermark_img']['type'])) {
 			$ext = strchr($_FILES['watermark_img']['name'], '.');
 			if (move_uploaded_file($_FILES['watermark_img']['tmp_name'], ROOT . '/sys/img/watermark'.$ext)) {
 				$settings['watermark_img'] = 'watermark'.$ext;

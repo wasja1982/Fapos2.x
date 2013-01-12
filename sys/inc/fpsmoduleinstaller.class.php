@@ -189,9 +189,9 @@ class FpsModuleInstaller
 		if (file_exists($path)) {
 			include_once $path;
 			if (!empty($FpsInstallSettings) && is_array($FpsInstallSettings)) {
-				$CurrSettings = $Register['Config']->read('all');
+				$CurrSettings = Config::read('all');
 				$CurrSettings[$module] = $FpsInstallSettings;
-				$Register['Config']->write($CurrSettings);
+				Config::write($CurrSettings);
 			}
 		}
 	}

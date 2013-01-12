@@ -41,11 +41,6 @@ Class LoadsModule extends Module {
 	*/
 	public $attached_files_path = 'loads';
 
-    /**
-     * Wrong extention for download files
-     */
-    private $denyExtentions = array('.php', '.phtml', '.php3', '.html', '.htm', '.pl', '.PHP', '.PHTML', '.PHP3', '.HTML', '.HTM', '.PL', '.js', '.JS');
-
 
 
 
@@ -66,7 +61,7 @@ Class LoadsModule extends Module {
     {
 		
 		//turn access
-		$this->ACL->turn(array('loads', 'view_list'));
+		$this->ACL->turn(array($this->module, 'view_list'));
 		
 		
 		//формируем блок со списком  разделов
@@ -88,14 +83,14 @@ Class LoadsModule extends Module {
 
 
         $total = $this->Model->getTotal($query_params);
-        list ($pages, $page) = pagination( $total, Config::read('per_page', 'loads'), '/loads/');
+        list ($pages, $page) = pagination( $total, Config::read('per_page', $this->module), '/loads/');
         $this->Register['pages'] = $pages;
         $this->Register['page'] = $page;
         $this->page_title .= ' (' . $page . ')';
 
 
         $navi = array();
-        $navi['add_link'] = ($this->ACL->turn(array('loads', 'add_materials'), false))
+        $navi['add_link'] = ($this->ACL->turn(array($this->module, 'add_materials'), false))
             ? get_link(__('Add material'), '/loads/add_form/') : '';
         $navi['navigation'] = $this->_buildBreadCrumbs();
         $navi['pagination'] = $pages;
@@ -111,7 +106,7 @@ Class LoadsModule extends Module {
 
         $params = array(
             'page' => $page,
-            'limit' => $this->Register['Config']->read('per_page', 'loads'),
+            'limit' => Config::read('per_page', $this->module),
             'order' => getOrderParam(__CLASS__),
         );
         $where = array();
@@ -169,7 +164,7 @@ Class LoadsModule extends Module {
             }
 
             $announce = $this->Textarier->getAnnounce($announce, $entry_url, 0,
-                $this->Register['Config']->read('announce_lenght', 'loads'), $entity);
+                Config::read('announce_lenght', $this->module), $entity);
             $markers['announce'] = $announce;
 
 
@@ -207,7 +202,7 @@ Class LoadsModule extends Module {
 	function category($id = null)
     {
         //turn access
-        $this->ACL->turn(array('loads', 'view_list'));
+        $this->ACL->turn(array($this->module, 'view_list'));
         $id = intval($id);
         if (empty($id) || $id < 1) redirect('/');
 
@@ -246,7 +241,7 @@ Class LoadsModule extends Module {
 
 
         $total = $this->Model->getTotal($query_params);
-        list ($pages, $page) = pagination( $total, $this->Register['Config']->read('per_page', 'loads'), '/loads/category/' . $id);
+        list ($pages, $page) = pagination( $total, Config::read('per_page', $this->module), '/loads/category/' . $id);
         $this->Register['pages'] = $pages;
         $this->Register['page'] = $page;
         $this->page_title .= ' (' . $page . ')';
@@ -254,7 +249,7 @@ Class LoadsModule extends Module {
 
 
         $navi = array();
-        $navi['add_link'] = ($this->ACL->turn(array('loads', 'add_materials'), false))
+        $navi['add_link'] = ($this->ACL->turn(array($this->module, 'add_materials'), false))
             ? get_link(__('Add material'), '/loads/add_form/') : '';
         $navi['navigation'] = $this->_buildBreadCrumbs($id);
         $navi['pagination'] = $pages;
@@ -271,7 +266,7 @@ Class LoadsModule extends Module {
 
         $params = array(
             'page' => $page,
-            'limit' => Config::read('per_page', 'loads'),
+            'limit' => Config::read('per_page', $this->module),
             'order' => getOrderParam(__CLASS__),
         );
         $where = $query_params['cond'];
@@ -334,7 +329,7 @@ Class LoadsModule extends Module {
             $announce = $this->Textarier->getAnnounce($announce
                 , $entry_url
                 , 0
-                , $this->Register['Config']->read('announce_lenght', 'loads')
+                , Config::read('announce_lenght', $this->module)
                 , $result
             );
             $_addParams['announce'] = $announce;
@@ -378,7 +373,7 @@ Class LoadsModule extends Module {
 	function view ($id = null)
     {
 		//turn access
-		$this->ACL->turn(array('loads', 'view_materials'));
+		$this->ACL->turn(array($this->module, 'view_materials'));
 		$id = intval($id);
 		if (empty($id) || $id < 1) redirect('/');
 
@@ -405,17 +400,17 @@ Class LoadsModule extends Module {
         }
 
 
-        $max_attaches = $this->Register['Config']->read('max_attaches', $this->module);
+        $max_attaches = Config::read('max_attaches', $this->module);
         if (empty($max_attaches) || !is_numeric($max_attaches)) $max_attaches = 5;
 
 
         //category block
         $this->_getCatsTree($entity->getCategory()->getId());
         /* COMMENT BLOCK */
-        if (Config::read('comment_active', 'loads') == 1
-            && $this->ACL->turn(array('loads', 'view_comments'), false)
+        if (Config::read('comment_active', $this->module) == 1
+            && $this->ACL->turn(array($this->module, 'view_comments'), false)
             && $entity->getCommented() == 1) {
-            if ($this->ACL->turn(array('loads', 'add_comments'), false))
+            if ($this->ACL->turn(array($this->module, 'add_comments'), false))
                 $this->comments_form = $this->_add_comment_form($id);
             $this->comments = $this->_get_comments($entity);
         }
@@ -522,7 +517,7 @@ Class LoadsModule extends Module {
 	 */
 	function add_form () {
 		//turn access
-		$this->ACL->turn(array('loads', 'add_materials'));
+		$this->ACL->turn(array($this->module, 'add_materials'));
 		$writer_status = (!empty($_SESSION['user']['status'])) ? $_SESSION['user']['status'] : 0;
 		
 		
@@ -560,13 +555,13 @@ Class LoadsModule extends Module {
 
         //comments and hide
         $data['commented'] = (!empty($commented) || !isset($_POST['submitForm'])) ? 'checked="checked"' : '';
-        if (!$this->ACL->turn(array('loads', 'record_comments_management'), false)) $data['commented'] .= ' disabled="disabled"';
+        if (!$this->ACL->turn(array($this->module, 'record_comments_management'), false)) $data['commented'] .= ' disabled="disabled"';
         $data['available'] = (!empty($available) || !isset($_POST['submitForm'])) ? 'checked="checked"' : '';
-        if (!$this->ACL->turn(array('loads', 'hide_material'), false)) $data['available'] .= ' disabled="disabled"';
+        if (!$this->ACL->turn(array($this->module, 'hide_material'), false)) $data['available'] .= ' disabled="disabled"';
 
 
 		$markers['action'] = get_url('/loads/add/');
-		$markes['max_attaches'] = $this->Register['Config']->read('max_attaches', $this->module);
+		$markes['max_attaches'] = Config::read('max_attaches', $this->module);
 		if (empty($markers['max_attaches']) || !is_numeric($markers['max_attaches']))
 			$markers['max_attaches'] = 5;
         $data = array_merge($data, $markers);
@@ -591,7 +586,7 @@ Class LoadsModule extends Module {
 	function add()
     {
 		//turn access
-		$this->ACL->turn(array('loads', 'add_materials'));
+		$this->ACL->turn(array($this->module, 'add_materials'));
 		// Если не переданы данные формы - функция вызвана по ошибке
 		if (!isset($_POST['mainText'])
 		|| !isset($_POST['title'])
@@ -611,7 +606,7 @@ Class LoadsModule extends Module {
 
 
 		$fields = array('description', 'tags', 'sourse', 'sourse_email', 'sourse_site', 'download_url', 'download_url_size');
-		$fields_settings = $this->Register['Config']->read('fields', 'loads');
+		$fields_settings = Config::read('fields', $this->module);
 		foreach ($fields as $field) {
 			if (empty($_POST[$field]) && in_array($field, $fields_settings)) {
 				$error = $error.'<li>' . __('Empty field') . '"' . $field . '"</li>'."\n";
@@ -629,8 +624,8 @@ Class LoadsModule extends Module {
 		$in_cat    = intval($_POST['cats_selector']);
 		$commented = (!empty($_POST['commented'])) ? 1 : 0;
 		$available = (!empty($_POST['available'])) ? 1 : 0;
-		if (!$this->ACL->turn(array('loads', 'record_comments_management'), false)) $commented = '1';
-		if (!$this->ACL->turn(array('loads', 'hide_material'), false)) $available = '1';
+		if (!$this->ACL->turn(array($this->module, 'record_comments_management'), false)) $commented = '1';
+		if (!$this->ACL->turn(array($this->module, 'hide_material'), false)) $available = '1';
 		
 		// Preview
 		if ( isset( $_POST['viewMessage'] ) ) {
@@ -649,21 +644,21 @@ Class LoadsModule extends Module {
 		if (empty($addLoad))                    
 			$error = $error . '<li>' . __('Empty field "material"') . '</li>' ."\n";
 		
-		if (mb_strlen($addLoad) > $this->Register['Config']->read('max_lenght', 'loads'))
+		if (mb_strlen($addLoad) > Config::read('max_lenght', $this->module))
 			$error = $error .'<li>'. sprintf(__('Wery big "material"')
-            , $this->Register['Config']->read('max_lenght', 'loads')) .'</li>'."\n";
-		if (mb_strlen($addLoad) < $this->Register['Config']->read('min_lenght', 'loads'))
+            , Config::read('max_lenght', $this->module)) .'</li>'."\n";
+		if (mb_strlen($addLoad) < Config::read('min_lenght', $this->module))
 			$error = $error .'<li>'. sprintf(__('Wery small "material"')
-            , $this->Register['Config']->read('min_lenght', 'loads')) .'</li>'."\n";
+            , Config::read('min_lenght', $this->module)) .'</li>'."\n";
 		
-		if ($this->Register['Config']->read('require_file', 'loads') == 1) {
+		if (Config::read('require_file', $this->module) == 1) {
 			if (empty($_FILES['attach']['name'])) 
 				$error = $error . '<li>' . __('Not attaches') . '</li>' . "\n";	
 		}
 		if (isset($_FILES['attach']['name']) 
-		&& $_FILES['attach']['size'] > $this->Register['Config']->read('max_file_size', 'loads'))
+		&& $_FILES['attach']['size'] > Config::read('max_file_size', $this->module))
 			$error = $error .'<li>'. sprintf(__('Wery big file2')
-            , ($this->Register['Config']->read('max_file_size', 'loads')/1024)) .'</li>'. "\n";
+            , (Config::read('max_file_size', $this->module)/1024)) .'</li>'. "\n";
 		
 		if (!empty($tags) && !$valobj->cha_val($tags, V_TITLE)) 
 			$error = $error. '<li>' . __('Wrong chars in "tags"') . '</li>' ."\n";
@@ -687,26 +682,20 @@ Class LoadsModule extends Module {
 
 
         // Check attaches size and format
-        $max_attach = $this->Register['Config']->read('max_attaches', $this->module);
+        $max_attach = Config::read('max_attaches', $this->module);
         if (empty($max_attach) || !is_numeric($max_attach)) $max_attach = 5;
-        $max_attach_size = $this->Register['Config']->read('max_attaches_size', $this->module);
+        $max_attach_size = Config::read('max_attaches_size', $this->module);
         if (empty($max_attach_size) || !is_numeric($max_attach_size)) $max_attach_size = 1000;
         for ($i = 1; $i <= $max_attach; $i++) {
             $attach_name = 'attach' . $i;
             if (!empty($_FILES[$attach_name]['name'])) {
 
-                $img_extentions = array('.png','.jpg','.gif','.jpeg', '.PNG','.JPG','.GIF','.JPEG');
                 $ext = strrchr($_FILES[$attach_name]['name'], ".");
-
 
                 if ($_FILES[$attach_name]['size'] > $max_attach_size) {
                     $error .= '<li>' . sprintf(__('Wery big file'), $i, round(($max_attach_size / 1000), 2)) . '</li>'."\n";
                 }
-                if (($_FILES[$attach_name]['type'] != 'image/jpeg'
-                    && $_FILES[$attach_name]['type'] != 'image/jpg'
-                    && $_FILES[$attach_name]['type'] != 'image/gif'
-                    && $_FILES[$attach_name]['type'] != 'image/png')
-                    || !in_array(strtolower($ext), $img_extentions)) {
+                if (!isImageFile($_FILES[$attach_name]['type'], $ext)) {
                     $error .= '<li>' . __('Wrong file format') . '</li>'."\n";
                 }
             }
@@ -751,7 +740,7 @@ Class LoadsModule extends Module {
 		
 		
 		// Формируем SQL-запрос на добавление темы
-		$addLoad = mb_substr($addLoad, 0, $this->Register['Config']->read('max_lenght', 'loads'));
+		$addLoad = mb_substr($addLoad, 0, Config::read('max_lenght', $this->module));
         $data = array(
             'title' 		=> $title,
             'main' 			=> $addLoad,
@@ -772,12 +761,11 @@ Class LoadsModule extends Module {
             'view_on_home' 	=> $cat->getView_on_home(),
         );
         $entity = new LoadsEntity($data);
-        $entity->save();
+        $last_id = $entity->save();
 
 
         // Get last insert ID and save additional fields if an exists and activated.
         // This must be doing only after save main(parent) material
-        $last_id = mysql_insert_id();
         if (is_object($this->AddFields)) {
             $this->AddFields->save($last_id, $_addFields);
         }
@@ -823,9 +811,9 @@ Class LoadsModule extends Module {
 
 
         //turn access
-        if (!$this->ACL->turn(array('loads', 'edit_materials'), false)
+        if (!$this->ACL->turn(array($this->module, 'edit_materials'), false)
             && (!empty($_SESSION['user']['id']) && $entity->getAuthor()->getId() == $_SESSION['user']['id']
-                && $this->ACL->turn(array('loads', 'edit_mine_materials'), false)) === false) {
+                && $this->ACL->turn(array($this->module, 'edit_mine_materials'), false)) === false) {
             return $this->showInfoMessage(__('Permission denied'), '/loads/');
         }
 
@@ -871,9 +859,9 @@ Class LoadsModule extends Module {
 
         //comments and hide
         $commented = ($data->getCommented()) ? 'checked="checked"' : '';
-        if (!$this->ACL->turn(array('loads', 'record_comments_management'), false)) $commented .= ' disabled="disabled"';
+        if (!$this->ACL->turn(array($this->module, 'record_comments_management'), false)) $commented .= ' disabled="disabled"';
         $available = ($data->getAvailable()) ? 'checked="checked"' : '';
-        if (!$this->ACL->turn(array('loads', 'hide_material'), false)) $available .= ' disabled="disabled"';
+        if (!$this->ACL->turn(array($this->module, 'hide_material'), false)) $available .= ' disabled="disabled"';
         $data->setAction(get_url('/loads/update/' . $data->getId()));
         $data->setCommented($commented);
         $data->setAvailable($available);
@@ -892,7 +880,7 @@ Class LoadsModule extends Module {
 
 		$data->setCats_selector($cats_change);
         $data->setAttaches_delete($attDelButtons);
-        $data->setMax_attaches($this->Register['Config']->read('max_attaches', $this->module));
+        $data->setMax_attaches(Config::read('max_attaches', $this->module));
 
 
 		//navigation panel
@@ -937,9 +925,9 @@ Class LoadsModule extends Module {
 
 
         //turn access
-        if (!$this->ACL->turn(array('loads', 'edit_materials'), false)
+        if (!$this->ACL->turn(array($this->module, 'edit_materials'), false)
             && (!empty($_SESSION['user']['id']) && $target->getAuthor_id() == $_SESSION['user']['id']
-                && $this->ACL->turn(array('loads', 'edit_mine_materials'), false)) === false) {
+                && $this->ACL->turn(array($this->module, 'edit_mine_materials'), false)) === false) {
             return $this->showInfoMessage(__('Permission denied'), '/loads/');
         }
 
@@ -957,7 +945,7 @@ Class LoadsModule extends Module {
 		
 		$valobj = $this->Register['Validate'];
 		$fields = array('description', 'tags', 'sourse', 'sourse_email', 'sourse_site', 'download_url', 'download_url_size');
-		$fields_settings = $this->Register['Config']->read('fields', 'loads');
+		$fields_settings = Config::read('fields', $this->module);
 		foreach ($fields as $field) {
 			if (empty($_POST[$field]) && in_array($field, $fields_settings)) {
 				$error = $error.'<li>' . __('Empty field') . ' "' . $field . '"</li>'."\n";
@@ -974,8 +962,8 @@ Class LoadsModule extends Module {
 		$in_cat 	= intval($_POST['cats_selector']);
 		$commented = (!empty($_POST['commented'])) ? 1 : 0;
 		$available = (!empty($_POST['available'])) ? 1 : 0;
-		if (!$this->ACL->turn(array('loads', 'record_comments_management'), false)) $commented = '1';
-		if (!$this->ACL->turn(array('loads', 'hide_material'), false)) $available = '1';
+		if (!$this->ACL->turn(array($this->module, 'record_comments_management'), false)) $commented = '1';
+		if (!$this->ACL->turn(array($this->module, 'hide_material'), false)) $available = '1';
 
 
 		// Preview
@@ -987,12 +975,12 @@ Class LoadsModule extends Module {
 		}
 
 
-		if (mb_strlen($editLoad) > $this->Register['Config']->read('max_lenght', 'loads'))
+		if (mb_strlen($editLoad) > Config::read('max_lenght', $this->module))
 			$error = $error . '<li>' . sprintf(__('Wery big "material"')
-            , $this->Register['Config']->read('max_lenght', 'loads')).'</li>'."\n";
-		if (mb_strlen($editLoad) < $this->Register['Config']->read('min_lenght', 'loads'))
+            , Config::read('max_lenght', $this->module)).'</li>'."\n";
+		if (mb_strlen($editLoad) < Config::read('min_lenght', $this->module))
 			$error = $error .'<li>' . sprintf(__('Wery small "material"')
-            , $this->Register['Config']->read('min_lenght', 'loads')).'</li>'."\n";
+            , Config::read('min_lenght', $this->module)).'</li>'."\n";
 
 
 		// Проверяем, заполнены ли обязательные поля
@@ -1042,9 +1030,9 @@ Class LoadsModule extends Module {
         }
 
         // Check attaches size and format
-        $max_attach = $this->Register['Config']->read('max_attaches', $this->module);
+        $max_attach = Config::read('max_attaches', $this->module);
         if (empty($max_attach) || !is_numeric($max_attach)) $max_attach = 5;
-        $max_attach_size = $this->Register['Config']->read('max_attaches_size', $this->module);
+        $max_attach_size = Config::read('max_attaches_size', $this->module);
         if (empty($max_attach_size) || !is_numeric($max_attach_size)) $max_attach_size = 1000;
         for ($i = 1; $i <= $max_attach; $i++) {
             // Delete attaches. If need
@@ -1056,18 +1044,12 @@ Class LoadsModule extends Module {
             $attach_name = 'attach' . $i;
             if (!empty($_FILES[$attach_name]['name'])) {
 
-                $img_extentions = array('.png','.jpg','.gif','.jpeg', '.PNG','.JPG','.GIF','.JPEG');
                 $ext = strrchr($_FILES[$attach_name]['name'], ".");
-
 
                 if ($_FILES[$attach_name]['size'] > $max_attach_size) {
                     $error .= '<li>' . sprintf(__('Wery big file'), $i, round(($max_attach_size / 1000), 2)) . '</li>'."\n";
                 }
-                if (($_FILES[$attach_name]['type'] != 'image/jpeg'
-                    && $_FILES[$attach_name]['type'] != 'image/jpg'
-                    && $_FILES[$attach_name]['type'] != 'image/gif'
-                    && $_FILES[$attach_name]['type'] != 'image/png')
-                    || !in_array(strtolower($ext), $img_extentions)) {
+                if (!isImageFile($_FILES[$attach_name]['type'], $ext)) {
                     $error .= '<li>' . __('Wrong file format') . '</li>'."\n";
                 }
             }
@@ -1145,9 +1127,9 @@ Class LoadsModule extends Module {
 
 
         //turn access
-        if (!$this->ACL->turn(array('loads', 'delete_materials'), false)
+        if (!$this->ACL->turn(array($this->module, 'delete_materials'), false)
             && (!empty($_SESSION['user']['id']) && $target->getAuthor_id() == $_SESSION['user']['id']
-                && $this->ACL->turn(array('loads', 'delete_mine_materials'), false)) === false) {
+                && $this->ACL->turn(array($this->module, 'delete_mine_materials'), false)) === false) {
             return $this->showInfoMessage(__('Permission denied'), '/loads/');
         }
 
@@ -1253,7 +1235,7 @@ Class LoadsModule extends Module {
     public function upper($id)
     {
         //turn access
-        $this->ACL->turn(array('loads', 'up_materials'));
+        $this->ACL->turn(array($this->module, 'up_materials'));
         $id = (int)$id;
         if ($id < 1) redirect('/loads/');
 
@@ -1276,7 +1258,7 @@ Class LoadsModule extends Module {
     public function on_home($id)
     {
         //turn access
-        $this->ACL->turn(array('loads', 'on_home'));
+        $this->ACL->turn(array($this->module, 'on_home'));
         $id = (int)$id;
         if ($id < 1) redirect('/loads/');
 
@@ -1299,7 +1281,7 @@ Class LoadsModule extends Module {
     public function off_home($id)
     {
         //turn access
-        $this->ACL->turn(array('loads', 'on_home'));
+        $this->ACL->turn(array($this->module, 'on_home'));
         $id = (int)$id;
         if ($id < 1) redirect('/loads/');
 
@@ -1321,7 +1303,7 @@ Class LoadsModule extends Module {
      */
     public function fix_on_top($id)
     {
-        $this->ACL->turn(array('loads', 'on_home'));
+        $this->ACL->turn(array($this->module, 'on_home'));
         $id = (int)$id;
         if ($id < 1) redirect('/loads/');
 
@@ -1459,18 +1441,18 @@ Class LoadsModule extends Module {
         $id = $record->getId();
 
 
-		if ($this->ACL->turn(array('loads', 'edit_materials'), false) 
+		if ($this->ACL->turn(array($this->module, 'edit_materials'), false) 
 		|| (!empty($_SESSION['user']['id']) && $uid == $_SESSION['user']['id']
-		&& $this->ACL->turn(array('loads', 'edit_mine_materials'), false))) {
+		&& $this->ACL->turn(array($this->module, 'edit_mine_materials'), false))) {
 			$moder_panel .= get_link(get_img('/sys/img/edit_16x16.png'), '/loads/edit_form/' . $id) . '&nbsp;';
 		}
-		if ($this->ACL->turn(array('loads', 'up_materials'), false)) {
+		if ($this->ACL->turn(array($this->module, 'up_materials'), false)) {
 			$moder_panel .= get_link(get_img('/sys/img/star.png'), '/loads/fix_on_top/' . $id,
 				array('onClick' => "return confirm('" . __('Are you sure') . "')")) . '&nbsp;';
 			$moder_panel .= get_link(get_img('/sys/img/up_arrow_16x16.png'), '/loads/upper/' . $id,
 				array('onClick' => "return confirm('" . __('Are you sure') . "')")) . '&nbsp;';
 		}
-		if ($this->ACL->turn(array('loads', 'on_home'), false)) {
+		if ($this->ACL->turn(array($this->module, 'on_home'), false)) {
 				if ($record->getvView_on_home() == 1) {
 					$moder_panel .= get_link(get_img('/sys/img/round_ok.png', array('alt' => __('On home'), 'title' => __('On home'))), 
 						'/loads/off_home/' . $id, array('onClick' => "return confirm('" . __('Are you sure') . "')")) . '&nbsp;';
@@ -1479,9 +1461,9 @@ Class LoadsModule extends Module {
 						'/loads/on_home/' . $id, array('onClick' => "return confirm('" . __('Are you sure') . "')")) . '&nbsp;';
 				}
 		}
-		if ($this->ACL->turn(array('loads', 'delete_materials'), false) 
+		if ($this->ACL->turn(array($this->module, 'delete_materials'), false) 
 		|| (!empty($_SESSION['user']['id']) && $uid == $_SESSION['user']['id']
-		&& $this->ACL->turn(array('loads', 'delete_mine_materials'), false))) {
+		&& $this->ACL->turn(array($this->module, 'delete_mine_materials'), false))) {
 			$moder_panel .= get_link(get_img('/sys/img/delete_16x16.png'), '/loads/delete/' . $id,
 				array('onClick' => "return confirm('" . __('Are you sure') . "')")) . '&nbsp;';
 		}
@@ -1497,18 +1479,12 @@ Class LoadsModule extends Module {
 	 */
 	private function __saveFile($file)
     {
-		// Массив недопустимых расширений файла вложения
-		$extentions = $this->denyExtentions;
 		// Извлекаем из имени файла расширение
 		$ext = strrchr( $file['name'], "." );
 		
-		
 		// Формируем путь к файлу
-		if (in_array(strtolower($ext), $extentions)) {
-			$path = md5(uniqid(rand(), true)) . '-' . date("YmdHis", time()) . '.txt';
-		} else {
-			$path = md5(uniqid(rand(), true)) . '-' . date("YmdHis", time()) . $ext;
-		}
+		if (!isPermittedFile($ext)) $path = md5(uniqid(rand(), true)) . '-' . date("YmdHis", time()) . '.txt';
+		else $path = md5(uniqid(rand(), true)) . '-' . date("YmdHis", time()) . $ext;
 		// Перемещаем файл из временной директории сервера в директорию files
 		if (move_uploaded_file($file['tmp_name'], ROOT . '/sys/files/loads/' . $path)) {
 			chmod( ROOT . '/sys/files/loads/' . $path, 0644 );

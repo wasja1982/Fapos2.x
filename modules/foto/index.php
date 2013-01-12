@@ -39,11 +39,6 @@ Class FotoModule extends Module {
 	* @module module indentifier
 	*/
 	public $module = 'foto';
-	
-	/**
-	 * Wrong extention for download files
-	 */
-	private $allowedExtentions = array('.png', '.jpg', '.gif');
 
 
 	
@@ -470,14 +465,8 @@ Class FotoModule extends Module {
 		} else {
 			if ($_FILES['foto']['size'] > Config::read('max_file_size', $this->module)) 
 				$errors = $errors .'<li>'. sprintf(__('Wery big file2'), Config::read('max_file_size', $this->module)/1000) .'</li>'."\n";
-			if ($_FILES['foto']['type'] != 'image/jpeg' &&
-			$_FILES['foto']['type'] != 'image/gif' &&
-			//$_FILES['foto']['type'] != 'image/bmp' &&
-			$_FILES['foto']['type'] != 'image/png') 
-				$errors = $errors .'<li>'.__('Wrong file format').'</li>'."\n";
-				
-			$ext = strtolower(strrchr($_FILES['foto']['name'], "."));
-			if (!in_array($ext, $this->allowedExtentions))
+			$ext = strrchr($_FILES['foto']['name'], ".");
+			if (!isImageFile($_FILES['foto']['type'], $ext)) 
 				$errors = $errors .'<li>'.__('Wrong file format').'</li>'."\n";
 		}
 		

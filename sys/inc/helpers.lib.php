@@ -662,9 +662,8 @@ function memoryUsage($base_memory_usage) {
 */
 function getTemplateName()
 {
-	$Register = Register::getInstance();
 	$template = (isset($_SESSION['user']) && 
 				isset($_SESSION['user']['template']) && 
-				!empty($_SESSION['user']['template']) ? $_SESSION['user']['template'] : $Register['Config']->read('template'));
+				!empty($_SESSION['user']['template']) ? $_SESSION['user']['template'] : Config::read('template'));
 	return $template;
 }

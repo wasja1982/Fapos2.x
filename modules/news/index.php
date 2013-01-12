@@ -48,7 +48,7 @@ Class NewsModule extends Module {
 	public function index($tag = null)
     {
 		//turn access
-		$this->ACL->turn(array('news', 'view_list'));
+		$this->ACL->turn(array($this->module, 'view_list'));
 		
 		
 		//формируем блок со списком  разделов
@@ -69,7 +69,7 @@ Class NewsModule extends Module {
 		
 
 		$total = $this->Model->getTotal($query_params);
-		list ($pages, $page) = pagination( $total, Config::read('per_page', 'news'), '/news');
+		list ($pages, $page) = pagination( $total, Config::read('per_page', $this->module), '/news');
 		$this->Register['pages'] = $pages;
 		$this->Register['page'] = $page;
 		$this->page_title .= ' (' . $page . ')';
@@ -77,7 +77,7 @@ Class NewsModule extends Module {
 
 		
 		$navi = array();
-		$navi['add_link'] = ($this->ACL->turn(array('news', 'add_materials'), false)) 
+		$navi['add_link'] = ($this->ACL->turn(array($this->module, 'add_materials'), false)) 
 			? get_link(__('Add material'), '/news/add_form/') : '';
 		$navi['navigation'] = $this->_buildBreadCrumbs();
 		$navi['pagination'] = $pages;
@@ -93,7 +93,7 @@ Class NewsModule extends Module {
 	  
 		$params = array(
 			'page' => $page,
-			'limit' => $this->Register['Config']->read('per_page', 'news'),
+			'limit' => Config::read('per_page', $this->module),
 			'order' => getOrderParam(__CLASS__),
 		);
 		$where = array();
@@ -159,7 +159,7 @@ Class NewsModule extends Module {
 			$announce = $this->Textarier->getAnnounce($announce
 				, $entry_url
 				, 0 
-				, $this->Register['Config']->read('announce_lenght', 'news')
+				, Config::read('announce_lenght', $this->module)
 				, $result
 			);
 			$_addParams['announce'] = $announce;
@@ -200,7 +200,7 @@ Class NewsModule extends Module {
 	public function category($id = null)
     {
 		//turn access
-		$this->ACL->turn(array('news', 'view_list'));
+		$this->ACL->turn(array($this->module, 'view_list'));
 		$id = intval($id);
 		if (empty($id) || $id < 1) redirect('/');
 
@@ -239,7 +239,7 @@ Class NewsModule extends Module {
 		
 
 		$total = $this->Model->getTotal($query_params);
-		list ($pages, $page) = pagination( $total, Config::read('per_page', 'news'), '/news');
+		list ($pages, $page) = pagination( $total, Config::read('per_page', $this->module), '/news');
 		$this->Register['pages'] = $pages;
 		$this->Register['page'] = $page;
 		$this->page_title .= ' (' . $page . ')';
@@ -247,7 +247,7 @@ Class NewsModule extends Module {
 
 		
 		$navi = array();
-		$navi['add_link'] = ($this->ACL->turn(array('news', 'add_materials'), false)) 
+		$navi['add_link'] = ($this->ACL->turn(array($this->module, 'add_materials'), false)) 
 			? get_link(__('Add material'), '/news/add_form/') : '';
 		$navi['navigation'] = $this->_buildBreadCrumbs($id);
 		$navi['pagination'] = $pages;
@@ -264,7 +264,7 @@ Class NewsModule extends Module {
 	  
 		$params = array(
 			'page' => $page,
-			'limit' => Config::read('per_page', 'news'),
+			'limit' => Config::read('per_page', $this->module),
 			'order' => getOrderParam(__CLASS__),
 		);
 		$where = $query_params['cond'];
@@ -326,7 +326,7 @@ Class NewsModule extends Module {
 			$announce = $this->Textarier->getAnnounce($announce
 				, $entry_url
 				, 0 
-				, $this->Register['Config']->read('announce_lenght', 'news')
+				, Config::read('announce_lenght', $this->module)
 				, $result
 			);
 			$_addParams['announce'] = $announce;
@@ -367,7 +367,7 @@ Class NewsModule extends Module {
 	public function view ($id = null)
     {
 		//turn access
-		$this->ACL->turn(array('news', 'view_materials'));
+		$this->ACL->turn(array($this->module, 'view_materials'));
 		$id = intval($id);
 		if (empty($id) || $id < 1) redirect('/');
 
@@ -393,17 +393,17 @@ Class NewsModule extends Module {
 		}
 		
 		
-		$max_attaches = $this->Register['Config']->read('max_attaches', $this->module);
+		$max_attaches = Config::read('max_attaches', $this->module);
 		if (empty($max_attaches) || !is_numeric($max_attaches)) $max_attaches = 5;
 		
 		
 		//category block
 		$this->_getCatsTree($entity->getCategory()->getId());
 		/* COMMENT BLOCK */
-		if (Config::read('comment_active', 'news') == 1 
-		&& $this->ACL->turn(array('news', 'view_comments'), false) 
+		if (Config::read('comment_active', $this->module) == 1 
+		&& $this->ACL->turn(array($this->module, 'view_comments'), false) 
 		&& $entity->getCommented() == 1) {
-			if ($this->ACL->turn(array('news', 'add_comments'), false)) 
+			if ($this->ACL->turn(array($this->module, 'add_comments'), false)) 
 				$this->comments_form  = $this->_add_comment_form($id);
 			$this->comments  = $this->_get_comments($entity);
 		}
@@ -487,7 +487,7 @@ Class NewsModule extends Module {
 	public function add_form ()
     {
 		//turn access
-		$this->ACL->turn(array('news', 'add_materials'));
+		$this->ACL->turn(array($this->module, 'add_materials'));
 		$writer_status = (!empty($_SESSION['user']['status'])) ? $_SESSION['user']['status'] : 0;
 		
 		
@@ -532,13 +532,13 @@ Class NewsModule extends Module {
 		
 		//comments and hide
 		$data['commented'] = (!empty($commented) || !isset($_POST['submitForm'])) ? 'checked="checked"' : '';
-		if (!$this->ACL->turn(array('news', 'record_comments_management'), false)) $data['commented'] .= ' disabled="disabled"';
+		if (!$this->ACL->turn(array($this->module, 'record_comments_management'), false)) $data['commented'] .= ' disabled="disabled"';
 		$data['available'] = (!empty($available) || !isset($_POST['submitForm'])) ? 'checked="checked"' : '';
-		if (!$this->ACL->turn(array('news', 'hide_material'), false)) $data['available'] .= ' disabled="disabled"';
+		if (!$this->ACL->turn(array($this->module, 'hide_material'), false)) $data['available'] .= ' disabled="disabled"';
 		
 		
 		$data['action'] = get_url('/news/add/');
-		$data['max_attaches'] = $this->Register['Config']->read('max_attaches', $this->module);
+		$data['max_attaches'] = Config::read('max_attaches', $this->module);
 		if (empty($data['max_attaches']) || !is_numeric($data['max_attaches'])) $data['max_attaches'] = 5;
 			
 			
@@ -565,7 +565,7 @@ Class NewsModule extends Module {
 	public function add()
     {
 		//turn access
-		$this->ACL->turn(array('news', 'add_materials'));
+		$this->ACL->turn(array($this->module, 'add_materials'));
 		if (!isset($_POST['title']) 
 		|| !isset($_POST['mainText']) 
 		|| !isset($_POST['cats_selector'])) {
@@ -584,7 +584,7 @@ Class NewsModule extends Module {
 		
 		
 		$fields = array('description', 'tags', 'sourse', 'sourse_email', 'sourse_site');
-		$fields_settings = $this->Register['Config']->read('fields', 'news');
+		$fields_settings = Config::read('fields', $this->module);
 		foreach ($fields as $field) {
 			if (empty($_POST[$field]) && in_array($field, $fields_settings)) {
 				$error = $error.'<li>' . __('Empty field') . ' "' . $field . '"</li>'."\n";
@@ -619,8 +619,8 @@ Class NewsModule extends Module {
 			$error = $error.'<li>' . __('Wrong chars in "title"') . '</li>'."\n";
 		if (empty($add))                    		 
 			$error = $error.'<li>' . __('Empty field "material"') . '</li>'."\n";
-		else if (mb_strlen($add) > Config::read('max_lenght', 'news'))
-			$error = $error .'<li>'. sprintf(__('Wery big "material"'), Config::read('max_lenght', 'news')) .'</li>'."\n";
+		else if (mb_strlen($add) > Config::read('max_lenght', $this->module))
+			$error = $error .'<li>'. sprintf(__('Wery big "material"'), Config::read('max_lenght', $this->module)) .'</li>'."\n";
 		if (!empty($tags) && !$valobj->cha_val($tags, V_TITLE)) 
 			$error = $error.'<li>' . __('Wrong chars in "tags"') . '</li>'."\n";
 		if (!empty($sourse) && !$valobj->cha_val($sourse, V_TITLE)) 
@@ -632,26 +632,20 @@ Class NewsModule extends Module {
 
 			
 		// Check attaches size and format
-		$max_attach = $this->Register['Config']->read('max_attaches', $this->module);
+		$max_attach = Config::read('max_attaches', $this->module);
 		if (empty($max_attach) || !is_numeric($max_attach)) $max_attach = 5;
-		$max_attach_size = $this->Register['Config']->read('max_attaches_size', $this->module);
+		$max_attach_size = Config::read('max_attaches_size', $this->module);
 		if (empty($max_attach_size) || !is_numeric($max_attach_size)) $max_attach_size = 1000;
 		for ($i = 1; $i <= $max_attach; $i++) {
 			$attach_name = 'attach' . $i;
 			if (!empty($_FILES[$attach_name]['name'])) {
 			
-				$img_extentions = array('.png','.jpg','.gif','.jpeg', '.PNG','.JPG','.GIF','.JPEG');
 				$ext = strrchr($_FILES[$attach_name]['name'], ".");
-				
 				
 				if ($_FILES[$attach_name]['size'] > $max_attach_size) {
 					$error .= '<li>' . sprintf(__('Wery big file'), $i, round(($max_attach_size / 1000), 2)) . '</li>'."\n";
 				}
-				if (($_FILES[$attach_name]['type'] != 'image/jpeg'
-				&& $_FILES[$attach_name]['type'] != 'image/jpg'
-				&& $_FILES[$attach_name]['type'] != 'image/gif'
-				&& $_FILES[$attach_name]['type'] != 'image/png')
-				|| !in_array(strtolower($ext), $img_extentions)) {
+                if (!isImageFile($_FILES[$attach_name]['type'], $ext)) {
 					$error .= '<li>' . __('Wrong file format') . '</li>'."\n";
 				}
 			}
@@ -675,8 +669,8 @@ Class NewsModule extends Module {
 		}
 
 		
-		if (!$this->ACL->turn(array('news', 'record_comments_management'), false)) $commented = '1';
-		if (!$this->ACL->turn(array('news', 'hide_material'), false)) $available = '1';
+		if (!$this->ACL->turn(array($this->module, 'record_comments_management'), false)) $commented = '1';
+		if (!$this->ACL->turn(array($this->module, 'hide_material'), false)) $available = '1';
 
 		// Защита от того, чтобы один пользователь не добавил
 		// 100 материалов за одну минуту
@@ -697,7 +691,7 @@ Class NewsModule extends Module {
 		$this->Register['Cache']->clean(CACHE_MATCHING_ANY_TAG, array('module_' . $this->module));
 		$this->Register['DB']->cleanSqlCache();
 		// Формируем SQL-запрос на добавление темы	
-		$add = mb_substr($add, 0, $this->Register['Config']->read('max_lenght', $this->module));
+		$add = mb_substr($add, 0, Config::read('max_lenght', $this->module));
 		$res = array(
 			'title'        => $title,
 			'main'         => $add,
@@ -769,9 +763,9 @@ Class NewsModule extends Module {
 		
 		
 		//turn access
-		if (!$this->ACL->turn(array('news', 'edit_materials'), false) 
+		if (!$this->ACL->turn(array($this->module, 'edit_materials'), false) 
 		&& (!empty($_SESSION['user']['id']) && $entity->getAuthor()->getId() == $_SESSION['user']['id'] 
-		&& $this->ACL->turn(array('news', 'edit_mine_materials'), false)) === false) {
+		&& $this->ACL->turn(array($this->module, 'edit_mine_materials'), false)) === false) {
 			return $this->showInfoMessage(__('Permission denied'), '/news/');
 		}
 
@@ -812,7 +806,7 @@ Class NewsModule extends Module {
 		
 		//comments and hide
 		$commented = ($data->getCommented()) ? 'checked="checked"' : '';
-		if (!$this->ACL->turn(array('news', 'record_comments_management'), false)) $commented .= ' disabled="disabled"';
+		if (!$this->ACL->turn(array($this->module, 'record_comments_management'), false)) $commented .= ' disabled="disabled"';
 		$available = ($data->getAvailable()) ? 'checked="checked"' : '';
         if (!$this->ACL->turn(array('loads', 'hide_material'), false)) $available .= ' disabled="disabled"';
 		$action = get_url('/news/update/' . $data->getId());
@@ -835,7 +829,7 @@ Class NewsModule extends Module {
 		$markers->setAction($action);
 		$markers->setCats_selector($cats_change);
 		$markers->setAttaches_delete($attDelButtons);
-		$markers->setMax_attaches($this->Register['Config']->read('max_attaches', $this->module));
+		$markers->setMax_attaches(Config::read('max_attaches', $this->module));
 
 
 		//navigation panel
@@ -877,9 +871,9 @@ Class NewsModule extends Module {
 		
 		
 		//turn access
-		if (!$this->ACL->turn(array('news', 'edit_materials'), false) 
+		if (!$this->ACL->turn(array($this->module, 'edit_materials'), false) 
 		&& (!empty($_SESSION['user']['id']) && $target->getAuthor_id() == $_SESSION['user']['id'] 
-		&& $this->ACL->turn(array('news', 'edit_mine_materials'), false)) === false) {
+		&& $this->ACL->turn(array($this->module, 'edit_mine_materials'), false)) === false) {
 			return $this->showInfoMessage(__('Permission denied'), '/news/');
 		}
 		
@@ -894,7 +888,7 @@ Class NewsModule extends Module {
 		
 		$valobj = $this->Register['Validate'];
 		$fields = array('description', 'tags', 'sourse', 'sourse_email', 'sourse_site');
-		$fields_settings = $this->Register['Config']->read('fields', 'news');
+		$fields_settings = Config::read('fields', $this->module);
 		foreach ($fields as $field) {
 			if (empty($_POST[$field]) && in_array($field, $fields_settings)) {
 				$error = $error.'<li>' . __('Empty field') . '"' . $field . '"</li>'."\n";
@@ -928,8 +922,8 @@ Class NewsModule extends Module {
 			$error = $error.'<li>' . __('Wrong chars in "title"') . '</li>'."\n";
 		if (empty($edit))                 		
 			$error = $error.'<li>' . __('Empty field "material"') . '</li>'."\n";
-		else if (mb_strlen($edit) > Config::read('max_lenght', 'news'))
-			$error = $error . '<li>' . sprintf(__('Wery big "material"'), Config::read('max_lenght', 'news')) .'</li>'."\n";
+		else if (mb_strlen($edit) > Config::read('max_lenght', $this->module))
+			$error = $error . '<li>' . sprintf(__('Wery big "material"'), Config::read('max_lenght', $this->module)) .'</li>'."\n";
 		if (!empty($tags) && !$valobj->cha_val($tags, V_TITLE)) 
 			$error = $error.'<li>' . __('Wrong chars in "tags"') . '</li>'."\n";
 		if (!empty($sourse) && !$valobj->cha_val($sourse, V_TITLE)) 
@@ -948,9 +942,9 @@ Class NewsModule extends Module {
 		
 
         // Check attaches size and format
-        $max_attach = $this->Register['Config']->read('max_attaches', $this->module);
+        $max_attach = Config::read('max_attaches', $this->module);
         if (empty($max_attach) || !is_numeric($max_attach)) $max_attach = 5;
-        $max_attach_size = $this->Register['Config']->read('max_attaches_size', $this->module);
+        $max_attach_size = Config::read('max_attaches_size', $this->module);
         if (empty($max_attach_size) || !is_numeric($max_attach_size)) $max_attach_size = 1000;
         for ($i = 1; $i <= $max_attach; $i++) {
             // Delete attaches. If need
@@ -962,18 +956,12 @@ Class NewsModule extends Module {
             $attach_name = 'attach' . $i;
             if (!empty($_FILES[$attach_name]['name'])) {
 
-                $img_extentions = array('.png','.jpg','.gif','.jpeg', '.PNG','.JPG','.GIF','.JPEG');
                 $ext = strrchr($_FILES[$attach_name]['name'], ".");
-
 
                 if ($_FILES[$attach_name]['size'] > $max_attach_size) {
                     $error .= '<li>' . sprintf(__('Wery big file'), $i, round(($max_attach_size / 1000), 2)) . '</li>'."\n";
                 }
-                if (($_FILES[$attach_name]['type'] != 'image/jpeg'
-                && $_FILES[$attach_name]['type'] != 'image/jpg'
-                && $_FILES[$attach_name]['type'] != 'image/gif'
-                && $_FILES[$attach_name]['type'] != 'image/png')
-                || !in_array(strtolower($ext), $img_extentions)) {
+                if (!isImageFile($_FILES[$attach_name]['type'], $ext)) {
                     $error .= '<li>' . __('Wrong file format') . '</li>'."\n";
                 }
             }
@@ -992,8 +980,8 @@ Class NewsModule extends Module {
 		}
 		
 
-		if (!$this->ACL->turn(array('news', 'record_comments_management'), false)) $commented = '1';
-		if (!$this->ACL->turn(array('news', 'hide_material'), false)) $available = '1';
+		if (!$this->ACL->turn(array($this->module, 'record_comments_management'), false)) $commented = '1';
+		if (!$this->ACL->turn(array($this->module, 'hide_material'), false)) $available = '1';
 		
 		
 		//remove cache
@@ -1008,7 +996,7 @@ Class NewsModule extends Module {
 			$tags = (!empty($tags) && is_array($tags)) ? implode(',', array_keys($tags)) : '';
 		}
 		
-		$edit = mb_substr($edit, 0, $this->Register['Config']->read('max_lenght', 'news'));
+		$edit = mb_substr($edit, 0, Config::read('max_lenght', $this->module));
 		$data = array(
 			'title' 	   => $title,
 			'main' 		   => $edit,
@@ -1052,9 +1040,9 @@ Class NewsModule extends Module {
 		
 		
 		//turn access
-		if (!$this->ACL->turn(array('news', 'delete_materials'), false) 
+		if (!$this->ACL->turn(array($this->module, 'delete_materials'), false) 
 		&& (!empty($_SESSION['user']['id']) && $target->getAuthor_id() == $_SESSION['user']['id'] 
-		&& $this->ACL->turn(array('news', 'delete_mine_materials'), false)) === false) {
+		&& $this->ACL->turn(array($this->module, 'delete_mine_materials'), false)) === false) {
 			return $this->showInfoMessage(__('Permission denied'), '/news/');
 		}
 		
@@ -1159,7 +1147,7 @@ Class NewsModule extends Module {
 	public function upper($id)
     {
 		//turn access
-		$this->ACL->turn(array('news', 'up_materials'));
+		$this->ACL->turn(array($this->module, 'up_materials'));
 		$id = (int)$id;
 		if ($id < 1) redirect('/news/');
 
@@ -1182,7 +1170,7 @@ Class NewsModule extends Module {
 	public function on_home($id)
     {
 		//turn access
-		$this->ACL->turn(array('news', 'on_home'));
+		$this->ACL->turn(array($this->module, 'on_home'));
 		$id = (int)$id;
 		if ($id < 1) redirect('/news/');
 
@@ -1205,7 +1193,7 @@ Class NewsModule extends Module {
 	public function off_home($id)
     {
 		//turn access
-		$this->ACL->turn(array('news', 'on_home'));
+		$this->ACL->turn(array($this->module, 'on_home'));
 		$id = (int)$id;
 		if ($id < 1) redirect('/news/');
 
@@ -1227,7 +1215,7 @@ Class NewsModule extends Module {
 	*/
 	public function fix_on_top($id)
     {
-		$this->ACL->turn(array('news', 'on_home'));
+		$this->ACL->turn(array($this->module, 'on_home'));
 		$id = (int)$id;
 		if ($id < 1) redirect('/news/');
 
@@ -1256,17 +1244,17 @@ Class NewsModule extends Module {
 		$moder_panel = '';
 		$id = $record->getId();
 		if(isset($_SESSION['user']) and $_SESSION['user']['id'] == $record->getAuthor()->getId()) {
-			if ($this->ACL->turn(array('news', 'edit_mine_materials'), false)) {
+			if ($this->ACL->turn(array($this->module, 'edit_mine_materials'), false)) {
 				$moder_panel .= get_link(get_img('/sys/img/edit_16x16.png', array('title' => __('Edit'))), '/news/edit_form/' . $id) . '&nbsp;';
 			}
 			
-			if ($this->ACL->turn(array('news', 'up_materials'), false)) {
+			if ($this->ACL->turn(array($this->module, 'up_materials'), false)) {
 				$moder_panel .= get_link(get_img('/sys/img/star.png'), '/news/fix_on_top/' . $id, array('onClick' => "return confirm('" . __('Are you sure') . "')")) . '&nbsp;';
 				$moder_panel .= get_link(get_img('/sys/img/up_arrow_16x16.png', array('title' => __('Up'))), 
 				'/news/upper/' . $id, array('onClick' => "return confirm('" . __('Are you sure') . "')")) . '&nbsp;';
 			}
 			
-			if ($this->ACL->turn(array('news', 'on_home'), false)) {
+			if ($this->ACL->turn(array($this->module, 'on_home'), false)) {
 				if ($record->getView_on_home() == 1) {
 					$moder_panel .= get_link(get_img('/sys/img/round_ok.png', array('title' => __('On home'))), 
 					'/news/off_home/' . $id, array('onClick' => "return confirm('" . __('Are you sure') . "')")) . '&nbsp;';
@@ -1276,7 +1264,7 @@ Class NewsModule extends Module {
 				}
 			}
 			
-			if ($this->ACL->turn(array('news', 'delete_mine_materials'), false)) {
+			if ($this->ACL->turn(array($this->module, 'delete_mine_materials'), false)) {
 				$moder_panel .= get_link(get_img('/sys/img/delete_16x16.png', array('title' => __('Delete'))), 
 				'/news/delete/' . $id, array('onClick' => "return confirm('" . __('Are you sure') . "')")) . '&nbsp;';
 			}
@@ -1284,16 +1272,16 @@ Class NewsModule extends Module {
 			
 		} else {
 		
-			if ($this->ACL->turn(array('news', 'edit_materials'), false)) {
+			if ($this->ACL->turn(array($this->module, 'edit_materials'), false)) {
 				$moder_panel .= get_link(get_img('/sys/img/edit_16x16.png', array('title' => __('Edit'))), '/news/edit_form/' . $id) . '&nbsp;';
 			}
 			
-			if ($this->ACL->turn(array('news', 'up_materials'), false)) {
+			if ($this->ACL->turn(array($this->module, 'up_materials'), false)) {
 				$moder_panel .= get_link(get_img('/sys/img/up_arrow_16x16.png', array('title' => __('Up'))), 
 				'/news/upper/' . $id, array('onClick' => "return confirm('" . __('Are you sure') . "')")) . '&nbsp;';
 			}
 			
-			if ($this->ACL->turn(array('news', 'on_home'), false)) {
+			if ($this->ACL->turn(array($this->module, 'on_home'), false)) {
 				if ($record->getView_on_home() == 1) {
 					$moder_panel .= get_link(get_img('/sys/img/round_ok.png', array('title' => __('On home'))), 
 					'/news/off_home/' . $id, array('onClick' => "return confirm('" . __('Are you sure') . "')")) . '&nbsp;';
@@ -1303,7 +1291,7 @@ Class NewsModule extends Module {
 				}
 			}
 			
-			if ($this->ACL->turn(array('news', 'delete_materials'), false)) {
+			if ($this->ACL->turn(array($this->module, 'delete_materials'), false)) {
 				$moder_panel .= get_link(get_img('/sys/img/delete_16x16.png', array('title' => __('Delete'))), 
 				'/news/delete/' . $id, array('onClick' => "return confirm('" . __('Are you sure') . "')")) . '&nbsp;';
 			}

@@ -26,8 +26,7 @@
 include_once '../sys/boot.php';
 include_once ROOT . '/admin/inc/adm_boot.php';
 $pageTitle = 'Системные настройки';
-$Register = Register::getInstance();
-$config = $Register['Config']->read('all');
+$config = Config::read('all');
 
 
 
