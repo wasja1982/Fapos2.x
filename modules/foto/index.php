@@ -52,7 +52,7 @@ Class FotoModule extends Module {
 	*/
 	public function index() {
 		//turn access
-		$this->ACL->turn(array('foto', 'view_list'));
+		$this->ACL->turn(array($this->module, 'view_list'));
 		
 		//формируем блок со списком  разделов
 		$this->_getCatsTree();
@@ -68,14 +68,14 @@ Class FotoModule extends Module {
 		
 		//Узнаем кол-во материалов в БД
 		$total = $this->Model->getTotal(array());
-		list ($pages, $page) = pagination( $total, Config::read('per_page', 'foto'), '/foto/');
+		list ($pages, $page) = pagination( $total, Config::read('per_page', $this->module), '/foto/');
 		$this->Register['pages'] = $pages;
 		$this->Register['page'] = $page;
 		$this->page_title .= ' (' . $page . ')';
 
 		
 		$navi = array();
-		$navi['add_link'] = ($this->ACL->turn(array('foto', 'add_materials'), false)) 
+		$navi['add_link'] = ($this->ACL->turn(array($this->module, 'add_materials'), false)) 
 			? get_link(__('Add material'), '/foto/add_form/') : '';
 		$navi['navigation'] = $this->_buildBreadCrumbs();
 		$navi['pagination'] = $pages;
@@ -91,7 +91,7 @@ Class FotoModule extends Module {
 		
 		$params = array(
 			'page' => $page,
-			'limit' => Config::read('per_page', 'foto'),
+			'limit' => Config::read('per_page', $this->module),
 			'order' => getOrderParam(__CLASS__),
 		);
 		$where = array();
@@ -148,7 +148,7 @@ Class FotoModule extends Module {
 	 
 	public function category($id = null) {
 		//turn access
-		$this->ACL->turn(array('foto', 'view_list'));
+		$this->ACL->turn(array($this->module, 'view_list'));
 		$id = intval($id);
 		if (empty($id) || $id < 1) redirect('/');
 
@@ -182,7 +182,7 @@ Class FotoModule extends Module {
 		
 
 		$total = $this->Model->getTotal($query_params);
-		list ($pages, $page) = pagination( $total, Config::read('per_page', 'foto'), '/foto/');
+		list ($pages, $page) = pagination( $total, Config::read('per_page', $this->module), '/foto/');
 		$this->Register['pages'] = $pages;
 		$this->Register['page'] = $page;
 		$this->page_title .= ' (' . $page . ')';
@@ -190,7 +190,7 @@ Class FotoModule extends Module {
 
 		
 		$navi = array();
-		$navi['add_link'] = ($this->ACL->turn(array('foto', 'add_materials'), false)) 
+		$navi['add_link'] = ($this->ACL->turn(array($this->module, 'add_materials'), false)) 
 			? get_link(__('Add material'), '/foto/add_form/') : '';
 		$navi['navigation'] = $this->_buildBreadCrumbs($id);
 		$navi['pagination'] = $pages;
@@ -207,7 +207,7 @@ Class FotoModule extends Module {
 	  
 		$params = array(
 			'page' => $page,
-			'limit' => Config::read('per_page', 'foto'),
+			'limit' => Config::read('per_page', $this->module),
 			'order' => getOrderParam(__CLASS__),
 		);
 		$where = $query_params['cond'];
@@ -269,7 +269,7 @@ Class FotoModule extends Module {
 	 */
 	public function view ($id = null) {
 		//turn access
-		$this->ACL->turn(array('foto', 'view_materials'));
+		$this->ACL->turn(array($this->module, 'view_materials'));
 		$id = intval($id);
 		if (empty($id) || $id < 1) redirect('/');
 
@@ -289,10 +289,10 @@ Class FotoModule extends Module {
 		$this->_getCatsTree($entity->getCategory()->getId());
 
 		/* COMMENT BLOCK */
-		if (Config::read('comment_active', 'foto') == 1 
-		&& $this->ACL->turn(array('foto', 'view_comments'), false) 
+		if (Config::read('comment_active', $this->module) == 1 
+		&& $this->ACL->turn(array($this->module, 'view_comments'), false) 
 		&& $entity->getCommented() == 1) {
-			if ($this->ACL->turn(array('foto', 'add_comments'), false)) 
+			if ($this->ACL->turn(array($this->module, 'add_comments'), false)) 
 				$this->comments_form = $this->_add_comment_form($id);
 			$this->comments  = $this->_get_comments($entity);
 		}
@@ -366,7 +366,7 @@ Class FotoModule extends Module {
 	 */
 	public function add_form () {
 		//turn access
-		$this->ACL->turn(array('foto', 'add_materials'));
+		$this->ACL->turn(array($this->module, 'add_materials'));
 
 		
 		//формируем блок со списком  разделов
@@ -405,7 +405,7 @@ Class FotoModule extends Module {
 
 		//comments and hide
 		$markers['commented'] = !empty($commented) ? 'checked="checked"' : '';
-		if (!$this->ACL->turn(array('foto', 'record_comments_management'), false)) $markers['commented'] .= ' disabled="disabled"';
+		if (!$this->ACL->turn(array($this->module, 'record_comments_management'), false)) $markers['commented'] .= ' disabled="disabled"';
 
 		$markers['title'] = (!empty($title)) ? $title : '';
 		$markers['main_text'] = (!empty($description)) ? $description : '';
@@ -413,7 +413,7 @@ Class FotoModule extends Module {
 		
 		// Navigation Panel
 		$navi['navigation'] = $this->_buildBreadCrumbs();
-		$navi['add_link'] = ($this->ACL->turn(array('foto', 'add_materials'), false)) 
+		$navi['add_link'] = ($this->ACL->turn(array($this->module, 'add_materials'), false)) 
 			? get_link(__('Add material'), '/foto/add_form/') : '';
 		$this->_globalize($navi);
 		
@@ -430,7 +430,7 @@ Class FotoModule extends Module {
 	// Функция добавляет новое изображение (новую запись в таблицу БД FOTO)
 	public function add() {
 		//turn access
-		$this->ACL->turn(array('foto', 'add_materials'));
+		$this->ACL->turn(array($this->module, 'add_materials'));
 		
 		if (!isset($_POST['title']) 
 		|| !isset($_FILES['foto']) 
@@ -456,11 +456,11 @@ Class FotoModule extends Module {
 			$errors = $errors.'<li>'.__('Empty field "title"').'</li>'."\n";
 		elseif (!$valobj->cha_val($title, V_TITLE))  
 			$errors = $errors.'<li>'.__('Wrong chars in "title"').'</li>'."\n";
-		$foto_fields = Config::read('fields', 'foto');
+		$foto_fields = Config::read('fields', $this->module);
 		if (empty($description) && !empty($foto_fields['description'])) 
 			$errors = $errors.'<li>'.__('Empty field "description"').'</li>'."\n";
-		if (mb_strlen($description) > Config::read('description_lenght', 'foto'))
-			$errors = $errors .'<li>'.sprintf(__('Wery big "description"'), Config::read('description_lenght', 'foto')).'</li>'."\n";
+		if (mb_strlen($description) > Config::read('description_lenght', $this->module))
+			$errors = $errors .'<li>'.sprintf(__('Wery big "description"'), Config::read('description_lenght', $this->module)).'</li>'."\n";
 		
 		
 		
@@ -468,8 +468,8 @@ Class FotoModule extends Module {
 		if (empty($_FILES['foto']['name']))	{
 			$errors = $errors .'<li>'.__('Not attaches').'</li>'. "\n";
 		} else {
-			if ($_FILES['foto']['size'] > Config::read('max_file_size', 'foto')) 
-				$errors = $errors .'<li>'. sprintf(__('Wery big file2'), Config::read('max_file_size', 'foto')/1000) .'</li>'."\n";
+			if ($_FILES['foto']['size'] > Config::read('max_file_size', $this->module)) 
+				$errors = $errors .'<li>'. sprintf(__('Wery big file2'), Config::read('max_file_size', $this->module)/1000) .'</li>'."\n";
 			if ($_FILES['foto']['type'] != 'image/jpeg' &&
 			$_FILES['foto']['type'] != 'image/gif' &&
 			//$_FILES['foto']['type'] != 'image/bmp' &&
@@ -503,7 +503,7 @@ Class FotoModule extends Module {
 			redirect('/foto/add_form/');
 		}
 
-		if (!$this->ACL->turn(array('foto', 'record_comments_management'), false)) $commented = '1';
+		if (!$this->ACL->turn(array($this->module, 'record_comments_management'), false)) $commented = '1';
 
 		// spam protected
 		if ( isset( $_SESSION['unix_last_post'] ) and ( time()-$_SESSION['unix_last_post'] < 10 ) ) {
@@ -517,7 +517,7 @@ Class FotoModule extends Module {
 		// Формируем SQL-запрос на добавление темы	
 		$res = array(
 			'title'        => $title,
-			'description'  => mb_substr($description, 0, Config::read('description_lenght', 'foto')),
+			'description'  => mb_substr($description, 0, Config::read('description_lenght', $this->module)),
 			'date'         => new Expr('NOW()'),
 			'author_id'    => $_SESSION['user']['id'],
 			'category_id'  => $in_cat,
@@ -557,8 +557,8 @@ Class FotoModule extends Module {
 		
 		
 		// Create watermark and resample image
-		$watermark_path = ROOT . '/sys/img/' . Config::read('watermark_img', 'foto');
-		if (Config::read('use_watermarks', 'foto') && !empty($watermark_path) && file_exists($watermark_path)) {
+		$watermark_path = ROOT . '/sys/img/' . Config::read('watermark_img', $this->module);
+		if (Config::read('use_watermarks', $this->module) && !empty($watermark_path) && file_exists($watermark_path)) {
 			$waterObj = new FpsImg;
 			$waterObj->createWaterMark($save_path, $watermark_path);
 		}
@@ -599,9 +599,9 @@ Class FotoModule extends Module {
 		if (!$entity) return redirect('/foto/');
 		
 		
-		if (!$this->ACL->turn(array('foto', 'edit_materials'), false) 
+		if (!$this->ACL->turn(array($this->module, 'edit_materials'), false) 
 		&& (empty($_SESSION['user']['id']) || $entity->getAuthor_id() != $_SESSION['user']['id'] 
-		|| !$this->ACL->turn(array('foto', 'edit_mine_materials'), false))) {
+		|| !$this->ACL->turn(array($this->module, 'edit_mine_materials'), false))) {
 			return $this->showInfoMessage(__('Permission denied'), '/foto/' );
 		}
 		
@@ -629,7 +629,7 @@ Class FotoModule extends Module {
 		));
 		$commented = $data->getCommented();
 		$commented = !empty($commented) ? ' checked="checked"' : '';
-		if (!$this->ACL->turn(array('foto', 'record_comments_management'), false)) $commented .= ' disabled="disabled"';
+		if (!$this->ACL->turn(array($this->module, 'record_comments_management'), false)) $commented .= ' disabled="disabled"';
 		$data->setCommented($commented);
 	
 		$errors = $this->Parser->getErrors();
@@ -679,9 +679,9 @@ Class FotoModule extends Module {
 		if (!$entity) return $this->_view(__('Some error occurred'));
 
 
-		if (!$this->ACL->turn(array('foto', 'edit_materials'), false) 
+		if (!$this->ACL->turn(array($this->module, 'edit_materials'), false) 
 		&& (empty($_SESSION['user']['id']) || $entity->getAuthor_id() !== $_SESSION['user']['id'] 
-		|| !$this->ACL->turn(array('foto', 'edit_mine_materials'), false))) {
+		|| !$this->ACL->turn(array($this->module, 'edit_mine_materials'), false))) {
 			return $this->showInfoMessage(__('Permission denied'), '/foto/' );
 		}
 		
@@ -701,11 +701,11 @@ Class FotoModule extends Module {
 			$errors = $errors.'<li>'.__('Empty field "title"').'</li>'."\n";
 		if (!$Validate->cha_val($title, V_TITLE))  
 			$errors = $errors.'<li>'.__('Wrong chars in "title"').'</li>'."\n";
-		$foto_fields = Config::read('fields', 'foto');
+		$foto_fields = Config::read('fields', $this->module);
 		if (empty($description) && !empty($foto_fields['description'])) 
 			$errors = $errors.'<li>'.__('Empty field "description"').'</li>'."\n";
-		if (mb_strlen($description) > Config::read('description_lenght', 'foto'))
-			$errors = $errors.'<li>'.sprintf(__('Wery big "description"'), Config::read('description_lenght', 'foto')).'</li>'."\n";
+		if (mb_strlen($description) > Config::read('description_lenght', $this->module))
+			$errors = $errors.'<li>'.sprintf(__('Wery big "description"'), Config::read('description_lenght', $this->module)).'</li>'."\n";
 			
 			
 		$catsModel = $this->Register['ModManager']->getModelInstance('FotoSections');
@@ -728,10 +728,10 @@ Class FotoModule extends Module {
 			redirect('/foto/edit_form/' . $id );
 		}
 		
-		if (!$this->ACL->turn(array('foto', 'record_comments_management'), false)) $commented = '1';
+		if (!$this->ACL->turn(array($this->module, 'record_comments_management'), false)) $commented = '1';
 
 		$entity->setTitle($title);
-		$entity->setDescription(mb_substr($description, 0, Config::read('description_lenght', 'foto')));
+		$entity->setDescription(mb_substr($description, 0, Config::read('description_lenght', $this->module)));
 		$entity->setCategory_id($in_cat);
 		$entity->setCommented($commented);
 		$entity->save();
@@ -763,9 +763,9 @@ Class FotoModule extends Module {
 		if (!$entity) return $this->showInfoMessage(__('Some error occurred'), '/foto/' );
 
 
-		if (!$this->ACL->turn(array('foto', 'delete_materials'), false) 
+		if (!$this->ACL->turn(array($this->module, 'delete_materials'), false) 
 		&& (empty($_SESSION['user']['id']) || $entity->getAuthor_id() != $_SESSION['user']['id'] 
-		|| !$this->ACL->turn(array('foto', 'delete_mine_materials'), false))) {
+		|| !$this->ACL->turn(array($this->module, 'delete_mine_materials'), false))) {
 			return $this->showInfoMessage(__('Permission denied'), '/foto/' );
 		}
 		
@@ -786,7 +786,7 @@ Class FotoModule extends Module {
 	* update date by record also up record in recods list
 	*/
 	public function upper($id) {
-		$this->ACL->turn(array('foto', 'up_materials'));
+		$this->ACL->turn(array($this->module, 'up_materials'));
 		$entity = $this->Model->getById($id);
 		$entity->setDate(date("Y-m-d H:i:s"));
 		$entity->save();
@@ -885,18 +885,18 @@ Class FotoModule extends Module {
 		$id = $record->getId();
 		$author_id = $record->getAuthor_id();
 		
-		if ($this->ACL->turn(array('foto', 'edit_materials'), false) 
+		if ($this->ACL->turn(array($this->module, 'edit_materials'), false) 
 		|| (!empty($_SESSION['user']['id']) && $author_id == $_SESSION['user']['id'] 
-		&& $this->ACL->turn(array('foto', 'edit_mine_materials'), false))) {
+		&& $this->ACL->turn(array($this->module, 'edit_mine_materials'), false))) {
 			$moder_panel .= get_link(get_img('/sys/img/edit_16x16.png'), '/foto/edit_form/' . $id) . '&nbsp;';
 		}
-		if ($this->ACL->turn(array('foto', 'up_materials'), false)) {
+		if ($this->ACL->turn(array($this->module, 'up_materials'), false)) {
 			$moder_panel .= get_link(get_img('/sys/img/up_arrow_16x16.png'), '/foto/upper/' . $id, 
 			array('onClick' => "return confirm('" . __('Are you sure') . "')")) . '&nbsp;';
 		}
-		if ($this->ACL->turn(array('foto', 'delete_materials'), false) 
+		if ($this->ACL->turn(array($this->module, 'delete_materials'), false) 
 		|| (!empty($_SESSION['user']['id']) && $author_id == $_SESSION['user']['id'] 
-		&& $this->ACL->turn(array('foto', 'delete_mine_materials'), false))) {
+		&& $this->ACL->turn(array($this->module, 'delete_mine_materials'), false))) {
 			$moder_panel .= get_link(get_img('/sys/img/delete_16x16.png'), '/foto/delete/' . $id, 
 			array('onClick' => "return confirm('" . __('Are you sure') . "')")) . '&nbsp;';
 		}
