@@ -659,4 +659,12 @@ class Module {
 		$path = '/sys/tmp/' . $this->module . '/' . (!empty($file) ? $file : '');
 		return $path;
 	}
+
+	
+	// Функция возвращает путь к временным файлам модуля (превью)
+	function getTmpPreviewPath($file = null)
+	{
+		$path = '/sys/tmp/previews/' . $this->module . '/' . (!empty($file) ? $file : '');
+		return $path;
+	}
 }

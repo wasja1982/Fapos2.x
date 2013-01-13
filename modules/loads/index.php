@@ -138,7 +138,7 @@ Class LoadsModule extends Module {
 			// replace image tags in text
 			if (!empty($rec_attaches) && count($rec_attaches) > 0) {
 				$attachDir = ROOT . $this->getFilesPath();
-				$previewDir = ROOT . $this->getTmpPath('previews/' . $this->module . '/');
+				$previewDir = ROOT . $this->getTmpPreviewPath();
 				foreach ($rec_attaches as $attach) {
 					if ($attach->getIs_image() == 1 && file_exists($attachDir . $attach->getFilename())) {
 						$img = getimagesize($attachDir.$attach->getFilename());
@@ -152,7 +152,7 @@ Class LoadsModule extends Module {
 
 						if (file_exists($previewDir . $attach->getFilename()) && Config::read('use_preview', $this->module)) {
 							$announce = str_replace('{IMAGE'.$attach->getAttach_number() . '}'
-							, '[gallery=' . get_url($this->getFilesPath($attach->getFilename())) . '][img]' . get_url($this->getTmpPath('previews/'.$this->module.'/'.$attach->getFilename())).'[/img][/gallery]'
+							, '[gallery=' . get_url($this->getFilesPath($attach->getFilename())) . '][img]' . get_url($this->getTmpPreviewPath($attach->getFilename())).'[/img][/gallery]'
 							, $announce);
 						} else {
 							$announce = str_replace('{IMAGE'.$attach->getAttach_number().'}'
@@ -301,7 +301,7 @@ Class LoadsModule extends Module {
 			$attaches = $result->getAttaches();
 			if (!empty($attaches) && count($attaches) > 0) {
 				$attachDir = ROOT . $this->getFilesPath();
-				$previewDir = ROOT . $this->getTmpPath('previews/' . $this->module . '/');
+				$previewDir = ROOT . $this->getTmpPreviewPath();
 				foreach ($attaches as $attach) {
 					if ($attach->getIs_image() == 1 && file_exists($attachDir . $attach->getFilename())) {
 						$img = getimagesize($attachDir.$attach->getFilename());
@@ -315,7 +315,7 @@ Class LoadsModule extends Module {
 
 						if (file_exists($previewDir . $attach->getFilename()) && Config::read('use_preview', $this->module)) {
 							$announce = str_replace('{IMAGE'.$attach->getAttach_number() . '}'
-							, '[gallery=' . get_url($this->getFilesPath($attach->getFilename())) . '][img]' . get_url($this->getTmpPath('previews/'.$this->module.'/'.$attach->getFilename())).'[/img][/gallery]'
+							, '[gallery=' . get_url($this->getFilesPath($attach->getFilename())) . '][img]' . get_url($this->getTmpPreviewPath($attach->getFilename())).'[/img][/gallery]'
 							, $announce);
 						} else {
 							$announce = str_replace('{IMAGE'.$attach->getAttach_number() . '}'
@@ -466,7 +466,7 @@ Class LoadsModule extends Module {
 		$attaches = $entity->getAttaches();
 			if (!empty($attaches) && count($attaches) > 0) {
 				$attachDir = ROOT . $this->getFilesPath();
-				$previewDir = ROOT . $this->getTmpPath('previews/' . $this->module . '/');
+				$previewDir = ROOT . $this->getTmpPreviewPath();
 				foreach ($attaches as $attach) {
 					if ($attach->getIs_image() == 1 && file_exists($attachDir . $attach->getFilename())) {
 						$img = getimagesize($attachDir.$attach->getFilename());
@@ -480,7 +480,7 @@ Class LoadsModule extends Module {
 
 						if (file_exists($previewDir . $attach->getFilename()) && Config::read('use_preview', $this->module)) {
 							$announce = str_replace('{IMAGE'.$attach->getAttach_number() . '}'
-							, '[gallery=' . get_url($this->getFilesPath($attach->getFilename())) . '][img]' . get_url($this->getTmpPath('previews/'.$this->module.'/'.$attach->getFilename())).'[/img][/gallery]'
+							, '[gallery=' . get_url($this->getFilesPath($attach->getFilename())) . '][img]' . get_url($this->getTmpPreviewPath($attach->getFilename())).'[/img][/gallery]'
 							, $announce);
 						} else {
 							$announce = str_replace('{IMAGE'.$attach->getAttach_number() . '}'
