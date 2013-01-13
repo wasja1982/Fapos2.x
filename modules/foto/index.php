@@ -63,7 +63,7 @@ Class FotoModule extends Module {
 		
 		//Узнаем кол-во материалов в БД
 		$total = $this->Model->getTotal(array());
-		list ($pages, $page) = pagination( $total, Config::read('per_page', $this->module), '/foto/');
+		list ($pages, $page) = pagination( $total, Config::read('per_page', $this->module), $this->getModuleURL());
 		$this->Register['pages'] = $pages;
 		$this->Register['page'] = $page;
 		$this->page_title .= ' (' . $page . ')';
@@ -71,7 +71,7 @@ Class FotoModule extends Module {
 		
 		$navi = array();
 		$navi['add_link'] = ($this->ACL->turn(array($this->module, 'add_materials'), false)) 
-			? get_link(__('Add material'), '/foto/add_form/') : '';
+			? get_link(__('Add material'), $this->getModuleURL('add_form/')) : '';
 		$navi['navigation'] = $this->_buildBreadCrumbs();
 		$navi['pagination'] = $pages;
 		$navi['meta'] = __('Count all material') . $total;
@@ -106,12 +106,12 @@ Class FotoModule extends Module {
 			$_addParams['moder_panel'] = $this->_getAdminBar($result);
 			$entry_url = get_url(entryUrl($result, $this->module));
 			$_addParams['entry_url'] = $entry_url;
-			$_addParams['preview_foto'] = get_url('/sys/files/foto/preview/' . $result->getFilename());
+			$_addParams['preview_foto'] = get_url($this->getFilesPath('preview/' . $result->getFilename()));
 			$_addParams['foto_alt'] = h(preg_replace('#[^\w\d ]+#ui', ' ', $result->getTitle()));
 			
 			
 			
-			$_addParams['category_url'] = get_url('/foto/category/' . $result->getCategory_id());
+			$_addParams['category_url'] = get_url($this->getModuleURL('category/' . $result->getCategory_id()));
 			$_addParams['profile_url'] = getProfileUrl($result->getAuthor()->getId());
 
 
@@ -151,9 +151,9 @@ Class FotoModule extends Module {
 		$SectionsModel = $this->_loadModel(ucfirst($this->module) . 'Sections');
 		$category = $SectionsModel->getById($id);
 		if (!$category)
-			return $this->showInfoMessage(__('Can not find category'), '/foto/');
+			return $this->showInfoMessage(__('Can not find category'), $this->getModuleURL());
 		if (!$this->ACL->checkCategoryAccess($category->getNo_access())) 
-			return $this->showInfoMessage(__('Permission denied'), '/foto/');
+			return $this->showInfoMessage(__('Permission denied'), $this->getModuleURL());
 		
 		
 		$this->page_title = h($category->getTitle()) . ' - ' . $this->page_title;
@@ -177,7 +177,7 @@ Class FotoModule extends Module {
 		
 
 		$total = $this->Model->getTotal($query_params);
-		list ($pages, $page) = pagination( $total, Config::read('per_page', $this->module), '/foto/');
+		list ($pages, $page) = pagination( $total, Config::read('per_page', $this->module), $this->getModuleURL());
 		$this->Register['pages'] = $pages;
 		$this->Register['page'] = $page;
 		$this->page_title .= ' (' . $page . ')';
@@ -186,7 +186,7 @@ Class FotoModule extends Module {
 		
 		$navi = array();
 		$navi['add_link'] = ($this->ACL->turn(array($this->module, 'add_materials'), false)) 
-			? get_link(__('Add material'), '/foto/add_form/') : '';
+			? get_link(__('Add material'), $this->getModuleURL('add_form/')) : '';
 		$navi['navigation'] = $this->_buildBreadCrumbs($id);
 		$navi['pagination'] = $pages;
 		$navi['meta'] = __('Count material in cat') . $total;
@@ -222,13 +222,13 @@ Class FotoModule extends Module {
 			$_addParams['moder_panel'] = $this->_getAdminBar($result);
 			$entry_url = get_url(entryUrl($result, $this->module));
 			$_addParams['entry_url'] = $entry_url;
-			//$_addParams['entry_url'] = get_url('/foto/view/' . $result->getId());
+			//$_addParams['entry_url'] = get_url($this->getModuleURL('view/' . $result->getId()));
 			
-			$_addParams['preview_foto'] = get_url('/sys/files/foto/preview/' . $result->getFilename());
+			$_addParams['preview_foto'] = get_url($this->getFilesPath('preview/' . $result->getFilename()));
 			$_addParams['foto_alt'] = h(preg_replace('#[^\w\d ]+#ui', ' ', $result->getTitle()));
 			
 			
-			$_addParams['category_url'] = get_url('/foto/category/' . $result->getCategory_id());
+			$_addParams['category_url'] = get_url($this->getModuleURL('category/' . $result->getCategory_id()));
 			$_addParams['profile_url'] = getProfileUrl($result->getAuthor()->getId());
 
 
@@ -277,7 +277,7 @@ Class FotoModule extends Module {
 		
 		if (!$entity) redirect('/error.php?ac=404');
 		if (!$this->ACL->checkCategoryAccess($entity->getCategory()->getNo_access())) 
-			return $this->showInfoMessage(__('Permission denied'), '/foto/');
+			return $this->showInfoMessage(__('Permission denied'), $this->getModuleURL());
 		
 		
 		//category block
@@ -299,8 +299,8 @@ Class FotoModule extends Module {
 
 		
 		$navi = array();
-		$navi['module_url'] = get_url('/foto/');
-		$navi['category_url'] = get_url('/foto/category/' . $entity->getCategory()->getId());
+		$navi['module_url'] = get_url($this->getModuleURL());
+		$navi['category_url'] = get_url($this->getModuleURL('category/' . $entity->getCategory()->getId()));
 		$navi['category_name'] = h($entity->getCategory()->getTitle());
 		$navi['navigation'] = $this->_buildBreadCrumbs($entity->getCategory()->getId());
 		$this->_globalize($navi);
@@ -313,7 +313,7 @@ Class FotoModule extends Module {
 		$markers['profile_url'] = getProfileUrl($entity->getAuthor()->getId());
 		
 		$markers['moder_panel'] = $this->_getAdminBar($entity);
-		$markers['main'] = get_url('/sys/files/foto/full/' . $entity->getFilename());
+		$markers['main'] = get_url($this->getFilesPath('full/' . $entity->getFilename()));
 		$markers['foto_alt'] = h(preg_replace('#[^\w\d ]+#ui', ' ', $entity->getTitle()));
 		$markers['description'] = $this->Textarier->print_page($entity->getDescription(), $entity->getAuthor()->geteStatus());
 		
@@ -321,8 +321,8 @@ Class FotoModule extends Module {
 		$prev_id = (!empty($next_prev['prev'])) ? $next_prev['prev']->getId() : $id;
 		$next_id = (!empty($next_prev['next'])) ? $next_prev['next']->getId() : $id;
 		
-		$markers['previous_url'] = get_url('/foto/view/' . $prev_id);
-		$markers['next_url'] = get_url('/foto/view/' . $next_id);
+		$markers['previous_url'] = get_url($this->getModuleURL('view/' . $prev_id));
+		$markers['next_url'] = get_url($this->getModuleURL('view/' . $next_id));
 
 		$entry_url = get_url(entryUrl($entity, $this->module));
 		$markers['entry_url'] = $entry_url;
@@ -389,13 +389,13 @@ Class FotoModule extends Module {
 
 		
 		//categories list
-		$catsModel = $this->Register['ModManager']->getModelInstance('FotoSections');
+		$catsModel = $this->Register['ModManager']->getModelInstance($this->module . 'Sections');
 		$cats = $catsModel->getCollection();
 		$cats_selector = $this->_buildSelector($cats, (!empty($in_cat) ? $in_cat : false));
 		
 
 		$markers = array();
-		$markers['action'] = get_url('/foto/add/');
+		$markers['action'] = get_url($this->getModuleURL('add/'));
 		$markers['cats_selector'] = $cats_selector;
 
 		//comments and hide
@@ -409,7 +409,7 @@ Class FotoModule extends Module {
 		// Navigation Panel
 		$navi['navigation'] = $this->_buildBreadCrumbs();
 		$navi['add_link'] = ($this->ACL->turn(array($this->module, 'add_materials'), false)) 
-			? get_link(__('Add material'), '/foto/add_form/') : '';
+			? get_link(__('Add material'), $this->getModuleURL('add_form/')) : '';
 		$this->_globalize($navi);
 		
 		$source = $this->render('addform.html', array('data' => $markers));
@@ -472,7 +472,7 @@ Class FotoModule extends Module {
 		
 		
 		//categories list
-		$catsModel = $this->Register['ModManager']->getModelInstance('FotoSections');
+		$catsModel = $this->Register['ModManager']->getModelInstance($this->module . 'Sections');
 		$cat = $catsModel->getById($in_cat);
 
 		if (empty($cat)) $errors = $errors . '<li>' . __('Can not find category') . '</li>' . "\n";
@@ -489,14 +489,14 @@ Class FotoModule extends Module {
 			$data['error'] = '<p class="errorMsg">' . __('Some error in form') . '</p>'.
 				"\n".'<ul class="errorMsg">'."\n" . $errors . '</ul>'."\n";
 			$_SESSION['FpsForm'] = $data;
-			redirect('/foto/add_form/');
+			redirect($this->getModuleURL('add_form/'));
 		}
 
 		if (!$this->ACL->turn(array($this->module, 'record_comments_management'), false)) $commented = '1';
 
 		// spam protected
 		if ( isset( $_SESSION['unix_last_post'] ) and ( time()-$_SESSION['unix_last_post'] < 10 ) ) {
-			return $this->showInfoMessage(__('Your message has been added'), '/foto/');
+			return $this->showInfoMessage(__('Your message has been added'), $this->getModuleURL());
 		}
 		
 		
@@ -520,8 +520,8 @@ Class FotoModule extends Module {
  
 		/* save full and resample images */
 		$ext = strtolower(strchr($_FILES['foto']['name'], '.'));
-		$save_path = ROOT . '/sys/files/foto/full/' . $id . $ext;
-		$save_sempl_path = ROOT . '/sys/files/foto/preview/' . $id . $ext;
+		$save_path = ROOT . $this->getFilesPath('full/' . $id . $ext);
+		$save_sempl_path = ROOT . $this->getFilesPath('preview/' . $id . $ext);
 		
 		if (!move_uploaded_file($_FILES['foto']['tmp_name'], $save_path)) $error_flag = true;
 		elseif (!chmod($save_path, 0644)) $error_flag = true; 
@@ -538,7 +538,7 @@ Class FotoModule extends Module {
 			$data['error'] = '<p class="errorMsg">Произошла ошибка:</p>'
 				. "\n" . '<ul class="errorMsg">'."\n".'Неизвесная ошибка. Попробуйте начать заново.</ul>'."\n";
 			$_SESSION['FpsForm'] = $data;
-			redirect('/foto/add_form/');
+			redirect($this->getModuleURL('add_form/'));
 		} else {
 			$entity->setFilename($id . $ext);
 			$entity->save();
@@ -560,7 +560,7 @@ Class FotoModule extends Module {
 		$this->Cache->clean(CACHE_MATCHING_TAG, array('module_foto'));
 		$this->Register['DB']->cleanSqlCache();
 		if ($this->Log) $this->Log->write('adding foto', 'foto id(' . $id . ')');
-		return $this->showInfoMessage(__('Material successful added'), '/foto/' );		  
+		return $this->showInfoMessage(__('Material successful added'), $this->getModuleURL() );		  
 	}
 
 
@@ -585,13 +585,13 @@ Class FotoModule extends Module {
 		$this->Model->bindModel('category');
 		$entity = $this->Model->getById($id);
 		
-		if (!$entity) return redirect('/foto/');
+		if (!$entity) return redirect($this->getModuleURL());
 		
 		
 		if (!$this->ACL->turn(array($this->module, 'edit_materials'), false) 
 		&& (empty($_SESSION['user']['id']) || $entity->getAuthor_id() != $_SESSION['user']['id'] 
 		|| !$this->ACL->turn(array($this->module, 'edit_mine_materials'), false))) {
-			return $this->showInfoMessage(__('Permission denied'), '/foto/' );
+			return $this->showInfoMessage(__('Permission denied'), $this->getModuleURL() );
 		}
 		
 		
@@ -627,12 +627,12 @@ Class FotoModule extends Module {
 	
 	
 		//categories list
-		$catsModel = $this->Register['ModManager']->getModelInstance('FotoSections');
+		$catsModel = $this->Register['ModManager']->getModelInstance($this->module . 'Sections');
 		$cats = $catsModel->getCollection();
 		$cats_selector = $this->_buildSelector($cats, (!empty($in_cat)) ? $in_cat : $entity->getCategory_id());
 		
 		
-		$data->setAction(get_url('/foto/update/' . $id));
+		$data->setAction(get_url($this->getModuleURL('update/' . $id)));
 		$data->setCats_selector($cats_selector);
 		$data->setMain_text($this->Textarier->print_page($data->getDescription(), $data->getAuthor()->geteStatus()));
 		
@@ -671,7 +671,7 @@ Class FotoModule extends Module {
 		if (!$this->ACL->turn(array($this->module, 'edit_materials'), false) 
 		&& (empty($_SESSION['user']['id']) || $entity->getAuthor_id() !== $_SESSION['user']['id'] 
 		|| !$this->ACL->turn(array($this->module, 'edit_mine_materials'), false))) {
-			return $this->showInfoMessage(__('Permission denied'), '/foto/' );
+			return $this->showInfoMessage(__('Permission denied'), $this->getModuleURL() );
 		}
 		
 		
@@ -697,7 +697,7 @@ Class FotoModule extends Module {
 			$errors = $errors.'<li>'.sprintf(__('Wery big "description"'), Config::read('description_lenght', $this->module)).'</li>'."\n";
 			
 			
-		$catsModel = $this->Register['ModManager']->getModelInstance('FotoSections');
+		$catsModel = $this->Register['ModManager']->getModelInstance($this->module . 'Sections');
 		$cat = $catsModel->getById($in_cat);
 
 		if (empty($cat)) $errors = $errors . '<li>' . __('Can not find category') . '</li>' . "\n";
@@ -714,7 +714,7 @@ Class FotoModule extends Module {
 			$data['error'] = '<p class="errorMsg">' . __('Some error in form') 
 			. '</p>'."\n".'<ul class="errorMsg">'."\n".$errors.'</ul>'."\n";
 			$_SESSION['FpsForm'] = $data;
-			redirect('/foto/edit_form/' . $id );
+			redirect($this->getModuleURL('edit_form/' . $id ));
 		}
 		
 		if (!$this->ACL->turn(array($this->module, 'record_comments_management'), false)) $commented = '1';
@@ -730,7 +730,7 @@ Class FotoModule extends Module {
 		$this->Cache->clean(CACHE_MATCHING_TAG, array('module_foto', 'record_id_' . $id));
 		$this->Register['DB']->cleanSqlCache();
 		if ($this->Log) $this->Log->write('editing foto', 'foto id(' . $id . ')');
-		return $this->showInfoMessage(__('Operation is successful'), '/foto/' );
+		return $this->showInfoMessage(__('Operation is successful'), $this->getModuleURL() );
 	}
 
 
@@ -749,13 +749,13 @@ Class FotoModule extends Module {
 		
 		
 		$entity = $this->Model->getById($id);
-		if (!$entity) return $this->showInfoMessage(__('Some error occurred'), '/foto/' );
+		if (!$entity) return $this->showInfoMessage(__('Some error occurred'), $this->getModuleURL() );
 
 
 		if (!$this->ACL->turn(array($this->module, 'delete_materials'), false) 
 		&& (empty($_SESSION['user']['id']) || $entity->getAuthor_id() != $_SESSION['user']['id'] 
 		|| !$this->ACL->turn(array($this->module, 'delete_mine_materials'), false))) {
-			return $this->showInfoMessage(__('Permission denied'), '/foto/' );
+			return $this->showInfoMessage(__('Permission denied'), $this->getModuleURL() );
 		}
 		
 		
@@ -765,7 +765,7 @@ Class FotoModule extends Module {
 		$this->Cache->clean(CACHE_MATCHING_TAG, array('module_foto'));
 		$this->Register['DB']->cleanSqlCache();
 		if ($this->Log) $this->Log->write('delete foto', 'foto id(' . $id . ')');
-		return $this->showInfoMessage(__('Operation is successful'), '/foto/' );
+		return $this->showInfoMessage(__('Operation is successful'), $this->getModuleURL() );
 	}
 
 
@@ -779,7 +779,7 @@ Class FotoModule extends Module {
 		$entity = $this->Model->getById($id);
 		$entity->setDate(date("Y-m-d H:i:s"));
 		$entity->save();
-		return $this->showInfoMessage(__('Operation is successful'), '/foto/');
+		return $this->showInfoMessage(__('Operation is successful'), $this->getModuleURL());
 	}
 	
 
@@ -877,16 +877,16 @@ Class FotoModule extends Module {
 		if ($this->ACL->turn(array($this->module, 'edit_materials'), false) 
 		|| (!empty($_SESSION['user']['id']) && $author_id == $_SESSION['user']['id'] 
 		&& $this->ACL->turn(array($this->module, 'edit_mine_materials'), false))) {
-			$moder_panel .= get_link(get_img('/sys/img/edit_16x16.png'), '/foto/edit_form/' . $id) . '&nbsp;';
+			$moder_panel .= get_link(get_img('/sys/img/edit_16x16.png'), $this->getModuleURL('edit_form/' . $id)) . '&nbsp;';
 		}
 		if ($this->ACL->turn(array($this->module, 'up_materials'), false)) {
-			$moder_panel .= get_link(get_img('/sys/img/up_arrow_16x16.png'), '/foto/upper/' . $id, 
+			$moder_panel .= get_link(get_img('/sys/img/up_arrow_16x16.png'), $this->getModuleURL('upper/' . $id), 
 			array('onClick' => "return confirm('" . __('Are you sure') . "')")) . '&nbsp;';
 		}
 		if ($this->ACL->turn(array($this->module, 'delete_materials'), false) 
 		|| (!empty($_SESSION['user']['id']) && $author_id == $_SESSION['user']['id'] 
 		&& $this->ACL->turn(array($this->module, 'delete_mine_materials'), false))) {
-			$moder_panel .= get_link(get_img('/sys/img/delete_16x16.png'), '/foto/delete/' . $id, 
+			$moder_panel .= get_link(get_img('/sys/img/delete_16x16.png'), $this->getModuleURL('delete/' . $id), 
 			array('onClick' => "return confirm('" . __('Are you sure') . "')")) . '&nbsp;';
 		}
 		return $moder_panel;
