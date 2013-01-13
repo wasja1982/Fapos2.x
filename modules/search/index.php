@@ -57,12 +57,12 @@ class SearchModule extends Module {
 	 * Doing search and build page with results
 	 */
 	public function index()
-    {
+	{
 		//check index
 		$this->__checkIndex();
 
 		
-		$minInput = $this->Register['Config']->read('min_lenght', 'search');
+		$minInput = Config::read('min_lenght', $this->module);
 		if (!empty($minInput)) $this->minInputStr = (int)$minInput;
 		
 		$html = null;
@@ -79,21 +79,21 @@ class SearchModule extends Module {
 			if (empty($str) || mb_strlen($str) < $this->minInputStr) 
 				$error = $error . '<li>' . sprintf(__('Wery smaal query'), $this->minInputStr) . '</li>';
 
-           
-            if ($this->cached) {
-                $this->cacheKey .= '_' . md5($str);
-                if ($this->Cache->check($this->cacheKey)) {
-                    $html = $this->Cache->read($this->cacheKey);
-                    return $this->_view($html);
-                }
-            }
+		   
+			if ($this->cached) {
+				$this->cacheKey .= '_' . md5($str);
+				if ($this->Cache->check($this->cacheKey)) {
+					$html = $this->Cache->read($this->cacheKey);
+					return $this->_view($html);
+				}
+			}
 
 			
 			if (!empty($error)) {
 				$_SESSION['errorForm'] = array();
 				$_SESSION['errorForm']['search'] = $str;
 				$_SESSION['errorForm']['error'] = $error;
-				redirect('/search/');
+				redirect($this->getModuleURL());
 			}
 			
 			$results = $this->__search($str);
@@ -150,7 +150,7 @@ class SearchModule extends Module {
 			$this->setCacheTag(array(
 				'search_str_' . $str,
 			));
-            $this->cacheKey .= '_' . md5($str);
+			$this->cacheKey .= '_' . md5($str);
 			$this->Cache->write($source, $this->cacheKey, $this->cacheTags);
 		}
 			
@@ -164,9 +164,9 @@ class SearchModule extends Module {
 	 * @return string search form
 	 */
 	public function form()
-    {
+	{
 		$markers = array(
-			'action' => '/search/',
+			'action' => $this->getModuleURL(),
 			'search' => '',
 		);
 		
@@ -194,8 +194,8 @@ class SearchModule extends Module {
 	 * @return boolean
 	 */
 	private function __checkIndex()
-    {
-		$meta_file = ROOT . '/sys/tmp/search/meta.dat';
+	{
+		$meta_file = ROOT . $this->getTmpPath('meta.dat');
 		if (file_exists($meta_file) && is_readable($meta_file)) {
 			$meta = unserialize(file_get_contents($meta_file));
 			if (!empty($meta['expire']) && $meta['expire'] > time()) {
@@ -204,11 +204,11 @@ class SearchModule extends Module {
 				$this->__createIndex();
 			}
 		} else {
-			touchDir(ROOT . '/sys/tmp/search/');
+			touchDir(ROOT . $this->getTmpPath());
 			$this->__createIndex();
 		}
 		
-		$index_interval = intval($this->Register['Config']->read('index_interval', 'search'));
+		$index_interval = intval(Config::read('index_interval', $this->module));
 		if ($index_interval < 1) $index_interval = 1;
 		$meta['expire'] = (time() + ($index_interval * 84000));
 		file_put_contents($meta_file, serialize($meta));
@@ -225,7 +225,7 @@ class SearchModule extends Module {
 	 * Send request and return search results
 	 */
 	private function __search($str)
-    {
+	{
 		$words = explode(' ', $str);
 		$_words = array();
 		foreach ($words as $key => $word) {
@@ -237,7 +237,7 @@ class SearchModule extends Module {
 		$string = resc(implode('* ', $_words) . '*');
 		
 		//query
-		$limit = $this->Register['Config']->read('per_page', 'search');
+		$limit = Config::read('per_page', $this->module);
 		$results = $this->Model->getSearchResults($string, $limit);
 		return $results;
 	}
@@ -249,62 +249,62 @@ class SearchModule extends Module {
 	 * Create index for search engine
 	 */
 	private function __createIndex()
-    {
+	{
 		if (function_exists('ignore_user_abort')) ignore_user_abort();
 		if (function_exists('set_time_limit')) set_time_limit(180);
 
 
 		$this->Model->truncateTable();
 		foreach ($this->tables as $table) {
-            $className = $this->Register['ModManager']->getModelNameFromModule($table);
-            $Model = new $className;
-            $records = $Model->getCollection();
+			$className = $this->Register['ModManager']->getModelNameFromModule($table);
+			$Model = new $className;
+			$records = $Model->getCollection();
 
 
 			if (count($records) && is_array($records)) {
 				foreach ($records as $rec) {
 
-                    switch ($table) {
-                        case 'news':
-                        case 'stat':
-                        case 'loads':
-                            $text = $rec->getTitle() . $rec->getMain();
-                            if (mb_strlen($text) < $this->minInputStr || !is_string($text)) continue;
-                            $entity_view = '/view/';
-                    		$module = $table;
-                            $entity_id = $rec->getId();
-                            break;
+					switch ($table) {
+						case 'news':
+						case 'stat':
+						case 'loads':
+							$text = $rec->getTitle() . $rec->getMain();
+							if (mb_strlen($text) < $this->minInputStr || !is_string($text)) continue;
+							$entity_view = '/view/';
+							$module = $table;
+							$entity_id = $rec->getId();
+							break;
 
-                        case 'posts':
-                            $text = $rec->getMessage();
-                            $entity_view = '/view_theme/';
-                    		$module = 'forum';
-                    		$entity_id = $rec->getId_theme();
-                            break;
+						case 'posts':
+							$text = $rec->getMessage();
+							$entity_view = '/view_theme/';
+							$module = 'forum';
+							$entity_id = $rec->getId_theme();
+							break;
 
-                        case 'themes':
-                            break;
+						case 'themes':
+							break;
 
-                        default:
-                            $text = $rec->gettitle() . $rec->getMain();
-                            if (mb_strlen($text) < $this->minInputStr || !is_string($text)) continue;
-                            $entity_view = '/view/';
-                    		$module = $table;
-                            break;
-                    }
+						default:
+							$text = $rec->gettitle() . $rec->getMain();
+							if (mb_strlen($text) < $this->minInputStr || !is_string($text)) continue;
+							$entity_view = '/view/';
+							$module = $table;
+							break;
+					}
 
 
-                    //we must update record if an exists
-                    $data = array(
-                        'index' => $text,
-                        'entity_id' => $entity_id,
-                        'entity_table' => $table,
-                        'entity_view' => $entity_view,
-                        'module' => $module,
-                        'date' => new Expr('NOW()'),
-                    );
-                    $entity = new SearchEntity($data);
-                    $entity->save();
+					//we must update record if an exists
+					$data = array(
+						'index' => $text,
+						'entity_id' => $entity_id,
+						'entity_table' => $table,
+						'entity_view' => $entity_view,
+						'module' => $module,
+						'date' => new Expr('NOW()'),
+					);
+					$entity = new SearchEntity($data);
+					$entity->save();
 				}
 			}
 		}
@@ -313,12 +313,12 @@ class SearchModule extends Module {
 
 	/**
 	 * @param string $str
-     * @return string
+	 * @return string
 	 *
 	 * Cut HTML and BB tags. Also another chars
 	 */
 	private function __filterText($str)
-    {
+	{
 		$str = preg_replace('#<[^>]*>|\[[^\]]*\]|[,\.=\'"\|\{\}/\\_\+\?\#<>:;\)\(`\-0-9]#iu', '', $str);
 		//$str = preg_replace('#(^| )[^ ]{1,2}( |$)#iu', ' ', $str);
 		//$str_to_array = explode(' ', mb_strtolower($str));
@@ -327,5 +327,3 @@ class SearchModule extends Module {
 		return (!empty($str)) ? $str : false;
 	}
 }
-
-
