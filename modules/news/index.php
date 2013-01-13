@@ -69,7 +69,7 @@ Class NewsModule extends Module {
 		
 
 		$total = $this->Model->getTotal($query_params);
-		list ($pages, $page) = pagination( $total, Config::read('per_page', $this->module), '/news');
+		list ($pages, $page) = pagination( $total, Config::read('per_page', $this->module), $this->getModuleURL());
 		$this->Register['pages'] = $pages;
 		$this->Register['page'] = $page;
 		$this->page_title .= ' (' . $page . ')';
@@ -78,7 +78,7 @@ Class NewsModule extends Module {
 		
 		$navi = array();
 		$navi['add_link'] = ($this->ACL->turn(array($this->module, 'add_materials'), false)) 
-			? get_link(__('Add material'), '/news/add_form/') : '';
+			? get_link(__('Add material'), $this->getModuleURL('add_form/')) : '';
 		$navi['navigation'] = $this->_buildBreadCrumbs();
 		$navi['pagination'] = $pages;
 		$navi['meta'] = __('Count all material') . $total;
@@ -129,8 +129,8 @@ Class NewsModule extends Module {
 			// replace image tags in text
 			$attaches = $result->getAttaches();
 			if (!empty($attaches) && count($attaches) > 0) {
-				$attachDir = ROOT . '/sys/files/' . $this->module . '/';
-				$previewDir = ROOT . '/sys/tmp/previews/' . $this->module . '/';
+				$attachDir = ROOT . $this->getFilesPath();
+				$previewDir = ROOT . $this->getTmpPreviewPath();
 				foreach ($attaches as $attach) {
 					if ($attach->getIs_image() == 1 && file_exists($attachDir . $attach->getFilename())) {
 						$img = getimagesize($attachDir.$attach->getFilename());
@@ -143,12 +143,12 @@ Class NewsModule extends Module {
 						}
 
 						if (file_exists($previewDir . $attach->getFilename()) && Config::read('use_preview', $this->module)) {
-							$announce = str_replace('{IMAGE'.$attach->getAttach_number().'}'
-							, '[gallery=' . get_url('/sys/files/'.$this->module.'/'.$attach->getFilename()).'][img]' . get_url('/sys/tmp/previews/'.$this->module.'/'.$attach->getFilename()).'[/img][/gallery]'
+							$announce = str_replace('{IMAGE'.$attach->getAttach_number() . '}'
+							, '[gallery=' . get_url($this->getFilesPath($attach->getFilename())) . '][img]' . get_url($this->getTmpPreviewPath($attach->getFilename())).'[/img][/gallery]'
 							, $announce);
 						} else {
-							$announce = str_replace('{IMAGE'.$attach->getAttach_number().'}'
-							, '[img]' . get_url('/sys/files/'.$this->module.'/'.$attach->getFilename()).'[/img]'
+							$announce = str_replace('{IMAGE'.$attach->getAttach_number() . '}'
+							, '[img]' . get_url($this->getFilesPath($attach->getFilename())) . '[/img]'
 							, $announce);
 						}
 					}
@@ -165,7 +165,7 @@ Class NewsModule extends Module {
 			$_addParams['announce'] = $announce;
 			
 			
-			$_addParams['category_url'] = get_url('/news/category/' . $result->getCategory_id());
+			$_addParams['category_url'] = get_url($this->getModuleURL('category/' . $result->getCategory_id()));
 			$_addParams['profile_url'] = getProfileUrl($result->getAuthor()->getId());
 			$result->setTags(explode(',', $result->getTags()));
 
@@ -208,9 +208,9 @@ Class NewsModule extends Module {
 		$SectionsModel = $this->_loadModel(ucfirst($this->module) . 'Sections');
 		$category = $SectionsModel->getById($id);
 		if (!$category)
-			return $this->showInfoMessage(__('Can not find category'), '/news/');
+			return $this->showInfoMessage(__('Can not find category'), $this->getModuleURL());
 		if (!$this->ACL->checkCategoryAccess($category->getNo_access())) 
-			return $this->showInfoMessage(__('Permission denied'), '/news/');
+			return $this->showInfoMessage(__('Permission denied'), $this->getModuleURL());
 		
 		
 		$this->page_title = h($category->getTitle()) . ' - ' . $this->page_title;
@@ -239,7 +239,7 @@ Class NewsModule extends Module {
 		
 
 		$total = $this->Model->getTotal($query_params);
-		list ($pages, $page) = pagination( $total, Config::read('per_page', $this->module), '/news');
+		list ($pages, $page) = pagination( $total, Config::read('per_page', $this->module), $this->getModuleURL());
 		$this->Register['pages'] = $pages;
 		$this->Register['page'] = $page;
 		$this->page_title .= ' (' . $page . ')';
@@ -248,7 +248,7 @@ Class NewsModule extends Module {
 		
 		$navi = array();
 		$navi['add_link'] = ($this->ACL->turn(array($this->module, 'add_materials'), false)) 
-			? get_link(__('Add material'), '/news/add_form/') : '';
+			? get_link(__('Add material'), $this->getModuleURL('add_form/')) : '';
 		$navi['navigation'] = $this->_buildBreadCrumbs($id);
 		$navi['pagination'] = $pages;
 		$navi['meta'] = __('Count material in cat') . $total;
@@ -298,8 +298,8 @@ Class NewsModule extends Module {
 			// replace image tags in text
 			$attaches = $result->getAttaches();
 			if (!empty($attaches) && count($attaches) > 0) {
-				$attachDir = ROOT . '/sys/files/' . $this->module . '/';
-				$previewDir = ROOT . '/sys/tmp/previews/' . $this->module . '/';
+				$attachDir = ROOT . $this->getFilesPath();
+				$previewDir = ROOT . $this->getTmpPreviewPath();
 				foreach ($attaches as $attach) {
 					if ($attach->getIs_image() == 1 && file_exists($attachDir . $attach->getFilename())) {
 						$img = getimagesize($attachDir.$attach->getFilename());
@@ -313,11 +313,11 @@ Class NewsModule extends Module {
 
 						if (file_exists($previewDir . $attach->getFilename()) && Config::read('use_preview', $this->module)) {
 							$announce = str_replace('{IMAGE'.$attach->getAttach_number().'}'
-							, '[gallery=' . get_url('/sys/files/'.$this->module.'/'.$attach->getFilename()).'][img]' . get_url('/sys/tmp/previews/'.$this->module.'/'.$attach->getFilename()).'[/img][/gallery]'
+							, '[gallery=' . get_url($this->getFilesPath($attach->getFilename())) . '][img]' . get_url($this->getTmpPreviewPath($attach->getFilename())).'[/img][/gallery]'
 							, $announce);
 						} else {
-							$announce = str_replace('{IMAGE'.$attach->getAttach_number().'}'
-							, '[img]' . get_url('/sys/files/'.$this->module.'/'.$attach->getFilename()).'[/img]'
+							$announce = str_replace('{IMAGE'.$attach->getAttach_number() . '}'
+							, '[img]' . get_url($this->getFilesPath($attach->getFilename())) . '[/img]'
 							, $announce);
 						}
 					}
@@ -332,7 +332,7 @@ Class NewsModule extends Module {
 			$_addParams['announce'] = $announce;
 			
 			
-			$_addParams['category_url'] = get_url('/news/category/' . $result->getCategory_id());
+			$_addParams['category_url'] = get_url($this->getModuleURL('category/' . $result->getCategory_id()));
 			$_addParams['profile_url'] = getProfileUrl($result->getAuthor()->getId());
 			$result->setTags(explode(',', $result->getTags()));
 
@@ -380,9 +380,9 @@ Class NewsModule extends Module {
 		
 		if (empty($entity)) redirect('/error.php?ac=404');
 		if ($entity->getAvailable() == 0 && !$this->ACL->turn(array('other', 'can_see_hidden'), false)) 
-			return $this->showInfoMessage(__('Permission denied'), '/news/');
+			return $this->showInfoMessage(__('Permission denied'), $this->getModuleURL());
 		if (!$this->ACL->checkCategoryAccess($entity->getCategory()->getNo_access())) 
-			return $this->showInfoMessage(__('Permission denied'), '/news/');
+			return $this->showInfoMessage(__('Permission denied'), $this->getModuleURL());
 			
 		
 		// Some gemor with add fields
@@ -418,8 +418,8 @@ Class NewsModule extends Module {
 		if (!empty($description)) $this->page_meta_description = h($description);
 		
 		$navi = array();
-		$navi['module_url'] = get_url('/news/');
-		$navi['category_url'] = get_url('/news/category/' . $entity->getCategory()->getId());
+		$navi['module_url'] = get_url($this->getModuleURL());
+		$navi['category_url'] = get_url($this->getModuleURL('category/' . $entity->getCategory()->getId()));
 		$navi['category_name'] = h($entity->getCategory()->getTitle());
 		$navi['navigation'] = $this->_buildBreadCrumbs($entity->getCategory()->getId());
 		$this->_globalize($navi);
@@ -438,8 +438,8 @@ Class NewsModule extends Module {
 		// replace image tags in text
 		$attaches = $entity->getAttaches();
 			if (!empty($attaches) && count($attaches) > 0) {
-				$attachDir = ROOT . '/sys/files/' . $this->module . '/';
-				$previewDir = ROOT . '/sys/tmp/previews/' . $this->module . '/';
+				$attachDir = ROOT . $this->getFilesPath();
+				$previewDir = ROOT . $this->getTmpPreviewPath();
 				foreach ($attaches as $attach) {
 					if ($attach->getIs_image() == 1 && file_exists($attachDir . $attach->getFilename())) {
 						$img = getimagesize($attachDir.$attach->getFilename());
@@ -453,11 +453,11 @@ Class NewsModule extends Module {
 
 						if (file_exists($previewDir . $attach->getFilename()) && Config::read('use_preview', $this->module)) {
 							$announce = str_replace('{IMAGE'.$attach->getAttach_number().'}'
-							, '[gallery=' . get_url('/sys/files/'.$this->module.'/'.$attach->getFilename()).'][img]' . get_url('/sys/tmp/previews/'.$this->module.'/'.$attach->getFilename()).'[/img][/gallery]'
+							, '[gallery=' . get_url($this->getFilesPath($attach->getFilename())) . '][img]' . get_url($this->getTmpPreviewPath($attach->getFilename())).'[/img][/gallery]'
 							, $announce);
 						} else {
-							$announce = str_replace('{IMAGE'.$attach->getAttach_number().'}'
-							, '[img]' . get_url('/sys/files/'.$this->module.'/'.$attach->getFilename()).'[/img]'
+							$announce = str_replace('{IMAGE'.$attach->getAttach_number() . '}'
+							, '[img]' . get_url($this->getFilesPath($attach->getFilename())) . '[/img]'
 							, $announce);
 						}
 					}
@@ -537,7 +537,7 @@ Class NewsModule extends Module {
 		if (!$this->ACL->turn(array($this->module, 'hide_material'), false)) $data['available'] .= ' disabled="disabled"';
 		
 		
-		$data['action'] = get_url('/news/add/');
+		$data['action'] = get_url($this->getModuleURL('add/'));
 		$data['max_attaches'] = Config::read('max_attaches', $this->module);
 		if (empty($data['max_attaches']) || !is_numeric($data['max_attaches'])) $data['max_attaches'] = 5;
 			
@@ -606,7 +606,7 @@ Class NewsModule extends Module {
 			$_SESSION['viewMessage'] = array_merge(array('title' => null, 'mainText' => null, 'in_cat' => $in_cat,
 				'description' => null, 'tags' => null, 'sourse' => null, 'sourse_email' => null, 
 				'sourse_site' => null, 'commented' => null, 'available' => null), $_POST);
-			redirect('/news/add_form/');
+			redirect($this->getModuleURL('add_form/'));
 		}
 
 		// Check fields
@@ -665,7 +665,7 @@ Class NewsModule extends Module {
 				'sourse_site' => null, 'commented' => null, 'available' => null), $_POST);
 			$_SESSION['FpsForm']['error']   = '<p class="errorMsg">' . __('Some error in form') . '</p>'.
 				"\n".'<ul class="errorMsg">' . "\n" . $error . '</ul>' . "\n";
-			redirect('/news/add_form/');
+			redirect($this->getModuleURL('add_form/'));
 		}
 
 		
@@ -675,7 +675,7 @@ Class NewsModule extends Module {
 		// Защита от того, чтобы один пользователь не добавил
 		// 100 материалов за одну минуту
 		if ( isset( $_SESSION['unix_last_post'] ) and ( time()-$_SESSION['unix_last_post'] < 10 ) ) {
-			return $this->showInfoMessage(__('Your message has been added'), '/news/');
+			return $this->showInfoMessage(__('Your message has been added'), $this->getModuleURL());
 		}
 		
 		
@@ -727,7 +727,7 @@ Class NewsModule extends Module {
 		$this->Register['Cache']->clean(CACHE_MATCHING_TAG, array('module_' . $this->module));
 		$this->Register['DB']->cleanSqlCache();
 		if ($this->Log) $this->Log->write('adding new', 'new id(' . $last_id . ')');
-		return $this->showInfoMessage(__('Material successful added'), '/news/view/' . $last_id);				  
+		return $this->showInfoMessage(__('Material successful added'), $this->getModuleURL('view/' . $last_id));				  
 	}
 
 
@@ -753,7 +753,7 @@ Class NewsModule extends Module {
 		$this->Model->bindModel('category');
 		$entity = $this->Model->getById($id);
 		
-		if (!$entity) redirect('/news/');
+		if (!$entity) redirect($this->getModuleURL());
 		
 		
 		if (is_object($this->AddFields) && count($entity) > 0) {
@@ -766,7 +766,7 @@ Class NewsModule extends Module {
 		if (!$this->ACL->turn(array($this->module, 'edit_materials'), false) 
 		&& (!empty($_SESSION['user']['id']) && $entity->getAuthor()->getId() == $_SESSION['user']['id'] 
 		&& $this->ACL->turn(array($this->module, 'edit_mine_materials'), false)) === false) {
-			return $this->showInfoMessage(__('Permission denied'), '/news/');
+			return $this->showInfoMessage(__('Permission denied'), $this->getModuleURL());
 		}
 
 		
@@ -808,8 +808,8 @@ Class NewsModule extends Module {
 		$commented = ($data->getCommented()) ? 'checked="checked"' : '';
 		if (!$this->ACL->turn(array($this->module, 'record_comments_management'), false)) $commented .= ' disabled="disabled"';
 		$available = ($data->getAvailable()) ? 'checked="checked"' : '';
-        if (!$this->ACL->turn(array('loads', 'hide_material'), false)) $available .= ' disabled="disabled"';
-		$action = get_url('/news/update/' . $data->getId());
+        if (!$this->ACL->turn(array($this->module, 'hide_material'), false)) $available .= ' disabled="disabled"';
+		$action = get_url($this->getModuleURL('update/' . $data->getId()));
         $data->setCommented($commented);
         $data->setAvailable($available);
 		
@@ -862,19 +862,19 @@ Class NewsModule extends Module {
 			redirect('/');
 		}
 		$id = (int)$id;
-		if ($id < 1) redirect('/news/');
+		if ($id < 1) redirect($this->getModuleURL());
 		$error = '';
 		
 
 		$target = $this->Model->getbyId($id);
-		if (!$target) redirect('/news/');
+		if (!$target) redirect($this->getModuleURL());
 		
 		
 		//turn access
 		if (!$this->ACL->turn(array($this->module, 'edit_materials'), false) 
 		&& (!empty($_SESSION['user']['id']) && $target->getAuthor_id() == $_SESSION['user']['id'] 
 		&& $this->ACL->turn(array($this->module, 'edit_mine_materials'), false)) === false) {
-			return $this->showInfoMessage(__('Permission denied'), '/news/');
+			return $this->showInfoMessage(__('Permission denied'), $this->getModuleURL());
 		}
 		
 		
@@ -911,7 +911,7 @@ Class NewsModule extends Module {
 			$_SESSION['viewMessage'] = array_merge(array('title' => null, 'mainText' => null, 'in_cat' => $in_cat,
 				'description' => null, 'tags' => null, 'sourse' => null, 'sourse_email' => null, 
 				'sourse_site' => null, 'commented' => null, 'available' => null), $_POST);
-			redirect('/news/edit_form/' . $id);
+			redirect($this->getModuleURL('edit_form/' . $id));
 		}
 		
 		
@@ -976,7 +976,7 @@ Class NewsModule extends Module {
 				'sourse_site' => null, 'commented' => null, 'available' => null), $_POST);
 			$_SESSION['FpsForm']['error']   = '<p class="errorMsg">' . __('Some error in form') . '</p>'
 				."\n".'<ul class="errorMsg">'."\n".$error.'</ul>'."\n";
-			redirect('/news/edit_form/' . $id);
+			redirect($this->getModuleURL('edit_form/' . $id));
 		}
 		
 
@@ -1043,7 +1043,7 @@ Class NewsModule extends Module {
 		if (!$this->ACL->turn(array($this->module, 'delete_materials'), false) 
 		&& (!empty($_SESSION['user']['id']) && $target->getAuthor_id() == $_SESSION['user']['id'] 
 		&& $this->ACL->turn(array($this->module, 'delete_mine_materials'), false)) === false) {
-			return $this->showInfoMessage(__('Permission denied'), '/news/');
+			return $this->showInfoMessage(__('Permission denied'), $this->getModuleURL());
 		}
 		
 		
@@ -1149,15 +1149,15 @@ Class NewsModule extends Module {
 		//turn access
 		$this->ACL->turn(array($this->module, 'up_materials'));
 		$id = (int)$id;
-		if ($id < 1) redirect('/news/');
+		if ($id < 1) redirect($this->getModuleURL());
 
 		
 		$entity = $this->Model->getById($id);
-		if (!$entity) redirect('/news/');
+		if (!$entity) redirect($this->getModuleURL());
 		
 		$entity->setDate(date("Y-m-d H-i-s"));
 		$entity->save();
-		return $this->showInfoMessage(__('Operation is successful'), '/news/');
+		return $this->showInfoMessage(__('Operation is successful'), $this->getModuleURL());
 	}
 
 	
@@ -1172,15 +1172,15 @@ Class NewsModule extends Module {
 		//turn access
 		$this->ACL->turn(array($this->module, 'on_home'));
 		$id = (int)$id;
-		if ($id < 1) redirect('/news/');
+		if ($id < 1) redirect($this->getModuleURL());
 
 		
 		$entity = $this->Model->getById($id);
-		if (!$entity) redirect('/news/');
+		if (!$entity) redirect($this->getModuleURL());
 		
 		$entity->setView_on_home('1');
 		$entity->save();
-		return $this->showInfoMessage(__('Operation is successful'), '/news/');
+		return $this->showInfoMessage(__('Operation is successful'), $this->getModuleURL());
 	}
 
 
@@ -1195,15 +1195,15 @@ Class NewsModule extends Module {
 		//turn access
 		$this->ACL->turn(array($this->module, 'on_home'));
 		$id = (int)$id;
-		if ($id < 1) redirect('/news/');
+		if ($id < 1) redirect($this->getModuleURL());
 
 		
 		$entity = $this->Model->getById($id);
-		if (!$entity) redirect('/news/');
+		if (!$entity) redirect($this->getModuleURL());
 		
 		$entity->setView_on_home('0');
 		$entity->save();
-		return $this->showInfoMessage(__('Operation is successful'), '/news/');
+		return $this->showInfoMessage(__('Operation is successful'), $this->getModuleURL());
 	}
 	
 	
@@ -1217,7 +1217,7 @@ Class NewsModule extends Module {
     {
 		$this->ACL->turn(array($this->module, 'on_home'));
 		$id = (int)$id;
-		if ($id < 1) redirect('/news/');
+		if ($id < 1) redirect($this->getModuleURL());
 
 		$target = $this->Model->getById($id);
 		if (!$target) redirect('/');
@@ -1226,7 +1226,7 @@ Class NewsModule extends Module {
 		$dest = ($curr_state) ? '0' : '1';
 		$target->setOn_home_top($dest);
 		$target->save();
-		return $this->showInfoMessage(__('Operation is successful'), '/news/');
+		return $this->showInfoMessage(__('Operation is successful'), $this->getModuleURL());
 	}
 	
 	
@@ -1245,55 +1245,55 @@ Class NewsModule extends Module {
 		$id = $record->getId();
 		if(isset($_SESSION['user']) and $_SESSION['user']['id'] == $record->getAuthor()->getId()) {
 			if ($this->ACL->turn(array($this->module, 'edit_mine_materials'), false)) {
-				$moder_panel .= get_link(get_img('/sys/img/edit_16x16.png', array('title' => __('Edit'))), '/news/edit_form/' . $id) . '&nbsp;';
+				$moder_panel .= get_link(get_img('/sys/img/edit_16x16.png', array('title' => __('Edit'))), $this->getModuleURL('edit_form/' . $id)) . '&nbsp;';
 			}
 			
 			if ($this->ACL->turn(array($this->module, 'up_materials'), false)) {
-				$moder_panel .= get_link(get_img('/sys/img/star.png'), '/news/fix_on_top/' . $id, array('onClick' => "return confirm('" . __('Are you sure') . "')")) . '&nbsp;';
+				$moder_panel .= get_link(get_img('/sys/img/star.png'), $this->getModuleURL('fix_on_top/' . $id), array('onClick' => "return confirm('" . __('Are you sure') . "')")) . '&nbsp;';
 				$moder_panel .= get_link(get_img('/sys/img/up_arrow_16x16.png', array('title' => __('Up'))), 
-				'/news/upper/' . $id, array('onClick' => "return confirm('" . __('Are you sure') . "')")) . '&nbsp;';
+				$this->getModuleURL('upper/' . $id), array('onClick' => "return confirm('" . __('Are you sure') . "')")) . '&nbsp;';
 			}
 			
 			if ($this->ACL->turn(array($this->module, 'on_home'), false)) {
 				if ($record->getView_on_home() == 1) {
 					$moder_panel .= get_link(get_img('/sys/img/round_ok.png', array('title' => __('On home'))), 
-					'/news/off_home/' . $id, array('onClick' => "return confirm('" . __('Are you sure') . "')")) . '&nbsp;';
+					$this->getModuleURL('off_home/' . $id), array('onClick' => "return confirm('" . __('Are you sure') . "')")) . '&nbsp;';
 				} else {
 					$moder_panel .= get_link(get_img('/sys/img/round_not_ok.png', array('title' => __('On home'))), 
-					'/news/on_home/' . $id, array('onClick' => "return confirm('" . __('Are you sure') . "')")) . '&nbsp;';
+					$this->getModuleURL('on_home/' . $id), array('onClick' => "return confirm('" . __('Are you sure') . "')")) . '&nbsp;';
 				}
 			}
 			
 			if ($this->ACL->turn(array($this->module, 'delete_mine_materials'), false)) {
 				$moder_panel .= get_link(get_img('/sys/img/delete_16x16.png', array('title' => __('Delete'))), 
-				'/news/delete/' . $id, array('onClick' => "return confirm('" . __('Are you sure') . "')")) . '&nbsp;';
+				$this->getModuleURL('delete/' . $id), array('onClick' => "return confirm('" . __('Are you sure') . "')")) . '&nbsp;';
 			}
 			
 			
 		} else {
 		
 			if ($this->ACL->turn(array($this->module, 'edit_materials'), false)) {
-				$moder_panel .= get_link(get_img('/sys/img/edit_16x16.png', array('title' => __('Edit'))), '/news/edit_form/' . $id) . '&nbsp;';
+				$moder_panel .= get_link(get_img('/sys/img/edit_16x16.png', array('title' => __('Edit'))), $this->getModuleURL('edit_form/' . $id)) . '&nbsp;';
 			}
 			
 			if ($this->ACL->turn(array($this->module, 'up_materials'), false)) {
 				$moder_panel .= get_link(get_img('/sys/img/up_arrow_16x16.png', array('title' => __('Up'))), 
-				'/news/upper/' . $id, array('onClick' => "return confirm('" . __('Are you sure') . "')")) . '&nbsp;';
+				$this->getModuleURL('upper/' . $id), array('onClick' => "return confirm('" . __('Are you sure') . "')")) . '&nbsp;';
 			}
 			
 			if ($this->ACL->turn(array($this->module, 'on_home'), false)) {
 				if ($record->getView_on_home() == 1) {
 					$moder_panel .= get_link(get_img('/sys/img/round_ok.png', array('title' => __('On home'))), 
-					'/news/off_home/' . $id, array('onClick' => "return confirm('" . __('Are you sure') . "')")) . '&nbsp;';
+					$this->getModuleURL('off_home/' . $id), array('onClick' => "return confirm('" . __('Are you sure') . "')")) . '&nbsp;';
 				} else {
 					$moder_panel .= get_link(get_img('/sys/img/round_not_ok.png', array('title' => __('On home'))), 
-					'/news/on_home/' . $id, array('onClick' => "return confirm('" . __('Are you sure') . "')")) . '&nbsp;';
+					$this->getModuleURL('on_home/' . $id), array('onClick' => "return confirm('" . __('Are you sure') . "')")) . '&nbsp;';
 				}
 			}
 			
 			if ($this->ACL->turn(array($this->module, 'delete_materials'), false)) {
 				$moder_panel .= get_link(get_img('/sys/img/delete_16x16.png', array('title' => __('Delete'))), 
-				'/news/delete/' . $id, array('onClick' => "return confirm('" . __('Are you sure') . "')")) . '&nbsp;';
+				$this->getModuleURL('delete/' . $id), array('onClick' => "return confirm('" . __('Are you sure') . "')")) . '&nbsp;';
 			}
 		}
 		return $moder_panel;
