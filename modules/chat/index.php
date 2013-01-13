@@ -25,6 +25,7 @@ class ChatModule extends Module {
 	/**
 	* @template  layout for module
 	*/
+	public static $_template = 'chat';
 	public $template = 'chat';
 	/**
 	* @module_title  title of module
@@ -33,6 +34,7 @@ class ChatModule extends Module {
 	/**
 	* @module module indentifier
 	*/
+	public static $_module = 'chat';
 	public $module = 'chat';
 
 	
@@ -45,7 +47,7 @@ class ChatModule extends Module {
 	*/
 	public function index() {
 		$content = '';
-		if ($this->ACL->turn(array('chat', 'add_materials'), false)) {
+		if ($this->ACL->turn(array($this->module, 'add_materials'), false)) {
 			$content = $this->add_form();
 		} else {
 			$content = __('Permission denied');
@@ -62,8 +64,7 @@ class ChatModule extends Module {
 	*/
 	public function view_messages() {
 		$content = '';
-		$this->template = '';
-		$chatDataPath = ROOT . '/sys/tmp/chat/messages.dat';
+		$chatDataPath = ROOT . $this->getTmpPath('messages.dat');
 		
 		
 		if (file_exists($chatDataPath)) {
@@ -76,7 +77,7 @@ class ChatModule extends Module {
 					
 					$record['message'] = $this->Textarier->print_page($record['message']);
 					/* view ip adres if admin */
-					if ($this->ACL->turn(array('chat', 'delete_materials'), false)) {
+					if ($this->ACL->turn(array($this->module, 'delete_materials'), false)) {
 						$record['ip'] = get_img('/sys/img/ip.png', array('title' => h($record['ip'])));
 					} else {
 						$record['ip'] = '';
@@ -87,7 +88,7 @@ class ChatModule extends Module {
 			}
 		}
 		
-		header('Refresh: 10; url=' . get_url('/chat/view_messages/'));
+		header('Refresh: 10; url=' . get_url($this->getModuleURL('view_messages/')));
 		echo $content;
 	}
 	
@@ -124,7 +125,7 @@ class ChatModule extends Module {
 		if (!$this->ACL->turn(array('other', 'no_captcha'), false)) {
 			$kcaptcha = getCaptcha();
 		}
-		$markets['{ACTION}'] = get_url('/chat/add/');
+		$markets['{ACTION}'] = get_url($this->getModuleURL('add/'));
 		$markets['{NAME}'] = h($name);
 		$markets['{MESSAGE}'] = h($message);
 		$markets['{CAPTCHA}'] = $kcaptcha;
@@ -143,10 +144,7 @@ class ChatModule extends Module {
 	* @return  none
 	*/
 	public function add() {
-		$Parser = $this->Register['DocParser'];
-		$ACL = $this->Register['ACL'];
-	
-		if (!$ACL->turn(array('chat', 'add_materials'), false)) {
+		if (!$this->ACL->turn(array($this->module, 'add_materials'), false)) {
 			return;
 		}
 		if (!isset($_POST['message'])) {
@@ -155,10 +153,8 @@ class ChatModule extends Module {
 		
 		/* cut and trim values */
 		$user_id    = (!empty($_SESSION['user']['id'])) ? $_SESSION['user']['id'] : '0';
-		$name    = (!empty($_SESSION['user']['name'])) ? $_SESSION['user']['name'] : 'Гость';
-		$message = mb_substr( $_POST['message'], 0, $this->Register['Config']->read('max_lenght', 'chat'));
-		$name    = trim( $name );
-		$message = trim( $message );
+		$name    = (!empty($_SESSION['user']['name'])) ? trim($_SESSION['user']['name']) : 'Гость';
+		$message = trim(mb_substr( $_POST['message'], 0, Config::read('max_lenght', $this->module)));
 		$ip      = (!empty($_SERVER['REMOTE_ADDR'])) ? $_SERVER['REMOTE_ADDR'] : '';
 		$keystring = (isset($_POST['captcha_keystring'])) ? trim($_POST['captcha_keystring']) : '';
 		
@@ -166,14 +162,14 @@ class ChatModule extends Module {
 		// Check fields
 		$error  = '';
 		$valobj = $this->Register['Validate'];
-		if (empty($message))                       
+		if (empty($message))
 			$error = $error . '<li>' . __('Empty field "text"') . '</li>' . "\n";
 			
 			
 			
 		// Check captcha if need exists	 
-		if (!$ACL->turn(array('other', 'no_captcha'), false)) {
-			if (empty($keystring))                      
+		if (!$this->ACL->turn(array('other', 'no_captcha'), false)) {
+			if (empty($keystring))
 				$error = $error . '<li>' . __('Empty field "code"') . '</li>' . "\n";
 
 				
@@ -204,10 +200,11 @@ class ChatModule extends Module {
 		}
 		
 		/* create dir for chat tmp file if not exists */
-		if (!file_exists(ROOT . '/sys/tmp/chat/')) mkdir(ROOT . '/sys/tmp/chat/', 0777, true);
+		$tmp = ROOT . $this->getTmpPath();
+		if (!file_exists($tmp)) mkdir($tmp, 0777, true);
 		/* get data */
-		if (file_exists(ROOT . '/sys/tmp/chat/messages.dat')) {
-			$data = unserialize(file_get_contents(ROOT . '/sys/tmp/chat/messages.dat'));
+		if (file_exists($tmp . 'messages.dat')) {
+			$data = unserialize(file_get_contents($tmp . 'messages.dat'));
 		} else {
 			$data = array();
 		}
@@ -228,7 +225,7 @@ class ChatModule extends Module {
 		
 		
 		/* save messages */
-		$file = fopen(ROOT . '/sys/tmp/chat/messages.dat', 'w+');
+		$file = fopen($tmp . 'messages.dat', 'w+');
 		fwrite($file, serialize($data));
 		fclose($file);
 		die('ok');
@@ -243,13 +240,13 @@ class ChatModule extends Module {
 	* @return (str)  add form
 	*/
 	public static function add_form() {
-        $Register = Register::getInstance();
+		$Register = Register::getInstance();
 
 
 		$Parser = $Register['DocParser'];
-		$Parser->templateDir = 'chat';
+		$Parser->templateDir = ChatModule::$_template;
 		$ACL = $Register['ACL'];
-		if (!$ACL->turn(array('chat', 'add_materials'), false)) 
+		if (!$ACL->turn(array(ChatModule::$_module, 'add_materials'), false)) 
 			return __('Dont have permission to write post');
 	
 
@@ -268,13 +265,13 @@ class ChatModule extends Module {
 		if (!$ACL->turn(array('other', 'no_captcha'), false)) {
 			$kcaptcha = getCaptcha();
 		}
-		$markers['action'] = get_url('/chat/add/');
+		$markers['action'] = get_url('/' . ChatModule::$_module . '/add/');
 		$markers['message'] = h($message);
 		$markers['captcha'] = $kcaptcha;
 		
 		
 		$View = new Fps_Viewer_Manager();
-		$View->setModuleTitle('chat');
+		$View->setModuleTitle(ChatModule::$_module);
 		$source = $View->view('addform.html', array('data' => $markers));
 
 
