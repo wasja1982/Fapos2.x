@@ -48,9 +48,9 @@ Class PagesModule extends Module {
 		if (!empty($id)) {
 			if (is_int($id)) {
 				$id = (int)$id;
-				if ($id < 2)  redirect('/pages/');
+				if ($id < 2)  redirect($this->getModuleURL());
 			} else {
-				if (!preg_match('#^[\da-z_\-]+$#i', $id))  redirect('/pages/');
+				if (!preg_match('#^[\da-z_\-]+$#i', $id))  redirect($this->getModuleURL());
 			
 				$record = $this->Model->getByUrl($id);
 				if (empty($record)) return $this->showInfoMessage(__('Can not find this page'), '/');
@@ -97,8 +97,8 @@ Class PagesModule extends Module {
 			
 		//may be need view latest materials	
 		} else {
-			$this->page_title = $this->Register['Config']->read('title');
-			$latest_on_home = $this->Register['Config']->read('latest_on_home');
+			$this->page_title = Config::read('title');
+			$latest_on_home = Config::read('latest_on_home');
 			$navi = null; //vsyakiy sluchay:)
 			
 			
@@ -238,11 +238,11 @@ Class PagesModule extends Module {
                             }
                         }
                         $markers['announce'] = $this->Textarier->getAnnounce($announce, $entry_url, 0,
-                            $this->Register['Config']->read('announce_lenght'), $result);
+                            Config::read('announce_lenght'), $result);
 
 						$markers['profile_url'] = get_url('/users/info/' . $result->getAuthor_id());
 
-                        $markers['module_title'] = $this->Register['Config']->read('title', $result->getSkey());
+                        $markers['module_title'] = Config::read('title', $result->getSkey());
                         $result->setAdd_markers($markers);
 
 
