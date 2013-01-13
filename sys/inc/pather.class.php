@@ -15,9 +15,9 @@ Class Pather {
 	function __construct($Register) {
         $this->Register = $Register;
 
-		$redirect = $this->Register['Config']->read('redirect');
+		$redirect = Config::read('redirect');
 		if (!empty($redirect)) {
-			header('Location: ' . $this->Register['Config']->read('redirect') . '');
+			header('Location: ' . Config::read('redirect') . '');
 			die();
 		}
 		$params = $this->parsePath();
@@ -69,8 +69,8 @@ Class Pather {
 		
 		
 		if (empty($url)) {
-			if ($this->Register['Config']->read('start_mod')) {
-				$_GET['url'] = $this->Register['Config']->read('start_mod');
+			if (Config::read('start_mod')) {
+				$_GET['url'] = Config::read('start_mod');
 				$pathParams = $this->parsePath();
 				return $pathParams;
 			}
@@ -88,7 +88,7 @@ Class Pather {
 
 
 		if (empty($pathParams)) {
-			if ($this->Register['Config']->read('start_mod')) {
+			if (Config::read('start_mod')) {
 				$url = Config::read('start_mod');
 				$pathParams = $this->parsePath();
 				return $pathParams;
@@ -109,12 +109,12 @@ Class Pather {
 
 
 		// Redirect from not HLU to HLU
-		if (count($pathParams) >= 3 &&  $pathParams[1] == 'view' && $this->Register['Config']->read('hlu') == 1) {
+		if (count($pathParams) >= 3 &&  $pathParams[1] == 'view' && Config::read('hlu') == 1) {
 			$hlufile = ROOT . '/sys/tmp/hlu_' . $pathParams[0] . '/' . $pathParams[2] . '.dat';
 			if (file_exists($hlufile) && is_readable($hlufile)) {
 				$hlustr = file_get_contents($hlufile);
 				if (!empty($hlustr)) {
-					$hlustr .= $this->Register['Config']->read('hlu_extention');
+					$hlustr .= Config::read('hlu_extention');
 					header('HTTP/1.0 301 Moved Permanently');
 					redirect('/' . $pathParams[0] . '/' . $hlustr);
 				}
@@ -136,7 +136,7 @@ Class Pather {
 		// if we have one argument, we get page if it exists or error
 		if (!is_file(ROOT . '/modules/' . strtolower($params[0]) . '/index.php')) {
 			$mat_id = $this->getHluId($params[0], 'pages');
-			if ($mat_id && $this->Register['Config']->read('hlu') == 1) {
+			if ($mat_id && Config::read('hlu') == 1) {
 				$params = array(
 					0 => 'pages',
 					1 => 'index',
@@ -164,7 +164,7 @@ Class Pather {
 		// Parse two and more arguments
 		if (count($params) > 1) {
 			// Human Like URL
-			if ($this->Register['Config']->read('hlu_understanding') || $this->Register['Config']->read('hlu')) {
+			if (Config::read('hlu_understanding') || Config::read('hlu')) {
 				$mat_id = $this->getHluId($params[1], $params[0]);
 				if ($mat_id) {
 					$params[1] = 'view';

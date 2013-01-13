@@ -7,7 +7,7 @@ $cache_tags = array(
 );
 
 
-$check = $this->Register['Config']->read('rss_' . $this->module, 'common');
+$check = Config::read('rss_' . $this->module, 'common');
 if (!$check) redirect('/');
 
 
@@ -24,9 +24,9 @@ if ($this->Cache->check($cache_key)) {
 	$html = '<?xml version="1.0" encoding="UTF-8"?>';
 	$html .= '<rss version="2.0">';
 	$html .= '<channel>';
-	$html .= '<title>' . h($this->Register['Config']->read('title', $this->module)) . '</title>';
+	$html .= '<title>' . h(Config::read('title', $this->module)) . '</title>';
 	$html .= '<link>' . $sitename . $this->module . '/</link>';
-	$html .= '<description>' . h($this->Register['Config']->read('description', $this->module)) . '</description>';
+	$html .= '<description>' . h(Config::read('description', $this->module)) . '</description>';
 	$html .= '<pubDate>' . date('r') . '</pubDate>';
 	$html .= '<generator>FPS RSS Generator (Fapos CMS)</generator>';
 
@@ -36,7 +36,7 @@ if ($this->Cache->check($cache_key)) {
 	$records = $this->Model->getCollection(
 		array(), 
 		array(
-			'limit' => $this->Register['Config']->read('rss_cnt', 'common'),
+			'limit' => Config::read('rss_cnt', 'common'),
 		)
 	);
 	
@@ -47,7 +47,7 @@ if ($this->Cache->check($cache_key)) {
 			$html .= '<link>' . $sitename . get_url(entryUrl($record, $this->module)) . '</link>';
 			$html .= '<pubDate>' . date('r', strtotime($record->getDate())) . '</pubDate>';
 			$html .= '<title>' . $record->getTitle() . '</title>';
-			$html .= '<description><![CDATA[' . mb_substr($record->getMain(), 0, $this->Register['Config']->read('rss_lenght', 'common')) . '<br />';
+			$html .= '<description><![CDATA[' . mb_substr($record->getMain(), 0, Config::read('rss_lenght', 'common')) . '<br />';
 			$html .= 'Автор: ' . $record->getAuthor()->getName() . '<br />]]></description>';
 			$html .= '<category>' . $record->getCategory()->getTitle() . '</category>';
 			$html .= '<guid>' . $sitename . $this->module . '/view/' . $record->getId() . '</guid>';

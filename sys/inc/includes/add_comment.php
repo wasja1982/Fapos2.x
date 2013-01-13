@@ -23,7 +23,7 @@ if (!empty($_SESSION['user'])) {
 
 
 $mail = '';
-$message = mb_substr($_POST['message'], 0, $this->Register['Config']->read('comment_lenght', $this->module));
+$message = mb_substr($_POST['message'], 0, Config::read('comment_lenght', $this->module));
 $message = trim( $message );
 $ip      = (!empty($_SERVER['REMOTE_ADDR'])) ? $_SERVER['REMOTE_ADDR'] : '';
 $keystring = (isset($_POST['captcha_keystring'])) ? trim($_POST['captcha_keystring']) : '';
@@ -46,9 +46,9 @@ if (!$this->ACL->turn(array('other', 'no_captcha'), false)) {
 		$error = $error . '<li>' . __('Empty field "code"') . '</li>' . "\n";
 
 	
-	// Проверяем поле "код"
+	// РџСЂРѕРІРµСЂСЏРµРј РїРѕР»Рµ "РєРѕРґ"
 	if (!empty($keystring)) {
-		// Проверяем поле "код" на недопустимые символы
+		// РџСЂРѕРІРµСЂСЏРµРј РїРѕР»Рµ "РєРѕРґ" РЅР° РЅРµРґРѕРїСѓСЃС‚РёРјС‹Рµ СЃРёРјРІРѕР»С‹
 		if (!$valobj->cha_val($keystring, V_CAPTCHA))
 			$error = $error.'<li>' . __('Wrong chars in field "code"') . '</li>'."\n";									
 		if (!isset($_SESSION['captcha_keystring'])) {

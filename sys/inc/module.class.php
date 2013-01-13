@@ -196,18 +196,18 @@ class Module {
 		$this->ACL = $this->Register['ACL'];
 		$this->beforeRender();
 		
-		if ($this->Register['Config']->read('active', $params[0]) == 0) {
+		if (Config::read('active', $params[0]) == 0) {
 			if ('chat' === $params[0]) die(__('This module disabled'));
 			return $this->showInfoMessage(__('This module disabled'), '/');
 		}
 		
-		$this->page_title = ($this->Register['Config']->read('title', $this->module))
-            ? h($this->Register['Config']->read('title', $this->module)) : h($this->module);
+		$this->page_title = (Config::read('title', $this->module))
+            ? h(Config::read('title', $this->module)) : h($this->module);
 		$this->params = $params;
 		
 		//cache
 		$this->Cache = new Cache;
-		if ($this->Register['Config']->read('cache') == 1) {
+		if (Config::read('cache') == 1) {
 			$this->cached = true;
 			$this->cacheKey = $this->getKeyForCache($params);
 			$this->setCacheTag(array('module_' . $params[0]));
@@ -217,14 +217,14 @@ class Module {
 		}
 		
 		//meta tags
-		$this->page_meta_keywords = h($this->Register['Config']->read('keywords', $this->module));
-		$this->page_meta_description = h($this->Register['Config']->read('description', $this->module));
+		$this->page_meta_keywords = h(Config::read('keywords', $this->module));
+		$this->page_meta_description = h(Config::read('description', $this->module));
 		
 		if (empty($this->page_meta_keywords)) {
-			$this->page_meta_keywords = h($this->Register['Config']->read('meta_keywords'));
+			$this->page_meta_keywords = h(Config::read('meta_keywords'));
 		}
 		if (empty($this->page_meta_description)) {
-			$this->page_meta_description = h($this->Register['Config']->read('meta_description'));
+			$this->page_meta_description = h(Config::read('meta_description'));
 		}
 	}
 	
@@ -267,7 +267,7 @@ class Module {
 	protected function afterRender()
     {
 		// Cron
-		if ($this->Register['Config']->read('auto_sitemap')) {
+		if (Config::read('auto_sitemap')) {
 			fpsCron('createSitemap', 86400);
 		}
 		
@@ -281,7 +281,7 @@ class Module {
 		
 		if (substr($_SERVER['PHP_SELF'], 1, 5) != 'admin') {
 			include_once ROOT . '/modules/statistics/index.php';
-			if ($this->Register['Config']->read('active', 'statistics') == 1) {
+			if (Config::read('active', 'statistics') == 1) {
 				StatisticsModule::index();
 			} else {
 				StatisticsModule::viewOffCounter();
@@ -630,11 +630,33 @@ class Module {
 	// выдает информационное сообщение и делает редирект на нужную страницу с задержкой
 	function showInfoMessage($message, $queryString = null) 
 	{
-		header( 'Refresh: ' . $this->Register['Config']->read('redirect_delay') . '; url=http://' . $_SERVER['SERVER_NAME'] . get_url($queryString));
+		header( 'Refresh: ' . Config::read('redirect_delay') . '; url=http://' . $_SERVER['SERVER_NAME'] . get_url($queryString));
 		$output = $this->render('infomessagegrand.html', array('data' => array('info_message' => $message)));
 		echo $output;
 		die();
 	}
 
+	
+	// Функция возвращает путь к модулю
+	function getModuleURL($page = null)
+	{
+		$url = '/' . $this->module . '/' . (!empty($page) ? $page : '');
+		return $url;
+	}
 
+	
+	// Функция возвращает путь к файлам модуля
+	function getFilesPath($file = null)
+	{
+		$path = '/sys/files/' . $this->module . '/' . (!empty($file) ? $file : '');
+		return $path;
+	}
+
+	
+	// Функция возвращает путь к временным файлам модуля
+	function getTmpPath($file = null)
+	{
+		$path = '/sys/tmp/' . $this->module . '/' . (!empty($file) ? $file : '');
+		return $path;
+	}
 }

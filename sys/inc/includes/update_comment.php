@@ -13,7 +13,7 @@ if (!$comment) return $this->showInfoMessage(__('Comment not found'), $this->mod
 
 
 $message = (!empty($_POST['message'])) ? $_POST['message'] : '';
-$message = mb_substr($message, 0, $this->Register['Config']->read('comment_lenght', $this->module));
+$message = mb_substr($message, 0, Config::read('comment_lenght', $this->module));
 $message = trim($message);
 
 
