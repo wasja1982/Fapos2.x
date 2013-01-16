@@ -22,6 +22,10 @@ $set = array (
   'autotags_active' => 1,
   'autotags_exception' => 'для,его,при,При,свои,как,все,так,что,это',
   'autotags_priority' => 'fapos cms,fapos,free cms',
+  'use_watermarks' => 1,
+  'watermark_img' => 'watermark.png',
+  'quality_jpeg' => '75',
+  'quality_png' => '9',
   'latest_on_home' => 
   array (
     0 => 'news',
