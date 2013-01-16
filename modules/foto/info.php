@@ -109,20 +109,6 @@ $settingsInfo = array(
 	
 	
 	'Прочее' => 'Прочее',
-	'use_watermarks' => array(
-		'type' => 'checkbox',
-		'title' => 'Водяные знаки',
-		'value' => '1',
-		'checked' => '1',
-	),
-	'watermark_img' => array(
-		'type' => 'file',
-		'title' => 'Водяной знак',
-		'input_sufix_func' => 'fotoShowWaterMarkImage',
-		'onsave' => array(
-			'func' => 'fotoSaveWaterMark',
-		),
-	),
 	'active' => array(
 		'type' => 'checkbox',
 		'title' => 'Статус',
@@ -131,31 +117,3 @@ $settingsInfo = array(
 		'checked' => '1',
 	),
 );
-
-
-if (!function_exists('fotoSaveWaterMark')) {
-	function fotoSaveWaterMark($settings)
-	{
-		if (isImageFile($_FILES['watermark_img']['type'])) {
-			$ext = strchr($_FILES['watermark_img']['name'], '.');
-			if (move_uploaded_file($_FILES['watermark_img']['tmp_name'], ROOT . '/sys/img/watermark'.$ext)) {
-				$settings['watermark_img'] = 'watermark'.$ext;
-			}
-		}
-	}
-}
-
-if (!function_exists('fotoShowWaterMarkImage')) {
-	function fotoShowWaterMarkImage($settings)
-	{
-		$params = array(
-			'style' => 'max-width:200px; max-height:200px;',
-		);
-
-		if (!empty($settings['watermark_img']) 
-		&& file_exists(ROOT . '/sys/img/' . $settings['watermark_img'])) {
-			return get_img('/sys/img/' . $settings['watermark_img'], $params);
-		}
-		return '';
-	}
-}

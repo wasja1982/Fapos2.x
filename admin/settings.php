@@ -33,7 +33,7 @@ $config = Config::read('all');
 
 
 // Prepare templates selct list
-$sourse = glob(ROOT . 'template/*', GLOB_ONLYDIR);
+$sourse = glob(ROOT . '/template/*', GLOB_ONLYDIR);
 if (!empty($sourse) && is_array($sourse)) {
 	$templates = array();
 	foreach ($sourse as $dir) {
@@ -76,14 +76,17 @@ include_once ROOT . '/sys/settings/conf_properties.php';
 
 
 // Get current module(group of settings)
-if (empty($_GET['m']) || !is_string($_GET['m'])) redirect('/admin/');
+if (empty($_GET['m']) || !is_string($_GET['m'])) $_GET['m'] = 'sys';
 $module = trim($_GET['m']);
 if (in_array($module, $sysMods)) {
-	redirect('/admin/');
+	$settingsInfo = $settingsInfo[$module];
 } else {
 	$pathToModInfo = ROOT . '/modules/' . $module . '/info.php';
 	if (file_exists($pathToModInfo)) include ($pathToModInfo);
-	else redirect('/admin/');
+	else {
+		$module = 'sys';
+		$settingsInfo = $settingsInfo[$module];
+	}
 }
 
 

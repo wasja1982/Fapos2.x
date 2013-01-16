@@ -1519,12 +1519,12 @@ Class ForumModule extends Module {
 				$is_image = (isImageFile($_FILES[$attach_name]['type'], $ext) ? '1' : '0');
 				// Перемещаем файл из временной директории сервера в директорию files
 
-				if (move_uploaded_file($_FILES[$attach_name]['tmp_name'], ROOT . 'sys/files/forum/' . $file)) {
+				if (move_uploaded_file($_FILES[$attach_name]['tmp_name'], ROOT . $this->getFilesPath($file))) {
 					if ($is_image == '1') {
-						$watermark_path = ROOT . 'sys/img/' . Config::read('watermark_img', 'foto');
-						if (Config::read('use_watermarks', 'foto') && !empty($watermark_path) && file_exists($watermark_path)) {
+						$watermark_path = ROOT . '/sys/img/' . Config::read('watermark_img');
+						if (Config::read('use_watermarks') && !empty($watermark_path) && file_exists($watermark_path)) {
 							$waterObj = new FpsImg;
-							$save_path = ROOT . 'sys/files/forum/' . $file;
+							$save_path = ROOT . $this->getFilesPath($file);
 							$waterObj->createWaterMark($save_path, $watermark_path);
 						}
 					}
@@ -2143,6 +2143,7 @@ Class ForumModule extends Module {
 			$prev_post[0]->setTime(new Expr('NOW()'));
 			$prev_post[0]->save();
 			
+			$theme->setId_last_author($id_user);
 			$theme->setLast_post(new Expr('NOW()'));
 			$theme->save();
 
@@ -2184,10 +2185,10 @@ Class ForumModule extends Module {
 					// Перемещаем файл из временной директории сервера в директорию files
 					if (move_uploaded_file($_FILES[$attach_name]['tmp_name'], ROOT . $this->getFilesPath($file))) {
 						if ($is_image == '1') {
-							$watermark_path = ROOT . 'sys/img/' . Config::read('watermark_img', 'foto');
-							if (Config::read('use_watermarks', 'foto') && !empty($watermark_path) && file_exists($watermark_path)) {
+							$watermark_path = ROOT . '/sys/img/' . Config::read('watermark_img');
+							if (Config::read('use_watermarks') && !empty($watermark_path) && file_exists($watermark_path)) {
 								$waterObj = new FpsImg;
-								$save_path = ROOT . 'sys/files/forum/' . $file;
+								$save_path = ROOT . $this->getFilesPath($file);
 								$waterObj->createWaterMark($save_path, $watermark_path);
 							}
 						}
@@ -2222,6 +2223,7 @@ Class ForumModule extends Module {
 			$cnt_posts_from_theme = $postsModel->getTotal(array('cond' => array('id_theme' => $id_theme)));
 			$theme->setPosts(($cnt_posts_from_theme - 1));
 			$theme->setId_last_author($id_user);
+			$theme->setLast_post(new Expr('NOW()'));
 			$theme->save();
 
 
@@ -2462,10 +2464,10 @@ Class ForumModule extends Module {
 				// Перемещаем файл из временной директории сервера в директорию files
 				if (move_uploaded_file($_FILES[$attach_name]['tmp_name'], ROOT . $this->getFilesPath($file))) {
 					if ($is_image == '1') {
-						$watermark_path = ROOT . 'sys/img/' . Config::read('watermark_img', 'foto');
-						if (Config::read('use_watermarks', 'foto') && !empty($watermark_path) && file_exists($watermark_path)) {
+						$watermark_path = ROOT . '/sys/img/' . Config::read('watermark_img');
+						if (Config::read('use_watermarks') && !empty($watermark_path) && file_exists($watermark_path)) {
 							$waterObj = new FpsImg;
-							$save_path = ROOT . 'sys/files/forum/' . $file;
+							$save_path = ROOT . $this->getFilesPath($file);
 							$waterObj->createWaterMark($save_path, $watermark_path);
 						}
 					}

@@ -34,7 +34,7 @@ $settingsInfo = array(
 			'options_attr' => array(
 				'onClick' => 'showScreenshot(\'%s\');',
 			),
-			'input_sufix' => '<img id="screenshot" style="border:1px solid #A3BAE9;" width="200px" height="200px" src="' . getImgPath($config['template']) . '" />',
+			'input_sufix' => '&nbsp;<img id="screenshot" style="border:1px solid #A3BAE9;" width="200px" height="200px" src="' . getImgPath($config['template']) . '" />',
 		),
 		'site_title' => array(
 			'type' => 'text',
@@ -108,7 +108,7 @@ $settingsInfo = array(
 		),
 		'time_on_line' => array(
 			'type' => 'text',
-			'title' => 'Время , в течение которого считается, что пользователь "on-line"',
+			'title' => 'Время, в течение которого считается, что пользователь "on-line"',
 			'description' => '',
 		),
 		'open_reg' => array(
@@ -171,6 +171,23 @@ $settingsInfo = array(
 			'type' => 'text',
 			'title' => 'Размер анонса на главной',
 			'description' => '',
+		),
+	
+	
+		'Водяные знаки' => 'Водяные знаки',
+		'use_watermarks' => array(
+			'type' => 'checkbox',
+			'title' => 'Разрешить использование',
+			'value' => '1',
+			'checked' => '1',
+		),
+		'watermark_img' => array(
+			'type' => 'file',
+			'title' => 'Водяной знак',
+			'input_sufix_func' => 'fotoShowWaterMarkImage',
+			'onsave' => array(
+				'func' => 'fotoSaveWaterMark',
+			),
 		),
 
 
@@ -308,3 +325,31 @@ $noSub = array(
 	'sys',
 	'hlu',
 );
+
+
+if (!function_exists('fotoSaveWaterMark')) {
+	function fotoSaveWaterMark($settings)
+	{
+		if (isImageFile($_FILES['watermark_img']['type'])) {
+			$ext = strchr($_FILES['watermark_img']['name'], '.');
+			if (move_uploaded_file($_FILES['watermark_img']['tmp_name'], ROOT . '/sys/img/watermark'.$ext)) {
+				$settings['watermark_img'] = 'watermark'.$ext;
+			}
+		}
+	}
+}
+
+if (!function_exists('fotoShowWaterMarkImage')) {
+	function fotoShowWaterMarkImage($settings)
+	{
+		$params = array(
+			'style' => 'max-width:200px; max-height:200px;',
+		);
+
+		if (!empty($settings['watermark_img']) 
+		&& file_exists(ROOT . '/sys/img/' . $settings['watermark_img'])) {
+			return get_img('/sys/img/' . $settings['watermark_img'], $params);
+		}
+		return '';
+	}
+}

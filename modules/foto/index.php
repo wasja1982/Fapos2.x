@@ -546,8 +546,8 @@ Class FotoModule extends Module {
 		
 		
 		// Create watermark and resample image
-		$watermark_path = ROOT . '/sys/img/' . Config::read('watermark_img', $this->module);
-		if (Config::read('use_watermarks', $this->module) && !empty($watermark_path) && file_exists($watermark_path)) {
+		$watermark_path = ROOT . '/sys/img/' . Config::read('watermark_img');
+		if (Config::read('use_watermarks') && !empty($watermark_path) && file_exists($watermark_path)) {
 			$waterObj = new FpsImg;
 			$waterObj->createWaterMark($save_path, $watermark_path);
 		}
