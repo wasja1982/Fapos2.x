@@ -779,7 +779,7 @@ Class ForumModule extends Module {
 				if ($post->getId_author()) {
 					$user_profile = '&nbsp;' . get_link(
 						get_img(
-							'/sys/img/icon_profile.gif', 
+							'/template/' . getTemplateName() . '/img/icon_profile.png', 
 							array('alt' => __('View profile'
 						), 
 						'title' => __('View profile'))), 
@@ -789,7 +789,7 @@ Class ForumModule extends Module {
 					if (isset($_SESSION['user'])) {
 						$email = '&nbsp;' . get_link(
 							get_img(
-								'/sys/img/icon_email.gif', 
+								'/template/' . getTemplateName() . '/img/icon_email.png', 
 								array('alt' => __('Send mail'), 'title' => __('Send mail'))
 							), 
 							'/users/send_mail_form/' . $post->getId_author(), 
@@ -797,7 +797,7 @@ Class ForumModule extends Module {
 						);
 						$privat_message = '&nbsp;' . get_link(
 							get_img(
-								'/sys/img/icon_pm.gif', 
+								'/template/' . getTemplateName() . '/img/icon_pm.png', 
 								array('alt' => __('PM'), 'title' => __('PM'))
 							), 
 							'/users/send_msg_form/' . $post->getId_author(), 
@@ -807,7 +807,7 @@ Class ForumModule extends Module {
 					$author_site = ($postAuthor->getUrl()) 
 						? '&nbsp;' . get_link(
 							get_img(
-								'/sys/img/icon_www.gif', 
+								'/template/' . getTemplateName() . '/img/icon_www.png', 
 								array('alt' => __('Author site'), 'title' => __('Author site'))
 							), 
 							h($postAuthor->getUrl()), 
