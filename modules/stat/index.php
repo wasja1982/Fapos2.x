@@ -809,9 +809,9 @@ Class StatModule extends Module {
 		
 		
 		//comments and hide
-		$commented = (!empty($commented)) ? 'checked="checked"' : '';
+		$commented = ($data->getCommented()) ? 'checked="checked"' : '';
 		if (!$this->ACL->turn(array($this->module, 'record_comments_management'), false)) $commented .= ' disabled="disabled"';
-		$available = (!empty($available)) ? 'checked="checked"' : '';
+		$available = ($data->getAvailable()) ? 'checked="checked"' : '';
 		$action = get_url($this->getModuleURL('update/' . $data->getId()));
 		
 		

@@ -1057,7 +1057,7 @@ Class NewsModule extends Module {
 		
 		$user_id = (!empty($_SESSION['user']['id'])) ? intval($_SESSION['user']['id']) : 0;
 		if ($this->Log) $this->Log->write('delete new', 'new id(' . $id . ') user id('.$user_id.')');
-		return $this->showInfoMessage(__('Operation is successful'), '/news/');
+		return $this->showInfoMessage(__('Operation is successful'), $this->getModuleURL());
 	}
 
 	
