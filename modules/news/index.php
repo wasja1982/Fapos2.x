@@ -115,7 +115,7 @@ Class NewsModule extends Module {
 		}
 
 
-		// create markets
+		// create markers
 		$addParams = array();
 		foreach ($records as $result) {
 			$this->Register['current_vars'] = $result;
@@ -284,7 +284,7 @@ Class NewsModule extends Module {
 		}
 
 
-		// create markets
+		// create markers
 		$addParams = array();
 		foreach ($records as $result) {
 			$this->Register['current_vars'] = $result;

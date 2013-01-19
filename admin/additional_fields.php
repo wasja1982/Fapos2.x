@@ -131,7 +131,7 @@ if ($_GET['ac'] == 'index'):
 		<?php
 			$params = (!empty($field['params'])) ? unserialize($field['params']) : array();
 			$values = (!empty($params['values'])) ? $params['values'] : '-';
-			$field_market = 'add_field_' . $field['id'];
+			$field_marker = 'add_field_' . $field['id'];
 			$required = (!empty($params['required'])) ? '<span style="color:red;">ДА</span>' : '<span style="color:blue;">НЕТ</span>';
 		?>
 		<div class="fps-win lines2">
@@ -141,10 +141,10 @@ if ($_GET['ac'] == 'index'):
 				<div class="item">Max. Размер: <div><?php echo (!empty($field['size'])) ? h($field['size']) : '-'; ?></div></div>
 				<div class="item">Доп. Параметры: <div><?php echo (!empty($values)) ? h($values) : ''; ?></div></div>
 				<div class="item">Обязательное поле: <div><?php echo $required; ?></div></div>
-				<div class="item">Маркет поля: <div><?php echo h(strtoupper('{' . $field_market . '}')); ?></div></div>
+				<div class="item">Маркет поля: <div><?php echo h(strtoupper('{' . $field_marker . '}')); ?></div></div>
 			</div>
 			<div class="textarea-item">
-				<textarea style="width:100%; height:103px;;"><?php echo (!empty($inputs[$field_market])) ? $inputs[$field_market] : ''; ?></textarea>
+				<textarea style="width:100%; height:103px;;"><?php echo (!empty($inputs[$field_marker])) ? $inputs[$field_marker] : ''; ?></textarea>
 			</div>
 			
 			<div class="control-but">

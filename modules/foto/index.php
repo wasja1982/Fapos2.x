@@ -97,7 +97,7 @@ Class FotoModule extends Module {
 		$records = $this->Model->getCollection($where, $params);
 		
 		
-		// create markets
+		// create markers
 		foreach ($records as $result) {
 			$this->Register['current_vars'] = $result;
 			$_addParams = array();
@@ -213,7 +213,7 @@ Class FotoModule extends Module {
 		$records = $this->Model->getCollection($where, $params);
 
 
-		// create markets
+		// create markers
 		foreach ($records as $result) {
 			$this->Register['current_vars'] = $result;
 			$_addParams = array();

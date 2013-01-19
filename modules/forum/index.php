@@ -161,7 +161,7 @@ Class ForumModule extends Module {
 	
 	/**
 	 * @param array $forum
-	 * @retrun string HTML forum table wiht replaced markets
+	 * @retrun string HTML forum table wiht replaced markers
 	 */
 	private function _parseForumTable($forum) 
 	{
@@ -436,7 +436,7 @@ Class ForumModule extends Module {
 	 * @param array $theme
 	 * @param string $template
 	 * If $template = FALSE, use default template file
-	 * @retrun string HTML theme table with replaced markets
+	 * @retrun string HTML theme table with replaced markers
 	 */
 	private function __parseThemeTable($theme, $template = false) 
 	{
@@ -769,7 +769,7 @@ Class ForumModule extends Module {
 								. $attach->getFilename()), array('target' => '_blank')) . '<br />';
 								
 								
-							//if attach is image and isset markets for this image
+							//if attach is image and isset markers for this image
 							if ($attach->getIs_image() == '1') {
 								$message = str_replace('{IMAGE' . $attach->getAttach_number() . '}', 
 									'[img]' . get_url($this->getFilesPath($attach->getFilename())) . '[/img]',

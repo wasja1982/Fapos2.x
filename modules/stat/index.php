@@ -111,7 +111,7 @@ Class StatModule extends Module {
 		}
 
 
-		// create markets
+		// create markers
 		$addParams = array();
 		foreach ($records as $result) {
 			$this->Register['current_vars'] = $result;
@@ -279,7 +279,7 @@ Class StatModule extends Module {
 		}
 
 
-		// create markets
+		// create markers
 		$addParams = array();
 		foreach ($records as $result) {
 			$this->Register['current_vars'] = $result;

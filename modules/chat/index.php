@@ -103,7 +103,7 @@ class ChatModule extends Module {
 	/*
 	private function __add_form() {
 		$content = '';
-		$markets = array();
+		$markers = array();
 
 		// if an errors 
 		if (isset($_SESSION['addForm'])) {
@@ -125,14 +125,14 @@ class ChatModule extends Module {
 		if (!$this->ACL->turn(array('other', 'no_captcha'), false)) {
 			$kcaptcha = getCaptcha();
 		}
-		$markets['{ACTION}'] = get_url($this->getModuleURL('add/'));
-		$markets['{NAME}'] = h($name);
-		$markets['{MESSAGE}'] = h($message);
-		$markets['{CAPTCHA}'] = $kcaptcha;
+		$markers['{ACTION}'] = get_url($this->getModuleURL('add/'));
+		$markers['{NAME}'] = h($name);
+		$markers['{MESSAGE}'] = h($message);
+		$markers['{CAPTCHA}'] = $kcaptcha;
 		
 
 
-		$content = $content . $this->_replaceMarkets($markets, $tpl);
+		$content = $content . $this->_replaceMarkers($markers, $tpl);
 		return $content;
 	}
 	*/

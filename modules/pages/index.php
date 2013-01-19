@@ -211,7 +211,7 @@ Class PagesModule extends Module {
                         }
 
 
-                        // Create and replace markets
+                        // Create and replace markers
                         $markers = array();
                         $this->Register['current_vars'] = $result;
 
