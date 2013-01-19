@@ -6,7 +6,7 @@
 <table cellspacing="0" cellpadding="0" class="cat-tb">
 	<tr>
 		<td class="title" colspan="5">
-			<a href="{CAT_URL}">{{ category.title }}</a>
+			<a href="{{ category.cat_url }}">{{ category.title }}</a>
 			<span onClick="if($('#{{ category.id }}').css('display') == 'none'){$('#{{ category.id }}').show();}else{$('#{{ category.id }}').hide();}" style="float:right;" class="strelka1"></span>
 			<div style="clear:both;">
 		</td>
