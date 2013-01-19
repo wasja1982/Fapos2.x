@@ -669,4 +669,39 @@ class Module {
 		$path = '/sys/tmp/previews/' . $this->module . '/' . (!empty($file) ? $file : '');
 		return $path;
 	}
+
+	
+	// Функция возвращает максимально допустимый размер файла
+	function getMaxSize($param = 'max_file_size')
+	{
+		$max_size = Config::read($param, $this->module);
+		if (empty($max_size) || !is_numeric($max_size)) $max_size = Config::read('max_file_size');
+		if (empty($max_size) || !is_numeric($max_size)) $max_size = 1048576;
+		return $max_size;
+	}
+	
+	
+	// Функция обрабатывает метку изображения
+	function insertImageAttach($message, $filename, $number)
+	{
+		$in_file = ROOT . $this->getFilesPath() . $filename;
+		$out_file = ROOT . $this->getTmpPreviewPath() . $filename;
+		
+		if (file_exists($in_file)) {
+			$img = getimagesize($in_file);
+			if (!file_exists($out_file) && Config::read('use_preview', $this->module) &&
+				($img[0] > Config::read('img_size_x', $this->module) || $img[1] > Config::read('img_size_y', $this->module))) {
+				$resample = resampleImage($in_file, $out_file, Config::read('img_size_x', $this->module), Config::read('img_size_y', $this->module));
+				if ($resample) chmod($out_file, 0644);
+			}
+
+			if (file_exists($out_file) && Config::read('use_preview', $this->module)) {
+				$message = str_replace('{IMAGE' . $number . '}', '[gallery=' . get_url($this->getFilesPath($filename)) . '][img]' . get_url($this->getTmpPreviewPath($filename)).'[/img][/gallery]'
+						, $message);
+			} else {
+				$message = str_replace('{IMAGE' . $number . '}', '[img]' . get_url($this->getFilesPath($filename)) . '[/img]', $message);
+			}
+		}
+		return $message;
+	}
 }

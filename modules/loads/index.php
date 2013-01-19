@@ -139,28 +139,9 @@ Class LoadsModule extends Module {
 			$rec_attaches = $entity->getAttaches();
 			// replace image tags in text
 			if (!empty($rec_attaches) && count($rec_attaches) > 0) {
-				$attachDir = ROOT . $this->getFilesPath();
-				$previewDir = ROOT . $this->getTmpPreviewPath();
 				foreach ($rec_attaches as $attach) {
-					if ($attach->getIs_image() == 1 && file_exists($attachDir . $attach->getFilename())) {
-						$img = getimagesize($attachDir.$attach->getFilename());
-						if (!file_exists($previewDir . $attach->getFilename()) && Config::read('use_preview', $this->module) &&
-							($img[0] > Config::read('img_size_x', $this->module) || $img[1] > Config::read('img_size_y', $this->module))) {
-							$save_path = $attachDir . $attach->getFilename();
-							$save_sempl_path = $previewDir . $attach->getFilename();
-							$resample = resampleImage($save_path, $save_sempl_path, Config::read('img_size_x', $this->module), Config::read('img_size_y', $this->module));
-							if ($resample) chmod($save_sempl_path, 0644);
-						}
-
-						if (file_exists($previewDir . $attach->getFilename()) && Config::read('use_preview', $this->module)) {
-							$announce = str_replace('{IMAGE'.$attach->getAttach_number() . '}'
-							, '[gallery=' . get_url($this->getFilesPath($attach->getFilename())) . '][img]' . get_url($this->getTmpPreviewPath($attach->getFilename())).'[/img][/gallery]'
-							, $announce);
-						} else {
-							$announce = str_replace('{IMAGE'.$attach->getAttach_number().'}'
-							, '[img]' . get_url($this->getFilesPath($attach->getFilename())) . '[/img]'
-							, $announce);
-						}
+					if ($attach->getIs_image() == '1') {
+						$announce = $this->insertImageAttach($announce, $attach->getFilename(), $attach->getAttach_number());
 					}
 				}
 			}
@@ -302,28 +283,9 @@ Class LoadsModule extends Module {
 			// replace image tags in text
 			$attaches = $result->getAttaches();
 			if (!empty($attaches) && count($attaches) > 0) {
-				$attachDir = ROOT . $this->getFilesPath();
-				$previewDir = ROOT . $this->getTmpPreviewPath();
 				foreach ($attaches as $attach) {
-					if ($attach->getIs_image() == 1 && file_exists($attachDir . $attach->getFilename())) {
-						$img = getimagesize($attachDir.$attach->getFilename());
-						if (!file_exists($previewDir . $attach->getFilename()) && Config::read('use_preview', $this->module) &&
-							($img[0] > Config::read('img_size_x', $this->module) || $img[1] > Config::read('img_size_y', $this->module))) {
-							$save_path = $attachDir . $attach->getFilename();
-							$save_sempl_path = $previewDir . $attach->getFilename();
-							$resample = resampleImage($save_path, $save_sempl_path, Config::read('img_size_x', $this->module), Config::read('img_size_y', $this->module));
-							if ($resample) chmod($save_sempl_path, 0644);
-						}
-
-						if (file_exists($previewDir . $attach->getFilename()) && Config::read('use_preview', $this->module)) {
-							$announce = str_replace('{IMAGE'.$attach->getAttach_number() . '}'
-							, '[gallery=' . get_url($this->getFilesPath($attach->getFilename())) . '][img]' . get_url($this->getTmpPreviewPath($attach->getFilename())).'[/img][/gallery]'
-							, $announce);
-						} else {
-							$announce = str_replace('{IMAGE'.$attach->getAttach_number() . '}'
-							, '[img]' . get_url($this->getFilesPath($attach->getFilename())) . '[/img]'
-							, $announce);
-						}
+					if ($attach->getIs_image() == '1') {
+						$announce = $this->insertImageAttach($announce, $attach->getFilename(), $attach->getAttach_number());
 					}
 				}
 			}
@@ -467,28 +429,9 @@ Class LoadsModule extends Module {
 		// replace image tags in text
 		$attaches = $entity->getAttaches();
 			if (!empty($attaches) && count($attaches) > 0) {
-				$attachDir = ROOT . $this->getFilesPath();
-				$previewDir = ROOT . $this->getTmpPreviewPath();
 				foreach ($attaches as $attach) {
-					if ($attach->getIs_image() == 1 && file_exists($attachDir . $attach->getFilename())) {
-						$img = getimagesize($attachDir.$attach->getFilename());
-						if (!file_exists($previewDir . $attach->getFilename()) && Config::read('use_preview', $this->module) &&
-							($img[0] > Config::read('img_size_x', $this->module) || $img[1] > Config::read('img_size_y', $this->module))) {
-							$save_path = $attachDir . $attach->getFilename();
-							$save_sempl_path = $previewDir . $attach->getFilename();
-							$resample = resampleImage($save_path, $save_sempl_path, Config::read('img_size_x', $this->module), Config::read('img_size_y', $this->module));
-							if ($resample) chmod($save_sempl_path, 0644);
-						}
-
-						if (file_exists($previewDir . $attach->getFilename()) && Config::read('use_preview', $this->module)) {
-							$announce = str_replace('{IMAGE'.$attach->getAttach_number() . '}'
-							, '[gallery=' . get_url($this->getFilesPath($attach->getFilename())) . '][img]' . get_url($this->getTmpPreviewPath($attach->getFilename())).'[/img][/gallery]'
-							, $announce);
-						} else {
-							$announce = str_replace('{IMAGE'.$attach->getAttach_number() . '}'
-							, '[img]' . get_url($this->getFilesPath($attach->getFilename())) . '[/img]'
-							, $announce);
-						}
+					if ($attach->getIs_image() == '1') {
+						$announce = $this->insertImageAttach($announce, $attach->getFilename(), $attach->getAttach_number());
 					}
 				}
 			}
@@ -658,9 +601,8 @@ Class LoadsModule extends Module {
 				$error = $error . '<li>' . __('Not attaches') . '</li>' . "\n";	
 		}
 		if (isset($_FILES['attach']['name']) 
-		&& $_FILES['attach']['size'] > Config::read('max_file_size', $this->module))
-			$error = $error .'<li>'. sprintf(__('Wery big file2')
-			, (Config::read('max_file_size', $this->module)/1024)) .'</li>'. "\n";
+		&& $_FILES['attach']['size'] > $this->getMaxSize())
+			$error = $error .'<li>'. sprintf(__('Wery big file2'), ($this->getMaxSize() / 1024)) .'</li>'. "\n";
 		
 		if (!empty($tags) && !$valobj->cha_val($tags, V_TITLE)) 
 			$error = $error. '<li>' . __('Wrong chars in "tags"') . '</li>' ."\n";
@@ -686,8 +628,8 @@ Class LoadsModule extends Module {
 		// Check attaches size and format
 		$max_attach = Config::read('max_attaches', $this->module);
 		if (empty($max_attach) || !is_numeric($max_attach)) $max_attach = 5;
-		$max_attach_size = Config::read('max_attaches_size', $this->module);
-		if (empty($max_attach_size) || !is_numeric($max_attach_size)) $max_attach_size = 1000;
+		$max_attach_size = $this->getMaxSize('max_attaches_size');
+		if (empty($max_attach_size) || !is_numeric($max_attach_size)) $max_attach_size = 1048576;
 		for ($i = 1; $i <= $max_attach; $i++) {
 			$attach_name = 'attach' . $i;
 			if (!empty($_FILES[$attach_name]['name'])) {
@@ -695,7 +637,7 @@ Class LoadsModule extends Module {
 				$ext = strrchr($_FILES[$attach_name]['name'], ".");
 
 				if ($_FILES[$attach_name]['size'] > $max_attach_size) {
-					$error .= '<li>' . sprintf(__('Wery big file'), $i, round(($max_attach_size / 1000), 2)) . '</li>'."\n";
+					$error .= '<li>' . sprintf(__('Wery big file'), $i, round(($max_attach_size / 1024), 2)) . '</li>'."\n";
 				}
 				if (!isImageFile($_FILES[$attach_name]['type'], $ext)) {
 					$error .= '<li>' . __('Wrong file format') . '</li>'."\n";
@@ -744,24 +686,26 @@ Class LoadsModule extends Module {
 		// Формируем SQL-запрос на добавление темы
 		$addLoad = mb_substr($addLoad, 0, Config::read('max_lenght', $this->module));
 		$data = array(
-			'title' 		=> $title,
-			'main' 			=> $addLoad,
-			'date' 			=> new Expr('NOW()'),
-			'author_id' 	=> $_SESSION['user']['id'],
-			'category_id' 	=> $in_cat,
-			'download' 		=> $file,
-			'filename'	  => $filename,
-			'description'   => $description,
-			'tags'		  => $tags,
-			'sourse'  		=> $sourse,
-			'sourse_email'  => $sourse_email,
-			'sourse_site'   => $sourse_site,
-			'download_url'   => $download_url,
-			'download_url_size'   => (int)$download_url_size,
-			'commented'	 => $commented,
-			'available'	 => $available,
-			'view_on_home' 	=> $cat->getView_on_home(),
+			'title'             => $title,
+			'main'              => $addLoad,
+			'date'              => new Expr('NOW()'),
+			'author_id'         => $_SESSION['user']['id'],
+			'category_id'       => $in_cat,
+			'description'       => $description,
+			'tags'              => $tags,
+			'sourse'            => $sourse,
+			'sourse_email'      => $sourse_email,
+			'sourse_site'       => $sourse_site,
+			'download_url'      => $download_url,
+			'download_url_size' => (int)$download_url_size,
+			'commented'         => $commented,
+			'available'         => $available,
+			'view_on_home'      => $cat->getView_on_home(),
 		);
+		if (!empty($file)) {
+			$data['download'] = $file;
+			$data['filename'] = $filename;
+		}
 		$entity = new LoadsEntity($data);
 		$last_id = $entity->save();
 
@@ -984,7 +928,14 @@ Class LoadsModule extends Module {
 			$error = $error .'<li>' . sprintf(__('Wery small "material"')
 			, Config::read('min_lenght', $this->module)).'</li>'."\n";
 
-
+		if (Config::read('require_file', $this->module) == 1) {
+			if (empty($_FILES['attach']['name'])) 
+				$error = $error . '<li>' . __('Not attaches') . '</li>' . "\n";	
+		}
+		if (isset($_FILES['attach']['name']) 
+		&& $_FILES['attach']['size'] > $this->getMaxSize())
+			$error = $error .'<li>'. sprintf(__('Wery big file2'), ($this->getMaxSize() / 1024)) .'</li>'. "\n";
+		
 		// Проверяем, заполнены ли обязательные поля
 		if ( empty( $title ) ) 
 			$error = $error.'<li>' . __('Empty field "title"') .'</li>'."\n";
@@ -1034,8 +985,8 @@ Class LoadsModule extends Module {
 		// Check attaches size and format
 		$max_attach = Config::read('max_attaches', $this->module);
 		if (empty($max_attach) || !is_numeric($max_attach)) $max_attach = 5;
-		$max_attach_size = Config::read('max_attaches_size', $this->module);
-		if (empty($max_attach_size) || !is_numeric($max_attach_size)) $max_attach_size = 1000;
+		$max_attach_size = $this->getMaxSize('max_attaches_size');
+		if (empty($max_attach_size) || !is_numeric($max_attach_size)) $max_attach_size = 1048576;
 		for ($i = 1; $i <= $max_attach; $i++) {
 			// Delete attaches. If need
 			$dattach = $i . 'dattach';
@@ -1049,7 +1000,7 @@ Class LoadsModule extends Module {
 				$ext = strrchr($_FILES[$attach_name]['name'], ".");
 
 				if ($_FILES[$attach_name]['size'] > $max_attach_size) {
-					$error .= '<li>' . sprintf(__('Wery big file'), $i, round(($max_attach_size / 1000), 2)) . '</li>'."\n";
+					$error .= '<li>' . sprintf(__('Wery big file'), $i, round(($max_attach_size / 1024), 2)) . '</li>'."\n";
 				}
 				if (!isImageFile($_FILES[$attach_name]['type'], $ext)) {
 					$error .= '<li>' . __('Wrong file format') . '</li>'."\n";
@@ -1080,25 +1031,25 @@ Class LoadsModule extends Module {
 		}
 		
 
-		// Запрос на обновление новости
+		// Запрос на обновление файла
 		$data = array(
-			'id' 		   => $id,
-			'title' 	   => $title,
-			'main' 		   => $editLoad,
-			'category_id'  => $in_cat,
-			'description'  => $description,
-			'tags'		 => $tags,
-			'sourse'  	   => $sourse,
-			'sourse_email' => $sourse_email,
-			'sourse_site'  => $sourse_site,
-			'download_url'  => $download_url,
-			'download_url_size'  => $download_url_size,
-			'commented'	=> $commented,
-			'available'	=> $available,
+			'id'                => $id,
+			'title'             => $title,
+			'main'              => $editLoad,
+			'category_id'       => $in_cat,
+			'description'       => $description,
+			'tags'              => $tags,
+			'sourse'            => $sourse,
+			'sourse_email'      => $sourse_email,
+			'sourse_site'       => $sourse_site,
+			'download_url'      => $download_url,
+			'download_url_size' => $download_url_size,
+			'commented'         => $commented,
+			'available'         => $available,
 		);
 		if (!empty($file)) {
-			$saveParams['download'] = $file;
-			$saveParams['filename'] = $filename;
+			$data['download'] = $file;
+			$data['filename'] = $filename;
 		}
 		$target->__construct($data);
 		$target->save();

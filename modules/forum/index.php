@@ -704,8 +704,8 @@ Class ForumModule extends Module {
 			$usersModel = $this->Register['ModManager']->getModelInstance('Users');
 			foreach ($posts as $post) {
 				// Если автор сообщения (поста) - зарегистрированный пользователь
-				$postAuthor = $post->getAuthor();
-				if ($post->getId_author()) {
+				$postAuthor = $usersModel->getById($post->getId_author());
+				if ($postAuthor) {
 
 					// Аватар
 					if (is_file(ROOT . '/sys/avatars/' . $post->getId_author() . '.jpg')) {
@@ -765,16 +765,14 @@ Class ForumModule extends Module {
 						if (file_exists(ROOT . $this->getFilesPath($attach->getFilename()))) {
 							$attachment .= __('Attachment') . $attach->getAttach_number() 
 								. ': ' . get_img('/sys/img/file.gif', array('alt' => __('Open file'), 'title' => __('Open file'))) 
-								. '&nbsp;' . get_link(($attach->getSize() / 1000) .' Кб', $this->getModuleURL('download_file/' 
+								. '&nbsp;' . get_link(($attach->getSize() / 1024) .' Кб', $this->getModuleURL('download_file/' 
 								. $attach->getFilename()), array('target' => '_blank')) . '<br />';
 								
 								
 							//if attach is image and isset markers for this image
 							if ($attach->getIs_image() == '1') {
-								$message = str_replace('{IMAGE' . $attach->getAttach_number() . '}', 
-									'[img]' . get_url($this->getFilesPath($attach->getFilename())) . '[/img]',
-									$post->getMessage());
-								$post->setMessage($message);
+								$message = $this->insertImageAttach($post->getMessage(), $attach->getFilename(), $attach->getAttach_number());
+								if (!empty($message)) $post->setMessage($message);
 							}
 							$step = true;
 						}
@@ -834,7 +832,7 @@ Class ForumModule extends Module {
 					}
 					
 					
-					$author_site = ($post->getAuthor()->getUrl()) 
+					$author_site = ($postAuthor->getUrl()) 
 						? '&nbsp;' . get_link(
 							get_img(
 								'/template/' . getTemplateName() . '/img/icon_www.png', 
@@ -1480,8 +1478,8 @@ Class ForumModule extends Module {
 
 		for ($i = 1; $i < 6; $i++) {
 			if (!empty($_FILES['attach' . $i]['name'])) {
-				if ($_FILES['attach' . $i]['size'] > Config::read('max_file_size')) {
-					$error = $error . '<li>' . sprintf(__('Wery big file'), $i, (Config::read('max_file_size')/1024)) . '</li>'."\n";
+				if ($_FILES['attach' . $i]['size'] > $this->getMaxSize()) {
+					$error = $error . '<li>' . sprintf(__('Wery big file'), $i, ($this->getMaxSize() / 1024)) . '</li>'."\n";
 				}
 			}
 		}
@@ -2117,9 +2115,8 @@ Class ForumModule extends Module {
 		$gluing = true;
 		for ($i = 1; $i < 6; $i++) {
 			if (!empty($_FILES['attach' . $i]['name'])) {
-				if ($_FILES['attach' . $i]['size'] > Config::read('max_file_size')) {
-					$error = $error . '<li>' . sprintf(__('Wery big file'), $i
-					, (Config::read('max_file_size')/1024)) . '</li>'."\n";
+				if ($_FILES['attach' . $i]['size'] > $this->getMaxSize()) {
+					$error = $error . '<li>' . sprintf(__('Wery big file'), $i, ($this->getMaxSize() / 1024)) . '</li>'."\n";
 				}
 				//if exists attach files we do not gluing posts
 				$gluing = false;
@@ -2444,9 +2441,8 @@ Class ForumModule extends Module {
 		// check attach 
 		for ($i = 1; $i <= 5; $i++) {
 			if (!empty($_FILES['attach' . $i]['name'])) {
-				if ($_FILES['attach' . $i]['size'] > Config::read('max_file_size')) {
-					$error = $error . '<li>' . sprintf(__('Wery big file'), $i
-					, (Config::read('max_file_size') / 1024)) . '</li>'."\n";
+				if ($_FILES['attach' . $i]['size'] > $this->getMaxSize()) {
+					$error = $error . '<li>' . sprintf(__('Wery big file'), $i, ($this->getMaxSize() / 1024)) . '</li>'."\n";
 				}
 			}
 		}

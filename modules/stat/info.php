@@ -44,6 +44,7 @@ $settingsInfo = array(
 		'type' => 'checkbox',
 		'title' => 'Использовать эскизы инображений',
 		'description' => 'Возможность автоматического создания эскизов для больших изображений.',
+		'value' => '1',
 		'checked' => '1',
 	),
 	'img_size_x' => array(
@@ -64,10 +65,10 @@ $settingsInfo = array(
 		'description' => 'Определяет максимальный возможный размер изображения в килобайтах.',
 		'help' => 'КБайт',
 		'onview' => array(
-			'division' => 1000,
+			'division' => 1024,
 		),
 		'onsave' => array(
-			'multiply' => 1000,
+			'multiply' => 1024,
 		),
 	),
 	'max_attaches' => array(
@@ -137,23 +138,34 @@ $settingsInfo = array(
 	),
 
 	'Комментарии' => 'Комментарии',
-	'comment_lenght' => array(
-		'type' => 'text',
-		'title' => 'Максимальный размер',
+	'comment_active' => array(
+		'type' => 'checkbox',
+		'title' => 'Разрешить использование комментариев',
+		'description' => '',
+        'value' => '1',
+        'checked' => '1',
 	),
 	'comment_per_page' => array(
-		'type' => 'checkbox',
-		'title' => 'Новые сверху',
-		'value' => '1',
-		'checked' => '1',
+		'type' => 'text',
+		'title' => 'Комментариев на странице',
+		'description' => '',
+		'help' => '',
 	),
+    'comment_lenght' => array(
+        'type' => 'text',
+        'title' => 'Максимальный размер',
+		'description' => '',
+		'help' => 'Символов',
+    ),
 	'comments_order' => array(
 		'type' => 'checkbox',
 		'title' => 'Новые сверху',
-		'value' => '1',
-		'checked' => '1',
+		'description' => '',
+        'value' => '1',
+        'checked' => '1',
 	),
 
+	
 	'Прочее' => 'Прочее',
 	'active' => array(
 		'type' => 'checkbox',
