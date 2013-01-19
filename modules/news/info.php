@@ -1,13 +1,13 @@
 <?php
 
 $menuInfo = array(
-    'url' => 'settings.php?m=news',
-    'ankor' => 'Новости',
+	'url' => 'settings.php?m=news',
+	'ankor' => 'Новости',
 	'sub' => array(
-        'settings.php?m=news' => 'Настройки',
-        'design.php?m=news' => 'Дизайн',
-        'category.php?mod=news' => 'Управление категориями',
-        'additional_fields.php?m=news' => 'Дополнительные поля',
+		'settings.php?m=news' => 'Настройки',
+		'design.php?m=news' => 'Дизайн',
+		'category.php?mod=news' => 'Управление категориями',
+		'additional_fields.php?m=news' => 'Дополнительные поля',
 	),
 );
 
@@ -45,23 +45,29 @@ $settingsInfo = array(
 	
 	
 	'Изображения' => 'Изображения',
+	'use_preview' => array(
+		'type' => 'checkbox',
+		'title' => 'Использовать эскизы инображений',
+		'description' => 'Возможность автоматического создания эскизов для больших изображений.',
+		'checked' => '1',
+	),
 	'img_size_x' => array(
 		'type' => 'text',
-		'title' => 'Размер по оси Х',
-		'description' => '',
-		'help' => 'Пикселей(Число)',
+		'title' => 'Ширина эскиза',
+		'description' => 'Максимально допустимый размер эскиза по горизонтали.',
+		'help' => 'px',
 	),
 	'img_size_y' => array(
 		'type' => 'text',
-		'title' => 'Размер по оси Y',
-		'description' => '',
-		'help' => 'Пикселей(Число)',
+		'title' => 'Высота эскиза',
+		'description' => 'Максимально допустимый размер эскиза по вертикали.',
+		'help' => 'px',
 	),
 	'max_attaches_size' => array(
 		'type' => 'text',
 		'title' => 'Максимальный "вес"',
-		'description' => '',
-		'help' => 'Кбайт',
+		'description' => 'Определяет максимальный возможный размер изображения в килобайтах.',
+		'help' => 'КБайт',
 		'onview' => array(
 			'division' => 1000,
 		),
@@ -71,9 +77,7 @@ $settingsInfo = array(
 	),
 	'max_attaches' => array(
 		'type' => 'text',
-		'title' => 'Максимальное кол-во',
-		'description' => '',
-		'help' => 'Единиц',
+		'title' => 'Максимальное количество вложений',
 	),
 	
 	

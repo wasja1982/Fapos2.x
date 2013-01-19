@@ -1,6 +1,7 @@
 <?php
 
 function resampleImage($path, $new_path, $sizew, $sizeh) {
+	$itype = 2;
 	if (function_exists('exif_imagetype')) {
 		$itype = exif_imagetype($path);
 		switch ($itype) {
@@ -14,7 +15,8 @@ function resampleImage($path, $new_path, $sizew, $sizeh) {
 	} else if (function_exists('getimagesize')) {
 		@$info = getimagesize($path);
 		if (!$info || empty($info['mime'])) return false;
-		switch ($info['mime']) {
+		$itype = $info['mime'];
+		switch ($itype) {
 			case 'image/jpeg': $img = imagecreatefromjpeg($path); break;
 			case 'image/gif': $img = imagecreatefromgif($path); break;
 			case 'image/png': $img = imagecreatefrompng($path); break;
@@ -39,7 +41,28 @@ function resampleImage($path, $new_path, $sizew, $sizeh) {
 		$dest, $img, 0, 0, 0, 0, $nw, $nh, $w, $h
 	);
 
-	imagejpeg($dest, $new_path);
+	$quality_jpeg = Config::read('quality_jpeg');
+	if (isset($quality_jpeg)) $quality_jpeg = (intval($quality_jpeg) < 0 || intval($quality_jpeg) > 100) ? 75 : intval($quality_jpeg);
+	$quality_png = Config::read('quality_png');
+	if (isset($quality_png)) $quality_png = (intval($quality_png) < 0 || intval($quality_png) > 9) ? 9 : intval($quality_png);
+	
+	switch ($itype) {
+		case 1:
+		case 'image/gif':
+			imagegif($dest, $new_path);
+			break;
+		case 2:
+		case 'image/jpeg':
+			imagejpeg($dest, $new_path, $quality_jpeg);
+			break;
+		case 3:
+		case 'image/png':
+			imagepng($dest, $new_path, $quality_png);
+			break;
+		default:
+			imagejpeg($dest, $new_path, $quality_jpeg);
+			break;
+	}
 	imagedestroy($img);
 	imagedestroy($dest);
 	return true;
