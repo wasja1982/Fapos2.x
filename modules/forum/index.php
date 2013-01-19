@@ -2,12 +2,12 @@
 /*-----------------------------------------------\
 | 												 |
 |  @Author:       Andrey Brykin (Drunya)         |
-|  @Version:      1.6.45                         |
+|  @Version:      1.6.50                         |
 |  @Project:      CMS                            |
 |  @package       CMS Fapos                      |
 |  @subpackege    Forum Module                   |
-|  @copyright     ©Andrey Brykin 2010-2012       |
-|  @last mod.     2012/09/24                     |
+|  @copyright     ©Andrey Brykin 2010-2013       |
+|  @last mod.     2013/01/10                     |
 \-----------------------------------------------*/
 
 /*-----------------------------------------------\
@@ -179,7 +179,7 @@ Class ForumModule extends Module {
 		
 		
 		//выводим название темы в которой было добавлено последнее сообщение и дату его добавления
-		if (!$forum->getLast_theme() ||  !$forum->getLast_author()) {
+		if (!$forum->getLast_theme()/* ||  !$forum->getLast_author()*/) {
 			$last_post = __('No posts');
 			
 		} else {
@@ -187,11 +187,17 @@ Class ForumModule extends Module {
 			? mb_substr($forum->getLast_theme()->getTitle(), 0, 30) . '...' : $forum->getLast_theme()->getTitle();
 			
 			
+			$last_theme_author = __('Guest');
+			if ($forum->getLast_author()) {
+				$last_theme_author = get_link(h($forum->getLast_author()->getName()), 
+				getProfileUrl($forum->getLast_author()->getId()), array('title' => __('To profile')));
+			}
+			
+			
 			$last_post = $forum->getLast_theme()->getLast_post() . '<br>' . get_link(h($last_post_title), 
 				$this->getModuleURL('view_theme/' . $forum->getLast_theme()->getId() . '?page=999'), 
 				array('title' => __('To last post')))
-			    . __('Post author') . get_link(h($forum->getLast_author()->getName()), 
-				getProfileUrl($forum->getLast_author()->getId()), array('title' => __('To profile')));
+			    . __('Post author') . $last_theme_author;
 		}
 		$forum->setLast_post($last_post);
 		
@@ -245,12 +251,15 @@ Class ForumModule extends Module {
 		if (file_exists($forumFile)) {
 			$who = unserialize(file_get_contents($forumFile));
 		}
+		
+		
 		if (isset($_SESSION['user'])) {
 			if (!isset($who[$_SESSION['user']['id']])) {
 				$who[$_SESSION['user']['id']]['profile_link'] = get_link(h($_SESSION['user']['name']), '/users/info/' . $_SESSION['user']['id']);
 				$who[$_SESSION['user']['id']]['expire'] = time() + 1000;
 			}
 		}
+		
 		
 		$who_is_here = '';
 		foreach ($who as $key => $val) {
@@ -284,9 +293,9 @@ Class ForumModule extends Module {
 			
 			
 			// reply link
-			$addLink = (isset($_SESSION['user'])) 
-			? get_link(get_img('/template/' . getTemplateName() . '/img/add_theme_button.png', 
-			array('alt' => __('New topic'))), $this->getModuleURL('add_theme_form/' . $id_forum)) : '';
+			$addLink = ($this->Register['ACL']->turn(array('forum', 'add_themes'), false)) 
+			? get_link(get_img('/template/' . $this->Register['Config']->read('template').'/img/add_theme_button.png', 
+			array('alt' => __('New topic'))), '/forum/add_theme_form/' . $id_forum) : '';
 			
 			
 			// count themes for page nav
@@ -480,12 +489,20 @@ Class ForumModule extends Module {
 		
 		
 		//USER PROFILE
-		$theme->setAuthorUrl(get_link(h($theme->getAuthor()->getName()), getProfileUrl($theme->getId_author()))); 
+		$author_url = __('Guest');
+		if ($theme->getId_author()) {
+			$author_url = get_link(h($theme->getAuthor()->getName()), getProfileUrl($theme->getId_author()));
+		}
+		$theme->setAuthorUrl($author_url); 
 	
 		
-		//Выводим последнего автора и ссылку на последнюу страницу
-		$last_user = get_link(h($theme->getLast_author()->getName()), getProfileUrl($theme->getId_last_author()));
-		$last_page = get_link(__('To last'), $this->getModuleURL('view_theme/' . $theme->getId() . '&page=99999'));
+		// Last post author
+		$last_user = __('Guest');
+		if ($theme->getId_last_author()) {
+			$last_user = get_link(h($theme->getLast_author()->getName()), getProfileUrl($theme->getId_last_author()));
+		}
+		$last_page = get_link(__('To last'), '/forum/view_theme/' . $theme->getId() . '&page=99999');
+		
 		
 		//NEAR PAGES
 		$near_pages = '';
@@ -653,11 +670,7 @@ Class ForumModule extends Module {
 				'page' => $page,
 				'limit' => Config::read('posts_per_page', $this->module),
 			));
-			if (empty($posts)) {
-				// Не может быть темы, в которой нет сообщений (постов) - надо ее удалить
-				$this->__delete_theme($id_theme);
-				return $this->showInfoMessage(__('Topic not found'), $this->getModuleURL('view_forum/' . $id_forum ));
-			}
+
 			
 			
 			// Ссылка "Ответить" (если тема закрыта - выводим сообщение "Тема закрыта")
@@ -669,7 +682,10 @@ Class ForumModule extends Module {
 				$markers['add_link'] = get_img('/sys/img/reply_locked.png', 
 				array('alt' => __('Theme locked'), 'title' => __('Theme locked')));
 			}
-			if (!isset($_SESSION['user'])) $markers['add_link'] = '';
+			
+			
+			//if (!isset($_SESSION['user'])) $markers['add_link'] = '';
+			if (!$this->Register['ACL']->turn(array('forum', 'add_posts'), false)) $markers['add_link'] = '';
 			$markers['meta'] = '';
 			$this->_globalize($markers);
 			
@@ -688,15 +704,18 @@ Class ForumModule extends Module {
 			$usersModel = $this->Register['ModManager']->getModelInstance('Users');
 			foreach ($posts as $post) {
 				// Если автор сообщения (поста) - зарегистрированный пользователь
-				$postAuthor = $usersModel->getById($post->getId_author());
-				if ($postAuthor) {
+				$postAuthor = $post->getAuthor();
+				if ($post->getId_author()) {
+
 					// Аватар
 					if (is_file(ROOT . '/sys/avatars/' . $post->getId_author() . '.jpg')) {
 						$postAuthor->setAvatar(get_url('/sys/avatars/' . $post->getId_author() . '.jpg'));
 					} else {
 						$postAuthor->setAvatar(get_url('/sys/img/noavatar.png'));
 					}
-					  // Статус пользователя
+
+
+					// Статус пользователя
 					$status = $this->Register['ACL']->get_group_info();
 					$user_status = $status[$postAuthor->getStatus()];
 					$postAuthor->setStatus_title($user_status['title']);
@@ -720,14 +739,19 @@ Class ForumModule extends Module {
 						$postAuthor->setStatus_line('Offline');
 					}
 
+
 					// Если пользователь заблокирован
 					if ($postAuthor->getBlocked()) {
 						$postAuthor->setStatus_on('<span class="statusBlock">' . __('Banned') . '</span>');
 						$postAuthor->setStatus_line('');
 					}
 
-				} else { // Если автор сообщения - незарегистрированный пользователь
+
+
+                // Если автор сообщения - незарегистрированный пользователь
+				} else {
 				    $postAuthor->setAvatar(get_url('/sys/img/noavatar.png'));
+				    $postAuthor->setName(__('Guest'));
 				}
 				
 				
@@ -762,30 +786,34 @@ Class ForumModule extends Module {
 					$this->deleteCollizions($post);
 				}
 				
-				if ($attachment != null) {
-					$post->setAttachment($attachment);
-				}
 
-				$signature = ($postAuthor->getSignature()) 
+				$signature = ($postAuthor->getSignature())
 				? $this->Textarier->getSignature($postAuthor->getSignature(), $postAuthor->getStatus()) : '' ;
-				$postAuthor->setSignature($signature);
+                $postAuthor->setSignature($signature);
+
 				
-				
-				// Если автор сообщения (поста) - зарегистрированный пользователь
+				// If author is authorized user. 
 				$email = '';
 				$privat_message = '';
 				$author_site = '';
+                $user_profile = '';
 				$icon_params = array('class' => 'user-details');
+				
+				
 				if ($post->getId_author()) {
 					$user_profile = '&nbsp;' . get_link(
 						get_img(
-							'/template/' . getTemplateName() . '/img/icon_profile.png', 
-							array('alt' => __('View profile'
+							'/sys/img/icon_profile.gif', 
+							array(
+								'alt' => __('View profile'), 
+								'title' => __('View profile')
+							)
 						), 
-						'title' => __('View profile'))), 
 						'/users/info/' . $post->getId_author(), 
 						$icon_params
 					);
+					
+					
 					if (isset($_SESSION['user'])) {
 						$email = '&nbsp;' . get_link(
 							get_img(
@@ -804,7 +832,9 @@ Class ForumModule extends Module {
 							$icon_params
 						);
 					}
-					$author_site = ($postAuthor->getUrl()) 
+					
+					
+					$author_site = ($post->getAuthor()->getUrl()) 
 						? '&nbsp;' . get_link(
 							get_img(
 								'/template/' . getTemplateName() . '/img/icon_www.png', 
@@ -813,22 +843,18 @@ Class ForumModule extends Module {
 							h($postAuthor->getUrl()), 
 							array_merge($icon_params, array('target' => '_blank')), true) 
 						: '';
-				} else {
-					$user_profile = '<span class="user-details">' . get_img('/sys/img/noavatar.png') 
-						. __('Unregister user') . '</span>';
 				}
-				$postAuthor->setAuthor_site($author_site);
-				$postAuthor->setProfile_url($user_profile);
-				$postAuthor->setEmail_url($email);
-				$postAuthor->setPm_url($privat_message);
 
-				
-				$post->setAuthor($postAuthor);
+
+				$post->getAuthor()->setAuthor_site($author_site);
+				$post->getAuthor()->setProfile_url($user_profile);
+				$post->getAuthor()->setEmail_url($email);
+				$post->getAuthor()->setPm_url($privat_message);
 				
 				
 				// Если сообщение редактировалось...
 				if ($post->getId_editor()) {
-					if ($post->getId_author() == $post->getId_editor()) {
+					if ($post->getId_author() && $post->getId_author() == $post->getId_editor()) {
 						$editor = __('Edit by author') . ' ' . $post->getEdittime();
 					} else {
 						$status_info = $this->ACL->get_user_group($post->getEditor()->getStatus());
@@ -844,8 +870,8 @@ Class ForumModule extends Module {
 				//edit and delete links
 				$edit_link = '';
 				$delete_link = '';
-				if (isset($_SESSION['user'])) {
-					if ($this->ACL->turn(array($this->module, 'edit_posts'), false) 
+				if (!empty($_SESSION['user'])) {
+					if ($this->ACL->turn(array('forum', 'edit_posts'), false) 
 					|| (!empty($_SESSION['user']['id']) && $post->getId_author() == $_SESSION['user']['id'] 
 					&& $this->ACL->turn(array($this->module, 'edit_mine_posts'), false))) {
 						$edit_link = '&nbsp;' . get_link(get_img('/sys/img/edit_16x16.png', 
@@ -872,8 +898,9 @@ Class ForumModule extends Module {
 				. get_url($this->getModuleURL('view_theme/' . $id_theme . '?page=' . $page . '#post' . $post_num), true);
 				$post->setPost_number_url($post_number_url);
 				
-				
-				$message = $this->Textarier->print_page($post->getMessage(), $post->getAuthor()->getStatus());
+
+                $author_status = ($post->getAuthor()) ? $post->getAuthor()->getStatus() : 0;
+				$message = $this->Textarier->print_page($post->getMessage(), $author_status);
 				$post->setMessage($message);
 
 				
@@ -1472,13 +1499,15 @@ Class ForumModule extends Module {
 		$message = mb_substr($message, 0, Config::read('max_post_lenght', $this->module));
 		
 		
+		$user_id = (!empty($_SESSION['user'])) ? $_SESSION['user']['id'] : 0;
+		
 		$data = array(
 			'title'          => $theme,
 			'description'    => $description,
-			'id_author'      => $_SESSION['user']['id'],
-			'time'           => new Expr('NOW()'),
-			'id_last_author' => $_SESSION['user']['id'],
-			'last_post'      => new Expr('NOW()'),
+			'id_author'      => $user_id,
+			'time'           => 'NOW()',
+			'id_last_author' => $user_id,
+			'last_post'      => 'NOW()',
 			'id_forum'       => $id_forum, 
 			'group_access'   => $gr_access, 
 		);
@@ -1492,7 +1521,7 @@ Class ForumModule extends Module {
 		// add first post
 		$postData = array(
 			'message'        => $message,
-			'id_author'      => $_SESSION['user']['id'],
+			'id_author'      => $user_id,
 			'time'           => new Expr('NOW()'),
 			'edittime'       => new Expr('NOW()'),
 			'id_theme'       => $id_theme 
@@ -1532,7 +1561,7 @@ Class ForumModule extends Module {
 					$attach_file_data = array(
 						'post_id'       => $post_id,
 						'theme_id'      => $id_theme,
-						'user_id'       => $_SESSION['user']['id'],
+						'user_id'       => $user_id,
 						'attach_number' => $i,
 						'filename'      => $file,
 						'size'          => $_FILES[$attach_name]['size'],
@@ -1557,11 +1586,13 @@ Class ForumModule extends Module {
 		
 		
 		// Обновляем число оставленных сообщений и созданных тем
-		$userModel = $this->Register['ModManager']->getModelInstance('Users');
-		$user = $userModel->getById($_SESSION['user']['id']);
-		$user->setThemes($user->getThemes() + 1);
-		$user->setPosts($user->getPosts() + 1);
-		$user->save();
+		if (!empty($_SESSION['user'])) {
+			$userModel = $this->Register['ModManager']->getModelInstance('Users');
+			$user = $userModel->getById($_SESSION['user']['id']);
+			$user->setThemes($user->getThemes() + 1);
+			$user->setPosts($user->getPosts() + 1);
+			$user->save();
+		}
 		
 		
 		$forum = $this->Model->getById($id_forum);
@@ -1573,7 +1604,7 @@ Class ForumModule extends Module {
 		
 		//clean cache
 		$this->Cache->clean(CACHE_MATCHING_ANY_TAG, array(
-			'user_id_' . $_SESSION['user']['id'],
+			'user_id_' . $user_id,
 			'forum_id_' . $id_forum,
 		));
 		$this->Register['DB']->cleanSqlCache();
@@ -1651,13 +1682,12 @@ Class ForumModule extends Module {
 		}
 
 
-		
-		// Считываем в переменную файл шаблона, содержащего форму для редактирования темы
+		$author_name = ($theme->getId_author()) ? h($theme->getAuthor()->getName()) : __('Guest');
 		$data = array(
 			'action' => get_url($this->getModuleURL('update_theme/' . $id_theme)),
 			'theme' => $name,
 			'description' => $description,
-			'author' => h($theme->getAuthor()->getName()),
+			'author' => $author_name,
 			'options' => $options,
 			'gr_access' => (!empty($gr_access)) ? $gr_access : array(),
 		);
@@ -2106,8 +2136,8 @@ Class ForumModule extends Module {
 		}		
 
 		
-		$message = mb_substr($message, 0, Config::read('max_post_lenght', $this->module));
-		$id_user = $_SESSION['user']['id'];
+		$message = mb_substr($message, 0, $this->Register['Config']->read('max_post_lenght', 'forum'));
+		$id_user = (!empty($_SESSION['user'])) ? $_SESSION['user']['id'] : 0;
 		// Защита от того, чтобы один пользователь не добавил
 		// 100 сообщений за одну минуту
 		if (isset($_SESSION['unix_last_post']) && (time() - $_SESSION['unix_last_post'] < 10) ) {
@@ -2129,8 +2159,8 @@ Class ForumModule extends Module {
 			}
 			
 			if (empty($prev_post_author)) $gluing = false;
-			if ((mb_strlen($prev_post[0]->getMessage() . $message)) > Config::read('max_post_lenght', $this->module)) $gluing = false;
-			if ($prev_post_author != $id_user) $gluing = false;
+			if ((mb_strlen($prev_post[0]->getMessage() . $message)) > $this->Register['Config']->read('max_post_lenght', 'forum')) $gluing = false;
+			if ($prev_post_author != $id_user || empty($id_user)) $gluing = false;
 		}		
 		
 		
@@ -2196,7 +2226,7 @@ Class ForumModule extends Module {
 						$attach_file_data = array(
 							'post_id'       => $post_id,
 							'theme_id'      => $id_theme,
-							'user_id'       => $_SESSION['user']['id'],
+							'user_id'       => $id_user,
 							'attach_number' => $i,
 							'filename'      => $file,
 							'size'          => $_FILES[$attach_name]['size'],
@@ -2249,7 +2279,7 @@ Class ForumModule extends Module {
 		
 
 		//clean cache
-		$this->Cache->clean(CACHE_MATCHING_ANY_TAG, array('theme_id_' . $id_theme, 'user_id_' . $_SESSION['user']['id']));
+		$this->Cache->clean(CACHE_MATCHING_ANY_TAG, array('theme_id_' . $id_theme, 'user_id_' . $id_user));
 		$this->Register['DB']->cleanSqlCache();
 		
 		
@@ -2431,6 +2461,9 @@ Class ForumModule extends Module {
 		}
 		
 		
+		$user_id = (!empty($_SESSION['user'])) ? $_SESSION['user']['id'] : 0;
+		
+		
 		
 		/*****   ATTACH   *****/
 		// Массив недопустимых расширений файла вложения
@@ -2475,7 +2508,7 @@ Class ForumModule extends Module {
 					$attach_file_data = array(
 						'post_id'       => $id,
 						'theme_id'      => $id_theme,
-						'user_id'       => $_SESSION['user']['id'],
+						'user_id'       => $user_id,
 						'attach_number' => $i,
 						'filename'      => $file,
 						'size'          => $_FILES[$attach_name]['size'],
@@ -2498,7 +2531,7 @@ Class ForumModule extends Module {
 		$message = mb_substr($message, 0, Config::read('max_post_lenght', $this->module));
 		$post->setMessage($message);
 		$post->setAttaches($attach_exists);
-		$post->setId_editor($_SESSION['user']['id']);
+		$post->setId_editor($user_id);
 		$post->setEdittime(new Expr('NOW()'));
 		$post->save();
 		
@@ -2556,17 +2589,24 @@ Class ForumModule extends Module {
 			}
 		}
 		$post->delete();
+		
 		// Если это - единственное сообщение темы, то надо удалить и тему
 		$postscnt = $postsModel->getTotal(array('cond' => array('id_theme' => $post->getId_theme())));
 		
 		
-		$userModel = $this->Register['ModManager']->getModelInstance('Users');
-		$user = $userModel->getById($theme->getId_author());
-		$deleteTheme = false;
+		if ($theme->getId_author()) {
+			$userModel = $this->Register['ModManager']->getModelInstance('Users');
+			$user = $userModel->getById($theme->getId_author());
+		}
+		
+		
 		if ($postscnt == 0) {
-			// Прежде чем удалять тему, надо обновить таблицу TABLE_USERS
-			$user->setThemes($user->getThemes() - 1); 
-			$user->save();
+			if ($user) {
+				// Прежде чем удалять тему, надо обновить таблицу TABLE_USERS
+				$user->setThemes($user->getThemes() - 1); 
+				$user->save();
+			}
+			
 			$theme->delete();
 			// Если мы удалили тему, то мы не можем в нее вернуться;
 			// поэтому редирект будет на страницу форума, а не страницу темы
@@ -2574,9 +2614,13 @@ Class ForumModule extends Module {
 		}
 		
 		
-		// Обновляем количество сообщений, оставленных автором сообщения ...
-		$user->setPosts($user->getPosts() - 1);
-		$user->save();
+		if ($user) {
+			// Обновляем количество сообщений, оставленных автором сообщения ...
+			$user->setPosts($user->getPosts() - 1);
+			$user->save();
+		}
+		
+		
 		// ... и таблицу .themes
 		if (!$deleteTheme) {
 			$lastPost = $postsModel->getCollection(array(
@@ -2988,4 +3032,3 @@ Class ForumModule extends Module {
 	}	
 	
 }
-?>
