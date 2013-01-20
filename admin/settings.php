@@ -79,6 +79,11 @@ if (empty($_GET['m']) || !is_string($_GET['m'])) $_GET['m'] = 'sys';
 $module = trim($_GET['m']);
 if (in_array($module, $sysMods)) {
 	$settingsInfo = $settingsInfo[$module];
+	switch($module) {
+		case 'common':
+			$pageTitle = 'RSS - Настройки';
+			break;
+	}
 } else {
 	$pathToModInfo = ROOT . '/modules/' . $module . '/info.php';
 	if (file_exists($pathToModInfo)) {

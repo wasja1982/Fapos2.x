@@ -329,6 +329,7 @@ $settingsInfo = array(
             'type' => 'text',
             'title' => 'Максимальная длина анонса RSS',
             'description' => '',
+			'help' => 'Символов',
       	),
         'rss_cnt' => array(
             'type' => 'text',

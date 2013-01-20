@@ -103,7 +103,7 @@ document.top_menu = new drunyaMenu([
 ['<?php echo __('Additional'); ?>',
   [
   '<a href="settings_seo.php"><?php echo __('SEO settings'); ?></a>',
-  '<a href="settings_rss.php"><?php echo __('RSS settings'); ?></a>',
+  '<a href="settings.php?m=common"><?php echo __('RSS settings'); ?></a>',
   '<a href="settings_sitemap.php"><?php echo __('Sitemap settings'); ?></a>'
   ]],
   
