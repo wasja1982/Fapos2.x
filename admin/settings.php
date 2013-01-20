@@ -68,7 +68,6 @@ function getImgPath($template) {
 
 
 
-
 // properties for system settings and settings that not linked to module
 include_once ROOT . '/sys/settings/conf_properties.php';
 
@@ -82,8 +81,10 @@ if (in_array($module, $sysMods)) {
 	$settingsInfo = $settingsInfo[$module];
 } else {
 	$pathToModInfo = ROOT . '/modules/' . $module . '/info.php';
-	if (file_exists($pathToModInfo)) include ($pathToModInfo);
-	else {
+	if (file_exists($pathToModInfo)) {
+		include ($pathToModInfo);
+		$pageTitle = (isset($menuInfo['ankor']) ? $menuInfo['ankor'] . ' - Настройки' : $pageTitle);
+	} else {
 		$module = 'sys';
 		$settingsInfo = $settingsInfo[$module];
 	}
