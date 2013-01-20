@@ -26,7 +26,8 @@ $settingsInfo = array(
     'index_interval' => array(
         'type' => 'text',
         'title' => 'Частота обновления',
-        'description' => 'Через какое кол-во дней проводить переиндексацию сайта',
+        'description' => 'Через какое количество дней проводить переиндексацию сайта',
+		'help' => 'Дней',
     ),
     'min_lenght' => array(
         'type' => 'text',
