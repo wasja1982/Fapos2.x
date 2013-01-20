@@ -86,6 +86,9 @@ if (in_array($module, $sysMods)) {
 		case 'hlu':
 			$pageTitle = 'Настройки ЧПУ';
 			break;
+		case 'sitemap':
+			$pageTitle = 'Настройки Sitemap';
+			break;
 	}
 } else {
 	$pathToModInfo = ROOT . '/modules/' . $module . '/info.php';

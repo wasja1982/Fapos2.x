@@ -380,16 +380,29 @@ $settingsInfo = array(
              'value' => '1',
        	),
     ),
+	
+	/* Sitemap */
+	'sitemap' => array(
+		'auto_sitemap' => array(
+			'type' => 'checkbox',
+			'title' => 'Включить автогенерацию Sitemap:',
+			'description' => '',
+			'value' => '1',
+			'checked' => '1',
+		),
+	),
 );
 $sysMods = array(
 	'sys',
 	'hlu',
 	'secure',
 	'common',
+	'sitemap',
 );
 $noSub = array(
 	'sys',
 	'hlu',
+	'sitemap',
 );
 
 

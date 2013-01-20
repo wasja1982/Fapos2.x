@@ -104,7 +104,7 @@ document.top_menu = new drunyaMenu([
   [
   '<a href="settings.php?m=hlu"><?php echo __('SEO settings'); ?></a>',
   '<a href="settings.php?m=common"><?php echo __('RSS settings'); ?></a>',
-  '<a href="settings_sitemap.php"><?php echo __('Sitemap settings'); ?></a>'
+  '<a href="settings.php?m=sitemap"><?php echo __('Sitemap settings'); ?></a>'
   ]],
   
 
