@@ -90,7 +90,7 @@ document.top_menu = new drunyaMenu([
 
 ['<?php echo __('Security'); ?>',
   [
-  '<a href="secure_settings.php"><?php echo __('Security settings'); ?></a>',
+  '<a href="settings.php?m=secure"><?php echo __('Security settings'); ?></a>',
   'sep',
   '<a href="system_log.php"><?php echo __('Action log'); ?></a>',
   'sep',

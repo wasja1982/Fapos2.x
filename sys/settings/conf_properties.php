@@ -305,22 +305,26 @@ $settingsInfo = array(
 			'checked' => '1',
 			'value' => '1',
 		),
+		
+		'Анти DDOS' => 'Анти DDOS',
 		'anti_ddos' => array(
 			'type' => 'checkbox',
-			'title' => 'Анти DDOS',
-			'description' => 'Анти DDOS защита: (Позволяет снизить риск DDOS атаки)',
+			'title' => 'Анти DDOS защита',
+			'description' => 'Позволяет снизить риск DDOS атаки.',
 			'checked' => '1',
 			'value' => '1',
 		),
 		'request_per_second' => array(
 			'type' => 'text',
-			'title' => '(DDOS)Максимально допустимое кол-во запросов',
+			'title' => '(DDOS) Максимально допустимое количество запросов',
 			'description' => '(за одну секунду, с одного диапазона IP адресов)',
 		),
+		
+		'Лог действий' => 'Лог действий',
 		'system_log' => array(
 			'type' => 'checkbox',
 			'title' => 'Лог действий',
-			'description' => 'Вести ли лог действий: (фиксируются действия пользователей)',
+			'description' => 'Вести ли лог действий пользователей.',
 			'checked' => '1',
 			'value' => '1',
 		),
@@ -328,11 +332,20 @@ $settingsInfo = array(
 			'type' => 'text',
 			'title' => 'Максимально допустимый объем логов',
 			'description' => 'Предел занимаемого логами дискового пространства',
+			'help' => 'КБайт',
+			'onview' => array(
+				'division' => 1024,
+			),
+			'onsave' => array(
+				'multiply' => 1024,
+			),
 		),
+		
+		'Прочее' => 'Прочее',
 		'autorization_protected_key' => array(
 			'type' => 'checkbox',
 			'title' => 'Защита от перебора пароля',
-			'description' => 'Посредством передачи защитного ключа',
+			'description' => 'Посредством передачи защитного ключа.',
 			'checked' => '1',
 			'value' => '1',
 		),
@@ -340,6 +353,7 @@ $settingsInfo = array(
 			'type' => 'text',
 			'title' => 'Длительность сессии в админ-панели',
 			'description' => 'Если бездействовать в админ-панели больше отведеного времени, придется заново авторизоваться',
+			'help' => 'Секунд',
 		),
 	),
 

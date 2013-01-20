@@ -89,6 +89,9 @@ if (in_array($module, $sysMods)) {
 		case 'sitemap':
 			$pageTitle = 'Настройки Sitemap';
 			break;
+		case 'secure':
+			$pageTitle = 'Настройки безопасности';
+			break;
 	}
 } else {
 	$pathToModInfo = ROOT . '/modules/' . $module . '/info.php';
