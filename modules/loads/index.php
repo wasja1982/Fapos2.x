@@ -1290,19 +1290,31 @@ Class LoadsModule extends Module {
 		$this->Register['DB']->cleanSqlCache();
 
 		if (Config::read('filename_from_title', $this->module)) {
-			$ext = strrchr( $entity->getDownload(), "." );
-			$name = $entity->getTitle().Config::read('filename_postfix', $this->module).$ext;
+			$ext = strrchr($entity->getDownload(), ".");
+			$name = $entity->getTitle() . Config::read('filename_postfix', $this->module) . (empty($ext) ? '' : $ext);
 		} else {
-			if ($entity->getFilename()!='') {
+			$name = $entity->getFilename();
+			if (!empty($name)) {
 				if (Config::read('filename_postfix', $this->module)) {
-					$ext = strrchr( $entity->getDownload(), "." );
-					$nm = str_replace( $ext, '', $entity->getFilename()); // ну придумайте что-нить лучше :)
-					$name = $nm.Config::read('filename_postfix', $this->module).$ext;
-				} else {
-					$name = $entity->getFilename();
+					$pos = strrpos($entity->getFilename(), ".");
+					if ($pos === false) {
+						$name = $name . Config::read('filename_postfix', $this->module);
+					} else {
+						$ext = strrchr($name, ".");
+						$name = substr($name, 0, $pos) . Config::read('filename_postfix', $this->module) . $ext;
+					}
 				}
 			} else {
 				$name = $entity->getDownload();
+				if (Config::read('filename_postfix', $this->module)) {
+					$pos = strrpos($name, ".");
+					if ($pos === false) {
+						$name = $name . Config::read('filename_postfix', $this->module);
+					} else {
+						$ext = strrchr($name, ".");
+						$name = substr($name, 0, $pos) . Config::read('filename_postfix', $this->module) . $ext;
+					}
+				}
 			}
 		}
 		$filename = ROOT . $this->getFilesPath($entity->getDownload());

@@ -28,14 +28,17 @@ $settingsInfo = array(
 	'min_lenght' => array(
 		'type' => 'text',
 		'title' => 'Минимальная длина описания',
+		'help' => 'Символов',
 	),
 	'max_lenght' => array(
 		'type' => 'text',
 		'title' => 'Максимальная длина описания',
+		'help' => 'Символов',
 	),
 	'announce_lenght' => array(
 		'type' => 'text',
 		'title' => 'Длина анонса',
+		'help' => 'Символов',
 	),
 	'per_page' => array(
 		'type' => 'text',
@@ -45,6 +48,20 @@ $settingsInfo = array(
 		'type' => 'text',
 		'title' => 'Максимальный размер файла',
 		'help' => 'Байт',
+	),
+
+	'Файлы' => 'Файлы',
+	'filename_from_title' => array(
+		'type' => 'checkbox',
+		'title' => 'Формировать имя из заголовка',
+		'description' => 'Возможность формирования имени для скачеваемых файлов из заголовка материала.',
+		'value' => '1',
+		'checked' => '1',
+	),
+	'filename_postfix' => array(
+		'type' => 'text',
+		'title' => 'Добавить подпись в названии файла',
+		'description' => 'Добавление заданной строки (например, названия сайта) к имени скачиваемого файла.',
 	),
 
 	'Изображения' => 'Изображения',
