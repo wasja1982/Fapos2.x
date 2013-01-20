@@ -2467,15 +2467,21 @@ Class ForumModule extends Module {
 		$attachModel = $this->Register['ModManager']->getModelInstance('ForumAttaches');
 		for ($i = 1; $i <= 5; $i++) {
 			if (!empty($_POST['unlink' . $i]) || !empty($_FILES['attach' . $i]['name'])) {
-				$unlink_file = $attachModel->getCollection(array(
+				$unlink_files = $attachModel->getCollection(array(
 					'post_id' => $id,
 					'attach_number' => $i,
-				), array('limit' => 1));
+				), array(
+				));
 				/* may be collizions */
-				if (count($unlink_file) > 1) $this->deleteCollizions($post, true);
-				if (!empty($unlink_file) && file_exists(ROOT . $this->getFilesPath($unlink_file[0]->getFilename()))) {
-					if(unlink(ROOT . $this->getFilesPath($unlink_file[0]->getFilename()))) {	
-						$unlink_file->delete(); 
+				if (count($unlink_files) > 1) $this->deleteCollizions($post, true);
+				elseif (!empty($unlink_files)) {
+					foreach ($unlink_files as $unlink_file) {
+						if (!empty($unlink_file)) {
+							if (file_exists(ROOT . $this->getFilesPath($unlink_file->getFilename()))) { 
+								@unlink(ROOT . $this->getFilesPath($unlink_file->getFilename()));
+							}
+							$unlink_file->delete();
+						}
 					}
 				}
 			}

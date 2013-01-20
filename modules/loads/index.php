@@ -990,11 +990,11 @@ Class LoadsModule extends Module {
 		for ($i = 1; $i <= $max_attach; $i++) {
 			// Delete attaches. If need
 			$dattach = $i . 'dattach';
-			if (array_key_exists($dattach, $_POST)) {
+			$attach_name = 'attach' . $i;
+			if (array_key_exists($dattach, $_POST) || !empty($_FILES[$attach_name]['name'])) {
 				deleteAttach($this->module, $id, $i);
 			}
 
-			$attach_name = 'attach' . $i;
 			if (!empty($_FILES[$attach_name]['name'])) {
 
 				$ext = strrchr($_FILES[$attach_name]['name'], ".");

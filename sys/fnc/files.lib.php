@@ -32,20 +32,24 @@ function getFileSize( $file )
 function deleteAttach($module, $entity_id, $attachNum) {
     $Register = Register::getInstance();
 
-	$attachModel = new $Register['ModManager']->getModelNameFromModule($module . 'Attaches');
-	$attach = $attachModel->getCollection(array(
+	$attachModelClass = $Register['ModManager']->getModelNameFromModule($module . 'Attaches');
+	$attachModel = new $attachModelClass;
+	$attaches = $attachModel->getCollection(array(
 		'entity_id' => $entity_id,
 		'attach_number' => $attachNum,
 	), array(
-		'limit' => 1
 	));
 
-    if (count($attach) > 0 && is_array($attach) && !empty($attach[0])) {
-        $filePath = ROOT . '/sys/files/' . $module . '/' . $attach[0]->getFilename();
-        if (file_exists($filePath)) {
-            _unlink($filePath);
-        }
-		$attach[0]->delete();
+    if (count($attaches) > 0 && is_array($attaches)) {
+		foreach ($attaches as $attach) {
+			if (!empty($attach)) {
+				$filePath = ROOT . '/sys/files/' . $module . '/' . $attach->getFilename();
+				if (file_exists($filePath)) {
+					_unlink($filePath);
+				}
+				$attach->delete();
+			}
+		}
     }
     return true;
 }
