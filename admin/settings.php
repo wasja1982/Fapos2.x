@@ -83,6 +83,9 @@ if (in_array($module, $sysMods)) {
 		case 'common':
 			$pageTitle = 'RSS - Настройки';
 			break;
+		case 'hlu':
+			$pageTitle = 'Настройки ЧПУ';
+			break;
 	}
 } else {
 	$pathToModInfo = ROOT . '/modules/' . $module . '/info.php';

@@ -10,6 +10,7 @@ $settingsInfo = array(
 			'type' => 'checkbox',
 			'title' => 'Включить ЧПУ',
 			'description' => '',
+			'value' => '1',
 			'checked' => '1',
 		),
 		'hlu_extention' => array(
@@ -20,7 +21,26 @@ $settingsInfo = array(
 			'type' => 'checkbox',
 			'title' => 'Разбор ЧПУ',
 			'description' => 'Новые ссылки будут обычными, но обращение через ЧПУ будет поддерживаться для работоспособности старых ссылок',
+			'value' => '1',
 			'checked' => '1',
+		),
+		
+		
+		__('Auto tags settings') => __('Auto tags settings'),
+		'autotags_active' => array(
+			'type' => 'checkbox',
+			'title' => __('Status'),
+			'description' => '(Активирован/Деактивирован)',
+			'value' => '1',
+			'checked' => '1',
+		),
+		'autotags_exception' => array(
+			'title' => __('Exceptions'),
+			'description' => __('Throught coma'),
+		),
+		'autotags_priority' => array(
+			'title' => __('Priority'),
+			'description' => __('Throught coma'),
 		),
 	),
 
