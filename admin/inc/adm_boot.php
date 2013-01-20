@@ -153,6 +153,18 @@ if (!empty($_GET['install'])) {
 
 
 
+function cmpAnkor($a, $b) {
+	if (is_array($a) && is_array($b) && isset($a['ankor']) && isset($b['ankor'])) {
+		if ($a['ankor'] == $b['ankor']) {
+			return 0;
+		}
+		return ($a['ankor'] < $b['ankor']) ? -1 : 1;
+	} else {
+		return 0;
+	}
+}
+
+
 
 
 function getAdmFrontMenuParams()
@@ -170,6 +182,7 @@ function getAdmFrontMenuParams()
             }
         }
     }
+	uasort($out, 'cmpAnkor');
     return $out;
 }
 ?>
