@@ -48,6 +48,7 @@ $settingsInfo = array(
         'type' => 'text',
         'title' => 'Максимальный размер письма',
         'description' => 'которое один пользователь форума может написать другому',
+        'help' => 'Символов',
     ),
     'max_count_mess' => array(
         'type' => 'text',
@@ -58,11 +59,13 @@ $settingsInfo = array(
         'type' => 'text',
         'title' => 'Максимальная длина личного сообщения',
         'description' => '',
+        'help' => 'Символов',
     ),
     'rating_comment_lenght' => array(
         'type' => 'text',
         'title' => 'Максимальная длина комментария к голосу',
         'description' => '',
+        'help' => 'Символов',
     ),
     'warnings_by_ban' => array(
         'type' => 'text',
