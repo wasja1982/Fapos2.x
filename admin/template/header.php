@@ -83,7 +83,7 @@ document.top_menu = new drunyaMenu([
   [
   '<a href="/admin/statistic.php"><?php echo __('View'); ?></a>',
   'sep',
-  '<a href="/admin/settings_statistic.php"><?php echo __('Settings of module'); ?></a>'
+  '<a href="/admin/settings.php?m=statistics"><?php echo __('Settings of module'); ?></a>'
   ]],
 
 
