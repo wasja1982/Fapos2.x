@@ -873,18 +873,15 @@ Class ForumModule extends Module {
 					if ($this->ACL->turn(array($this->module, 'edit_posts'), false) 
 					|| (!empty($_SESSION['user']['id']) && $post->getId_author() == $_SESSION['user']['id'] 
 					&& $this->ACL->turn(array($this->module, 'edit_mine_posts'), false))) {
-						$edit_link = '&nbsp;' . get_link(get_img('/sys/img/edit_16x16.png', 
-						array('alt' => __('Edit'), 'title' => __('Edit'))), $this->getModuleURL('edit_post_form/' . $post->getId()));
+						$edit_link = get_link(__('Edit'), $this->getModuleURL('edit_post_form/' . $post->getId()));
 					} 
 					if ($this->ACL->turn(array($this->module, 'delete_posts'), false) 
 					|| (!empty($_SESSION['user']['id']) && $post->getId_author() == $_SESSION['user']['id'] 
 					&& $this->ACL->turn(array($this->module, 'delete_mine_posts'), false))) {
-						$delete_link = '&nbsp;' . get_link(get_img('/sys/img/delete_16x16.png', array('alt' => __('Delete'), 
-						'title' => __('Delete'))), $this->getModuleURL('delete_post/' . $post->getId()), array('onClick' => "return confirm('" . __('Are you sure') . "')"));
+						$delete_link = get_link(__('Delete'), $this->getModuleURL('delete_post/' . $post->getId()), array('onClick' => "return confirm('" . __('Are you sure') . "')"));
 					}
 				}
-				$on_top = '&nbsp;' . get_link(get_img('/sys/img/up_arrow_16x16.png', 
-				array('alt' => __('To top'), 'title' => __('To top'))), '#top', array(), true);
+				$on_top = get_link(__('To top'), '#top', array(), true);
 				$post->setOn_top_link($on_top);
 				$post->setEdit_link($edit_link);
 				$post->setDelete_link($delete_link);
