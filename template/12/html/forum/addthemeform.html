@@ -142,6 +142,9 @@ enctype="multipart/form-data" onsubmit="return checkForm(this)">
 				<tr>
 					<td>Закрыть доступ:</td>
 					<td class="right" align="right">
+						<div style="position:relative;">
+						<input style="position:absolute; left:-339px; top:-16px;" type="button" value=":)" onClick="$('#smiles-cont').show();" class="codeButtons" />
+						</div>
 						{% for group in context.users_groups %}
 						<input type="checkbox"
 							{% for curr in context.gr_access %}

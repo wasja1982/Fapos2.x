@@ -2,12 +2,12 @@
 /*---------------------------------------------\
 |											   |
 | @Author:       Andrey Brykin (Drunya)        |
-| @Version:      1.4.7                         |
+| @Version:      1.4.9                         |
 | @Project:      CMS                           |
 | @package       CMS Fapos                     |
 | @subpackege    Chat Module                   |
-| @copyright     ©Andrey Brykin 2010-2012      |
-| @last mod      2012/04/27                    |
+| @copyright     ©Andrey Brykin 2010-2013      |
+| @last mod      2013/01/22                    |
 |----------------------------------------------|
 |											   |
 | any partial or not partial extension         |
@@ -152,9 +152,10 @@ class ChatModule extends Module {
 		}
 		
 		/* cut and trim values */
-		$user_id    = (!empty($_SESSION['user']['id'])) ? $_SESSION['user']['id'] : '0';
-		$name    = (!empty($_SESSION['user']['name'])) ? trim($_SESSION['user']['name']) : 'Гость';
-		$message = trim(mb_substr( $_POST['message'], 0, Config::read('max_lenght', $this->module)));
+		$name    = (!empty($_SESSION['user'])) ? h($_SESSION['user']['name']) : __('Guest');
+		$message = mb_substr( $_POST['message'], 0, $this->Register['Config']->read('max_lenght', 'chat'));
+		$name    = trim( $name );
+		$message = trim( $message );
 		$ip      = (!empty($_SERVER['REMOTE_ADDR'])) ? $_SERVER['REMOTE_ADDR'] : '';
 		$keystring = (isset($_POST['captcha_keystring'])) ? trim($_POST['captcha_keystring']) : '';
 		
@@ -162,7 +163,9 @@ class ChatModule extends Module {
 		// Check fields
 		$error  = '';
 		$valobj = $this->Register['Validate'];
-		if (empty($message))
+		if (!empty($name) && !$valobj->cha_val($name, V_TITLE))  
+			$error = $error . '<li>' . __('Wrong chars in field "login"') . '</li>' . "\n";
+		if (empty($message))                       
 			$error = $error . '<li>' . __('Empty field "text"') . '</li>' . "\n";
 			
 			
@@ -260,7 +263,7 @@ class ChatModule extends Module {
 			$message = '';
 		}
 		
-		
+
 		$kcaptcha = '';
 		if (!$ACL->turn(array('other', 'no_captcha'), false)) {
 			$kcaptcha = getCaptcha();
