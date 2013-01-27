@@ -614,7 +614,7 @@ Class LoadsModule extends Module {
 		}
 		if (isset($_FILES['attach']['name']) 
 		&& $_FILES['attach']['size'] > $this->getMaxSize())
-			$error = $error .'<li>'. sprintf(__('Wery big file2'), ($this->getMaxSize() / 1024)) .'</li>'. "\n";
+			$error = $error .'<li>'. sprintf(__('Wery big file2'), round($this->getMaxSize() / 1024, 2)) .'</li>'. "\n";
 		
 		if (!empty($tags) && !$valobj->cha_val($tags, V_TITLE)) 
 			$error = $error. '<li>' . __('Wrong chars in "tags"') . '</li>' ."\n";
@@ -946,7 +946,7 @@ Class LoadsModule extends Module {
 		}
 		if (isset($_FILES['attach']['name']) 
 		&& $_FILES['attach']['size'] > $this->getMaxSize())
-			$error = $error .'<li>'. sprintf(__('Wery big file2'), ($this->getMaxSize() / 1024)) .'</li>'. "\n";
+			$error = $error .'<li>'. sprintf(__('Wery big file2'), round($this->getMaxSize() / 1024, 2)) .'</li>'. "\n";
 
 		// Проверяем, заполнены ли обязательные поля
 		if ( empty( $title ) ) 

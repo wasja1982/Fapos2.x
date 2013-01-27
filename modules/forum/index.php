@@ -769,7 +769,7 @@ Class ForumModule extends Module {
 						if (file_exists(ROOT . $this->getFilesPath($attach->getFilename()))) {
 							$attachment .= __('Attachment') . $attach->getAttach_number() 
 								. ': ' . get_img('/sys/img/file.gif', array('alt' => __('Open file'), 'title' => __('Open file'))) 
-								. '&nbsp;' . get_link(($attach->getSize() / 1024) .' Кб', $this->getModuleURL('download_file/' 
+								. '&nbsp;' . get_link(round($attach->getSize() / 1024, 2) .' Кб', $this->getModuleURL('download_file/' 
 								. $attach->getFilename()), array('target' => '_blank')) . '<br />';
 								
 								
@@ -1477,7 +1477,7 @@ Class ForumModule extends Module {
 		for ($i = 1; $i < 6; $i++) {
 			if (!empty($_FILES['attach' . $i]['name'])) {
 				if ($_FILES['attach' . $i]['size'] > $this->getMaxSize()) {
-					$error = $error . '<li>' . sprintf(__('Wery big file'), $i, ($this->getMaxSize() / 1024)) . '</li>'."\n";
+					$error = $error . '<li>' . sprintf(__('Wery big file'), $i, round($this->getMaxSize() / 1024, 2)) . '</li>'."\n";
 				}
 			}
 		}
@@ -2111,7 +2111,7 @@ Class ForumModule extends Module {
 		for ($i = 1; $i < 6; $i++) {
 			if (!empty($_FILES['attach' . $i]['name'])) {
 				if ($_FILES['attach' . $i]['size'] > $this->getMaxSize()) {
-					$error = $error . '<li>' . sprintf(__('Wery big file'), $i, ($this->getMaxSize() / 1024)) . '</li>'."\n";
+					$error = $error . '<li>' . sprintf(__('Wery big file'), $i, round($this->getMaxSize() / 1024, 2)) . '</li>'."\n";
 				}
 				//if exists attach files we do not gluing posts
 				$gluing = false;
@@ -2437,7 +2437,7 @@ Class ForumModule extends Module {
 		for ($i = 1; $i <= 5; $i++) {
 			if (!empty($_FILES['attach' . $i]['name'])) {
 				if ($_FILES['attach' . $i]['size'] > $this->getMaxSize()) {
-					$error = $error . '<li>' . sprintf(__('Wery big file'), $i, ($this->getMaxSize() / 1024)) . '</li>'."\n";
+					$error = $error . '<li>' . sprintf(__('Wery big file'), $i, round($this->getMaxSize() / 1024, 2)) . '</li>'."\n";
 				}
 			}
 		}

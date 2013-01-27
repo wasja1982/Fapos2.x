@@ -468,7 +468,7 @@ Class FotoModule extends Module {
 			$errors = $errors .'<li>'.__('Not attaches').'</li>'. "\n";
 		} else {
 			if ($_FILES['foto']['size'] > $this->getMaxSize()) 
-				$errors = $errors .'<li>'. sprintf(__('Wery big file2'), ($this->getMaxSize() / 1024)) .'</li>'."\n";
+				$errors = $errors .'<li>'. sprintf(__('Wery big file2'), round($this->getMaxSize() / 1024, 2)) .'</li>'."\n";
 			$ext = strrchr($_FILES['foto']['name'], ".");
 			if (!isImageFile($_FILES['foto']['type'], $ext)) 
 				$errors = $errors .'<li>'.__('Wrong file format').'</li>'."\n";
