@@ -2,7 +2,7 @@
 
 function sebmitChat(e) {
 	var message = $("textarea#chatModule").val();
-	var message = encodeURIComponent(message);
+	message = encodeURIComponent(message);
 	var keystring = $("input[name='captcha_keystring']").val();
 
 	var params = 'message='+message;
@@ -26,8 +26,12 @@ function responseData(resp, data) {
 		$("textarea#chatModule").val('');
 		$("input[name='captcha_keystring']").val('');
 	}
+	
+	refreshCaptcha();
 }
-
+function refreshCaptcha() {
+	$('img#fps_captcha').src($('img#fps_captcha').src() + '&rand=' . Math.round(Math.random(0)*1000));
+}
 
 
 

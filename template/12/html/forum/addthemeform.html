@@ -1,4 +1,4 @@
-﻿<div id="smiles-cont" class="fps-fwin" style="display:none;">
+﻿﻿<div id="smiles-cont" class="fps-fwin" style="display:none;">
 <div class="drag_window">
     <div class="title" onmousedown="drag_object(event, this.parentNode)">Вставка смайлы</div>
     <div onClick="$('#smiles-cont').hide()" class="close"></div>
@@ -22,9 +22,6 @@
 </div>
 
 
-
-
-
 <script language="JavaScript" type="text/javascript">
 l_empty_message = "Вы должны ввести текст сообщения";
 l_no_text_selected = "Выделите текст на странице и попробуйте еще раз";
@@ -34,8 +31,10 @@ enctype="multipart/form-data" onsubmit="return checkForm(this)">
 <table border="0"  class="add-form reply" cellspacing="0" cellpadding="0" width="100%">
 	<tr>
 		<td colspan="3" class="title">Новая тема</td>
+	</tr>
 	<tr>
-	<tr>
+		<td width="0%" rowspan="4" valign="top">
+		</td>
 		<td>
 			<table style="width:100%;" class="">
 				<tr>
@@ -126,7 +125,7 @@ enctype="multipart/form-data" onsubmit="return checkForm(this)">
 					</td>
 				</tr>
 				<!--
-				<tr>
+				<tr class="BB_buttons">
 					<td colspan="2">
 						<input type="text" name="helpbox" font-size:"10px" 
 						class="helpline" value="Подсказка: Можно быстро применить стили к выделенному тексту" />
@@ -142,6 +141,9 @@ enctype="multipart/form-data" onsubmit="return checkForm(this)">
 				<tr>
 					<td>Закрыть доступ:</td>
 					<td class="right" align="right">
+						<div style="position:relative;">
+						<input style="position:absolute; left:-339px; top:-16px;" type="button" value=":)" onClick="$('#smiles-cont').show();" class="codeButtons" />
+						</div>
 						{% for group in context.users_groups %}
 						<input type="checkbox"
 							{% for curr in context.gr_access %}

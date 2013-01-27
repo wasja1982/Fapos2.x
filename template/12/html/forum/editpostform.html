@@ -22,9 +22,6 @@
 </div>
 
 
-
-
-
 <script language="JavaScript" type="text/javascript">
 l_empty_message = "Вы должны ввести текст сообщения";
 l_no_text_selected = "Выделите текст на странице и попробуйте еще раз";
@@ -34,8 +31,10 @@ enctype="multipart/form-data" onsubmit="return checkForm(this)">
 <table border="0"  class="add-form reply" cellspacing="0" cellpadding="0" width="100%">
 	<tr>
 		<td colspan="3" class="title">Быстрый ответ</td>
+	</tr>
 	<tr>
-	<tr>
+		<td width="0%" rowspan="4" valign="top">
+		</td>
 		<td>
 			<table style="width:100%;" class="">
 				<tr class="BB_buttons">
@@ -118,7 +117,7 @@ enctype="multipart/form-data" onsubmit="return checkForm(this)">
 					</td>
 				</tr>
 				<!--
-				<tr>
+				<tr class="BB_buttons">
 					<td colspan="2">
 						<input type="text" name="helpbox" font-size:"10px" 
 						class="helpline" value="Подсказка: Можно быстро применить стили к выделенному тексту" />
@@ -133,6 +132,11 @@ enctype="multipart/form-data" onsubmit="return checkForm(this)">
 				</tr>
 				<tr>
 					<td align="left" class="gTableRight">
+					
+						<div style="position:relative; height:4px;">
+						<input style="position:absolute; left:0px; top:-17px;" type="button" value=":)" onClick="$('#smiles-cont').show();" class="codeButtons" />
+						</div>
+					
 						<div id="attachments">
 							<input class="attachField" type="file" id="attach1" name="attach1"  onChange="getFile(1)" />{{ context.unlinkfiles.att1 }}<span id="attachMeta1"></span><br />
 							<input class="attachField" type="file" id="attach2" name="attach2"  onChange="getFile(2)" />{{ context.unlinkfiles.att2 }}<span id="attachMeta2"></span><br />

@@ -2,12 +2,21 @@
 /*---------------------------------------------\
 |											   |
 | @Author:       Andrey Brykin (Drunya)        |
+<<<<<<< HEAD
 | @Version:      1.4.7                         |
 | @Project:      CMS                           |
 | @package       CMS Fapos                     |
 | @subpackege    Chat Module                   |
 | @copyright     ©Andrey Brykin 2010-2012      |
 | @last mod      2012/04/27                    |
+=======
+| @Version:      1.4.9                         |
+| @Project:      CMS                           |
+| @package       CMS Fapos                     |
+| @subpackege    Chat Module                   |
+| @copyright     ©Andrey Brykin 2010-2013      |
+| @last mod      2013/01/22                    |
+>>>>>>> drunya/Fapos2.1RC1
 |----------------------------------------------|
 |											   |
 | any partial or not partial extension         |
@@ -260,7 +269,7 @@ class ChatModule extends Module {
 			$message = '';
 		}
 		
-		
+
 		$kcaptcha = '';
 		if (!$ACL->turn(array('other', 'no_captcha'), false)) {
 			$kcaptcha = getCaptcha();
