@@ -758,8 +758,7 @@ Class ForumModule extends Module {
                 $author_status = ($post->getAuthor()) ? $post->getAuthor()->getStatus() : 0;
 				
 				
-				$message = $this->Textarier->print_page($post->getMessage(), $author_status);
-
+				$message = $post->getMessage();
 				
 				$attachment = null;
 				$attach_list = $post->getAttacheslist();
@@ -791,6 +790,8 @@ Class ForumModule extends Module {
 				if ($attachment != null) {
 					$post->setAttachment($attachment);
 				}
+				$message = $this->Textarier->print_page($message, $author_status);
+
 				$post->setMessage($message);
 				
 
