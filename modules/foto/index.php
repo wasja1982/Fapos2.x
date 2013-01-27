@@ -546,7 +546,7 @@ Class FotoModule extends Module {
 		
 		
 		// Create watermark and resample image
-		$watermark_path = ROOT . '/sys/img/' . Config::read('watermark_img');
+		$watermark_path = ROOT . '/sys/img/' . (Config::read('watermark_type') == '1' ? 'watermark_text.png' : Config::read('watermark_img'));
 		if (Config::read('use_watermarks') && !empty($watermark_path) && file_exists($watermark_path)) {
 			$waterObj = new FpsImg;
 			$waterObj->createWaterMark($save_path, $watermark_path);
@@ -858,7 +858,7 @@ Class FotoModule extends Module {
 	*/
 	public function delete_comment($id = null)
 	{
-		include_once(R . 'sys/inc/includes/delete_comment.php');
+		include_once(ROOT . 'sys/inc/includes/delete_comment.php');
 	}
 	
 	

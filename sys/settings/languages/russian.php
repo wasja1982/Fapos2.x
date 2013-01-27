@@ -282,6 +282,7 @@ $language = array(
 	'Status'                        => 'Статус',
 	'This module disabled'          => 'Этот модуль отключен',
 	'Pages'                         => '&nbsp;Страницы: ',
+	'Watermark settings'            => 'Настройки водяных знаков',
 );
 
 

@@ -26,6 +26,16 @@ $set = array (
   'watermark_img' => 'watermark.png',
   'quality_jpeg' => '75',
   'quality_png' => '9',
+  'watermark_hpos' => '3',
+  'watermark_vpos' => '2',
+  'watermark_alpha' => '50',
+  'watermark_type' => '1',
+  'watermark_text' => 'fapos.net',
+  'watermark_text_angle' => '90',
+  'watermark_text_size' => '10',
+  'watermark_text_color' => 'FFFFFF',
+  'watermark_text_border' => '0000FF',
+  'watermark_text_font' => 'Scada-Bold.ttf',
   'latest_on_home' => 
   array (
     0 => 'news',
@@ -164,8 +174,6 @@ $set = array (
       1 => 2,
       2 => 3,
     ),
-    'use_watermarks' => 1,
-    'watermark_img' => 'watermark.png',
   ),
   'statistics' => 
   array (

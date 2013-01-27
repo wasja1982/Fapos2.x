@@ -32,7 +32,7 @@ $config = Config::read('all');
 
 
 
-// Prepare templates selct list
+// Prepare templates select list
 $sourse = glob(ROOT . '/template/*', GLOB_ONLYDIR);
 if (!empty($sourse) && is_array($sourse)) {
 	$templates = array();
@@ -47,6 +47,22 @@ $templateSelect = array();
 if (!empty($templates)) {
 	foreach ($templates as $value) {
 		$templateSelect[$value] = ucfirst($value);
+	}
+}
+
+
+
+// Prepare templates select list
+$fonts = glob(ROOT . '/sys/fonts/*.ttf');
+sort($fonts);
+$fontSelect = array();
+if (!empty($fonts)) {
+	foreach ($fonts as $value) {
+		$pos = strrpos($value, "/");
+		if ($pos >= 0) {
+			$value = substr($value, $pos + 1);
+		}
+		$fontSelect[$value] = $value;
 	}
 }
 
@@ -81,16 +97,19 @@ if (in_array($module, $sysMods)) {
 	$settingsInfo = $settingsInfo[$module];
 	switch($module) {
 		case 'common':
-			$pageTitle = 'RSS - Настройки';
+			$pageTitle = __('RSS settings');
 			break;
 		case 'hlu':
-			$pageTitle = 'Настройки ЧПУ';
+			$pageTitle = __('SEO settings');
 			break;
 		case 'sitemap':
-			$pageTitle = 'Настройки Sitemap';
+			$pageTitle = __('Sitemap settings');
 			break;
 		case 'secure':
-			$pageTitle = 'Настройки безопасности';
+			$pageTitle = __('Security settings');
+			break;
+		case 'watermark':
+			$pageTitle = __('Watermark settings');
 			break;
 	}
 } else {
@@ -137,24 +156,28 @@ if (isset($_POST['send'])) {
 		
 		
 		if (isset($_POST[$fname]) || isset($_FILES[$fname])) {
-			if ('file' == $params['type']) {
-				if (!empty($params['onsave']['func'])
+			$value = trim((string)$_POST[$fname]);
+		}
+		
+		
+		
+		if (!empty($params['onsave'])) {
+			if (!empty($params['onsave']['multiply'])) {
+				$value = round($value * $params['onsave']['multiply']);
+			}
+			if (!empty($params['onsave']['func'])
 				&& function_exists((string)$params['onsave']['func'])) {
+				if ($params['type'] == 'file' && (isset($_POST[$fname]) || isset($_FILES[$fname]))) {
+					call_user_func((string)$params['onsave']['func'], &$tmpSet);
+					continue;
+				} else {
+					$tmpSet[$fname] = $value;
 					call_user_func((string)$params['onsave']['func'], &$tmpSet);
 				}
-				continue;
 			}
-			$value = trim((string)$_POST[$fname]);
-		
-		
-		
-			if (!empty($params['onsave'])) {
-				if (!empty($params['onsave']['multiply'])) {
-					$value = round($value * $params['onsave']['multiply']);
-				}
-			}
-		}	
+		}
 			
+
 		if (empty($value)) $value = '';
 		if ('checkbox' === $params['type']) {
 			$tmpSet[$fname] = (!empty($value)) ? 1 : 0;

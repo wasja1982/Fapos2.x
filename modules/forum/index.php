@@ -1546,7 +1546,7 @@ Class ForumModule extends Module {
 
 				if (move_uploaded_file($_FILES[$attach_name]['tmp_name'], ROOT . $this->getFilesPath($file))) {
 					if ($is_image == '1') {
-						$watermark_path = ROOT . '/sys/img/' . Config::read('watermark_img');
+						$watermark_path = ROOT . '/sys/img/' . (Config::read('watermark_type') == '1' ? 'watermark_text.png' : Config::read('watermark_img'));
 						if (Config::read('use_watermarks') && !empty($watermark_path) && file_exists($watermark_path)) {
 							$waterObj = new FpsImg;
 							$save_path = ROOT . $this->getFilesPath($file);
@@ -2210,7 +2210,7 @@ Class ForumModule extends Module {
 					// Перемещаем файл из временной директории сервера в директорию files
 					if (move_uploaded_file($_FILES[$attach_name]['tmp_name'], ROOT . $this->getFilesPath($file))) {
 						if ($is_image == '1') {
-							$watermark_path = ROOT . '/sys/img/' . Config::read('watermark_img');
+							$watermark_path = ROOT . '/sys/img/' . (Config::read('watermark_type') == '1' ? 'watermark_text.png' : Config::read('watermark_img'));
 							if (Config::read('use_watermarks') && !empty($watermark_path) && file_exists($watermark_path)) {
 								$waterObj = new FpsImg;
 								$save_path = ROOT . $this->getFilesPath($file);
@@ -2497,7 +2497,7 @@ Class ForumModule extends Module {
 				// Перемещаем файл из временной директории сервера в директорию files
 				if (move_uploaded_file($_FILES[$attach_name]['tmp_name'], ROOT . $this->getFilesPath($file))) {
 					if ($is_image == '1') {
-						$watermark_path = ROOT . '/sys/img/' . Config::read('watermark_img');
+						$watermark_path = ROOT . '/sys/img/' . (Config::read('watermark_type') == '1' ? 'watermark_text.png' : Config::read('watermark_img'));
 						if (Config::read('use_watermarks') && !empty($watermark_path) && file_exists($watermark_path)) {
 							$waterObj = new FpsImg;
 							$save_path = ROOT . $this->getFilesPath($file);
