@@ -26,7 +26,7 @@ if (!empty($params[0]) && !empty($params[1])) {
 	if (!empty($params[2])) {
 		$sample_size = (int)$params[2];
 	} else {
-		$sample_size = $Register['Config']->read('img_preview_size');
+		$sample_size = Config::read('img_preview_size');
 	}
 	
 	// Min allowed size

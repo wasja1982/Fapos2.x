@@ -44,10 +44,6 @@ Class PagesModule extends Module {
 	* default action
 	*/
 	function index($id = null, $s =null, $x = null) {
-	
-		//$this->render('main.html', array()); die();
-	
-	
 		//if isset ID - we need load page with this ID
 		if (!empty($id)) {
 			if (is_int($id)) {
@@ -231,7 +227,7 @@ Class PagesModule extends Module {
 
 						
                         $announce = $this->Textarier->getAnnounce($announce, $entry_url, 0,
-                            $this->Register['Config']->read('announce_lenght'), $result);
+                            Config::read('announce_lenght'), $result);
 						
 						
                         if (count($matattaches) > 0) {

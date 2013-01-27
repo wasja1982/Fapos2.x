@@ -2728,7 +2728,7 @@ Class UsersModule extends Module {
 		if ($adm_id == $uid) die(__('Some error occurred'));
 		
 		if (!$ban) {
-			$max_warnings = $this->Render['Config']->read('warnings_by_ban', $this->module);
+			$max_warnings = Config::read('warnings_by_ban', $this->module);
 			if ($intruder->getWarnings() > 0 && $intruder->getWarnings() + $points >= $max_warnings) {
 				$ban = 1;
 				$interval = Config::read('autoban_interval', $this->module);

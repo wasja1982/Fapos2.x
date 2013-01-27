@@ -14,7 +14,7 @@ $set = array (
   'redirect_delay' => '1',
   'time_on_line' => '10',
   'template' => '12',
-  'use_additional_fields' => 0,
+  'use_additional_fields' => 1,
   'hlu' => 1,
   'hlu_extention' => '.htm',
   'hlu_understanding' => 0,
@@ -36,6 +36,7 @@ $set = array (
   'watermark_text_color' => 'FFFFFF',
   'watermark_text_border' => '0000FF',
   'watermark_text_font' => 'Scada-Bold.ttf',
+  'img_preview_size' => 200,
   'latest_on_home' => 
   array (
     0 => 'news',
@@ -50,7 +51,7 @@ $set = array (
     'not_reg_user' => 'Гостелло',
     'max_post_lenght' => '3000',
     'themes_per_page' => '20',
-    'posts_per_page' => '10',
+    'posts_per_page' => '3',
     'active' => 1,
   ),
   'news' => 
@@ -59,7 +60,7 @@ $set = array (
     'description' => 'Самые свежие новости',
     'max_lenght' => '15000',
     'announce_lenght' => '700',
-    'per_page' => 10,
+    'per_page' => '3',
     'active' => 1,
     'comment_active' => 1,
     'comment_per_page' => '50',
@@ -105,7 +106,7 @@ $set = array (
     'min_lenght' => '200',
     'max_lenght' => '4500',
     'announce_lenght' => '300',
-    'per_page' => 7,
+    'per_page' => '5',
     'max_file_size' => '15000000',
     'active' => '1',
     'comment_active' => 1,
@@ -123,7 +124,7 @@ $set = array (
   ),
   'secure' => 
   array (
-    'antisql' => 1,
+    'antisql' => 0,
     'anti_ddos' => 0,
     'request_per_second' => '7',
     'system_log' => 1,
@@ -140,13 +141,13 @@ $set = array (
     'title' => 'Пользователи',
     'description' => 'Юзвери',
     'max_mail_lenght' => '20000',
-    'rating_comment_lenght' => '200',
-    'active' => 1,
-    'warnings_by_ban' => '5',
-    'autoban_interval' => '2000000',
+    'rating_comment_lenght' => '100',
+    'active' => '1',
+    'warnings_by_ban' => 5,
+    'autoban_interval' => 2000000,
     'fields' => 
     array (
-      'keystring' => 'keystring',
+      0 => 'pol',
     ),
   ),
   'chat' => 
@@ -189,7 +190,7 @@ $set = array (
     'title' => 'Поиск',
     'active' => '1',
     'description' => 'Лучший  поиск от Fapos',
-    'min_lenght' => '2',
+    'min_lenght' => '4',
     'per_page' => '20',
     'index_interval' => 2,
   ),

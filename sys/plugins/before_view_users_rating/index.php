@@ -9,6 +9,8 @@ class UsersRating {
 	// Wraper for comments
 	private $wrap;
 	
+	// Marker for plugin
+	private $marker = '#{{\s*users_rating\s*}}#i';
 	
 	
 	private $DB;
@@ -28,11 +30,9 @@ class UsersRating {
 	
 	
 	public function common($params) {
-		$Register = Register::getInstance();
-		
 		$output = '';
 		
-		if (!strpos($params, '{{ users_rating }}')) return $params;
+		if (preg_match($this->marker, $params) == 0) return $params;
 		
 		$Cache = new Cache;
 		$Cache->lifeTime = 600;
@@ -60,7 +60,7 @@ class UsersRating {
 		$output .= 	'<div class="etopu">' . get_link('Весь рейтинг', '/users/index?order=rating') . '</div>';	
 			
 			
-		return str_replace('{{ users_rating }}', $output, $params);
+		return preg_replace($this->marker, $output, $params);
 	}
 
 }

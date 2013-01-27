@@ -2,7 +2,7 @@
 
 function sebmitChat(e) {
 	var message = $("textarea#chatModule").val();
-	message = encodeURIComponent(message);
+	var message = encodeURIComponent(message);
 	var keystring = $("input[name='captcha_keystring']").val();
 
 	var params = 'message='+message;

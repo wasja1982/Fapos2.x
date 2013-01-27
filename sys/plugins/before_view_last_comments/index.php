@@ -10,6 +10,8 @@ class LastComments {
 	//private $wrap = '<li class="point"><b>%s</b> <span style="color:#D6C39B;">Написал в</span><br /> %s</li>';
 	private $wrap;
 	
+	// Marker for plugin
+	private $marker = '#{{\s*last_comments\s*}}#i';
 	
 	
 	private $DB;
@@ -28,11 +30,9 @@ class LastComments {
 	
 	
 	public function common($params) {
-		$Register = Register::getInstance();
-		
 		$output = '';
 		
-		if (!strpos($params, '{{ last_comments }}')) return $params;
+		if (preg_match($this->marker, $params) == 0) return $params;
 		
 		$Cache = new Cache;
 		$Cache->lifeTime = 600;
@@ -62,7 +62,7 @@ class LastComments {
 		}
 			
 		
-		return str_replace('{{ last_comments }}', $output, $params);
+		return preg_replace($this->marker, $output, $params);
 	}
 
 }

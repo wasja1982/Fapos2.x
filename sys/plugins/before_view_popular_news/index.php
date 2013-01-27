@@ -9,6 +9,8 @@ class PopNews {
 	// Wraper for comments
 	private $wrap;
 	
+	// Marker for plugin
+	private $marker = '#{{\s*pop_news\s*}}#i';
 	
 	
 	private $DB;
@@ -21,11 +23,9 @@ class PopNews {
 	
 	
 	public function common($params) {
-		$Register = Register::getInstance();
-		
 		$output = '';
 		
-		if (!strpos($params, '{{ pop_news }}')) return $params;
+		if (preg_match($this->marker, $params) == 0) return $params;
 		
 		$Cache = new Cache;
 		$Cache->lifeTime = 600;
@@ -44,7 +44,8 @@ class PopNews {
 			}
 		}
 			
-		return str_replace('{{ pop_news }}', $output, $params);
+			
+		return preg_replace($this->marker, $output, $params);
 	}
 
 }

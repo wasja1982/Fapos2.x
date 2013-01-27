@@ -387,8 +387,8 @@ function edit() {
 		$in_cat = (int)$_POST['in_cat'];
 		$description = $_POST['description'];
 		if (!empty($_FILES['icon']['name'])) {
-			if ($_FILES['icon']['size'] > 100000) $error = $error . '<li>Размер иконки не должен превышать 100Кб</li>';
-			if (!isImageFile($_FILES['icon']['type'])) $error = $error . '<li>Не допустимый формат иконки</li>';
+			if ($_FILES['icon']['size'] > 102400) $error = $error . '<li>' . __('Max icon size 100Kb') . '</li>';
+			if (!isImageFile($_FILES['icon']['type'])) $error = $error . '<li>' . __('Wrong icon format') . '</li>';
 			if (!empty($error)) {
 				$_SESSION['addErrors'] = $error;
 				redirect('/admin/forum_cat.php');
@@ -531,8 +531,8 @@ function add() {
 	} elseif ($_POST['type'] == 'forum') {
 		$in_cat = (int)$_POST['in_cat'];
 		if (!empty($_FILES['icon']['name'])) {
-			if ($_FILES['icon']['size'] > 100000) $error = $error . '<li>Размер иконки не должен превышать 100Кб</li>';
-			if (!isImageFile($_FILES['icon']['type'])) $error = $error . '<li>Не допустимый формат иконки</li>';
+			if ($_FILES['icon']['size'] > 102400) $error = $error . '<li>' . __('Max icon size 100Kb') . '</li>';
+			if (!isImageFile($_FILES['icon']['type'])) $error = $error . '<li>' . __('Wrong icon format') . '</li>';
 		}
 		
 		
