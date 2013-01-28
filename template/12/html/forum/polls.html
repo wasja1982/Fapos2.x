@@ -38,6 +38,11 @@ function renderPollResults(data) {
 	*/
 }
 </script>
+{% if poll.question %}
+<div>
+	{{ poll.question }}
+</div>
+{% endif %}
 <div id="pollVote">
 {% if poll.can_voted %} 
 	{% for variant in poll.variants %}

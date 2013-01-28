@@ -921,7 +921,9 @@ Class ForumModule extends Module {
 			
 			// Polls render
 			$polls = $theme->getPoll();
-			if (!empty($polls[0])) {
+			if (!isset($polls) || empty($polls)) {
+				$theme->setPoll('');
+			} elseif (!empty($polls[0])) {
 				$theme->setPoll($this->_renderPoll($polls[0]));
 			}
 			
@@ -1695,6 +1697,7 @@ Class ForumModule extends Module {
 		if (!is_int($id_theme)) {
 			$id_theme = mysql_insert_id();
 		}
+		$theme->setId($id_theme);
 		
 		
 		
