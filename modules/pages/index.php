@@ -162,9 +162,8 @@ Class PagesModule extends Module {
                     }
 
 
-                    $all_attaches = array('news' => array(), 'stat' => array());
                     foreach ($mod_mats as $module => $mats) {
-                        if (count($mats) > 0 && ($module == 'news' || $module == 'stat')) {
+                        if (count($mats) > 0) {
                             $attach_ids = array();
                             foreach ($mats as $mat) {
                                 $attach_ids[] = $mat->getId();
