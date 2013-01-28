@@ -134,7 +134,7 @@ if ($_GET['ac'] == 'index'):
 		<?php
 			$params = (!empty($field['params'])) ? unserialize($field['params']) : array();
 			$values = (!empty($params['values'])) ? $params['values'] : '-';
-			$field_market = 'add_field_' . $field['id'];
+			$field_marker = 'add_field_' . $field['id'];
 			
 			$required = (!empty($params['required'])) 
 			? '<span style="color:red;">' . __('Yes') . '</span>' 
@@ -148,10 +148,10 @@ if ($_GET['ac'] == 'index'):
 				<div class="item"><?php echo __('Max length') ?>: <div><?php echo (!empty($field['size'])) ? h($field['size']) : '-'; ?></div></div>
 				<div class="item"><?php echo __('Params') ?>: <div><?php echo (!empty($values)) ? h($values) : ''; ?></div></div>
 				<div class="item"><?php echo __('Required field') ?>: <div><?php echo $required; ?></div></div>
-				<div class="item"><?php echo __('Marker of field') ?>: <div><?php echo h(strtolower($field_market)); ?></div></div>
+				<div class="item"><?php echo __('Marker of field') ?>: <div><?php echo h(strtolower($field_marker)); ?></div></div>
 			</div>
 			<div class="textarea-item">
-				<textarea style="width:100%; height:103px;;"><?php echo (!empty($inputs[$field_market])) ? $inputs[$field_market] : ''; ?></textarea>
+				<textarea style="width:100%; height:103px;;"><?php echo (!empty($inputs[$field_marker])) ? $inputs[$field_marker] : ''; ?></textarea>
 			</div>
 			
 			<div class="control-but">

@@ -1,4 +1,4 @@
-﻿<div id="smiles-cont" class="fps-fwin" style="display:none;">
+<div id="smiles-cont" class="fps-fwin" style="display:none;">
 <div class="drag_window">
     <div class="title" onmousedown="drag_object(event, this.parentNode)">Вставка смайлы</div>
     <div onClick="$('#smiles-cont').hide()" class="close"></div>
@@ -43,14 +43,11 @@ enctype="multipart/form-data" onsubmit="return checkForm(this)">
 		<td colspan="3" class="title">Новая тема</td>
 	<tr>
 	<tr>
-		<td width="0%" rowspan="4" valign="top">
-
-		</td>
 		<td>
 			<table style="width:100%;" class="">
 				<tr>
 					<td>Заголовок темы:</td>
-					<td align="right" class="right"><input type="text" name="theme" maxlength="128" value="{{ context.theme }}" style="width:400px"></td>
+					<td align="right" class="right"><input type="text" name="theme" maxlength="55" value="{{ context.theme }}" style="width:400px"></td>
 				</tr>
 				<tr>
 				  <td>Описание:</td>
@@ -102,22 +99,22 @@ enctype="multipart/form-data" onsubmit="return checkForm(this)">
 						<br />
 						<span class="code-help">Цвет шрифта:</span>
 						<select class="codeSelect" name="addbbcode30" onChange="bbfontstyle('[color=' + this.form.addbbcode30.options[this.form.addbbcode30.selectedIndex].value + ']', '[/color]');this.selectedIndex=0;" onMouseOver="helpline('s')" onMouseOut="helpline('h')">
-							<option style="color:#000000;" value="000000">Черный</option>
+							<option style="color:#000000;" value="#000000">Черный</option>
 							<option style="color:#FF0000;" value="red">Красный</option>
 							<option style="color:#008000;" value="green">Зелёный</option>
 							<option style="color:#0000FF;" value="blue">Синий</option>
-							<option style="color:#00FFFF;" value="00FFFF">Аква</option>        
-							<option style="color:#FF00FF;" value="FF00FF">Розовый</option>
-							<option style="color:#808080;" value="808080">Серый</option>        
-							<option style="color:#00FF00;" value="00FF00">Лаймовый</option>
-							<option style="color:#800000;" value="800000">Темно-бордовый</option>
-							<option style="color:#000080;" value="000080">Темно-синий</option>
-							<option style="color:#808000;" value="808000">Оливковый</option>
-							<option style="color:#800080;" value="800080">фиолетовый</option>
-							<option style="color:#C0C0C0;" value="C0C0C0">Серебряный</option>
-							<option style="color:#008080;" value="008080">Чирок</option>
-							<option style="color:#FFFFFF;" value="FFFFFF">Белый</option>
-							<option style="color:#FFFF00;" value="FFFF00">Желтый</option>
+							<option style="color:#00FFFF;" value="#00FFFF">Аква</option>        
+							<option style="color:#FF00FF;" value="#FF00FF">Розовый</option>
+							<option style="color:#808080;" value="#808080">Серый</option>        
+							<option style="color:#00FF00;" value="#00FF00">Лаймовый</option>
+							<option style="color:#800000;" value="#800000">Темно-бордовый</option>
+							<option style="color:#000080;" value="#000080">Темно-синий</option>
+							<option style="color:#808000;" value="#808000">Оливковый</option>
+							<option style="color:#800080;" value="#800080">фиолетовый</option>
+							<option style="color:#C0C0C0;" value="#C0C0C0">Серебряный</option>
+							<option style="color:#008080;" value="#008080">Чирок</option>
+							<option style="color:#FFFFFF;" value="#FFFFFF">Белый</option>
+							<option style="color:#FFFF00;" value="#FFFF00">Желтый</option>
 						</select>
 						
 						<span class="code-help">Размер шрифта:</span>
@@ -130,13 +127,15 @@ enctype="multipart/form-data" onsubmit="return checkForm(this)">
 						</select>
 					</td>
 				</tr>
+				<!--
 				<tr class="BB_buttons">
 					<td colspan="2">
-						<input type="text" name="helpbox" font-size:10px" 
+						<input type="text" name="helpbox" font-size:"10px" 
 						class="helpline" value="Подсказка: Можно быстро применить стили к выделенному тексту" />
 						<a href="javascript:bbstyle(-1)" onMouseOver="helpline('a')" onMouseOut="helpline('h')">Закрыть все теги</a>
 					</td>
 				</tr>
+				-->
 				<tr>
 					<td colspan="2">
 						<textarea id="editor" class="text-area" name="mainText" onselect="storeCaret(this);" onclick="storeCaret(this);" onkeyup="storeCaret(this);">{{ context.main_text }}</textarea>
