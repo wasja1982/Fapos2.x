@@ -2,12 +2,12 @@
 /*---------------------------------------------\
 |											   |
 | @Author:       Andrey Brykin (Drunya)        |
-| @Version:      1.3.1                         |
+| @Version:      1.3.2                         |
 | @Project:      CMS                           |
 | @package       CMS Fapos                     |
 | @subpackege    Print lobrary                 |
-| @copyright     ©Andrey Brykin 2010-2012      |
-| @last mod      2012/11/13                    |
+| @copyright     ©Andrey Brykin 2010-2013      |
+| @last mod      2013/01/30                    |
 |----------------------------------------------|
 |											   |
 | any partial or not partial extension         |
@@ -173,8 +173,7 @@ class PrintText {
 	
 		
 		// Разрезаем слишком длинные слова
-		// TODO: Заменить чем-то более адекватным, которое не портит ссылки внутри BBcode
-		// $message = wordwrap($message, 70, ' ', 1); 
+		//$message = wordwrap($message, 70, ' ', 1); 
 		//$message = preg_replace("#([^\s/\]\[]{100})#ui", "\\1 ", $message);	  
 				  
 
@@ -300,7 +299,7 @@ class PrintText {
 		$message = preg_replace("#\[color=red\](.+)\[\/color\]#uisU",'<span style="color:#FF0000">\\1</span>',$message);
 		$message = preg_replace("#\[color=green\](.+)\[\/color\]#uisU",'<span style="color:#008000">\\1</span>',$message);
 		$message = preg_replace("#\[color=blue\](.+)\[\/color\]#uisU",'<span style="color:#0000FF">\\1</span>',$message);
-		$message = preg_replace("#\[color=\#([0-9a-z]{6})\](.+)\[\/color\]#uisU",'<span style="color:#\\1">\\2</span>',$message);
+		$message = preg_replace("#\[color=\#?([0-9a-z]{3,6})\](.+)\[\/color\]#uisU",'<span style="color:#\\1">\\2</span>',$message);
 		
 		
 		$message = preg_replace_callback("#\[list\]\s*((?:\[\*\].+)+)\[\/list\]#usiU",'getUnorderedList',$message);
@@ -308,8 +307,7 @@ class PrintText {
 		$message = $this->parseUrlBb($message);
 		
 		
-		$message = preg_replace("#\[size=(10|15|20|25)\]([^\[]*)\[/size\]#uisU", '<span style="font-size:\\1px;">\\2</span>', $message); //для обратной совместимости
-		$message = preg_replace("#\[size=(50|85|100|150|200)\]([^\[]*)\[/size\]#uisU", '<span style="font-size:\\1%;">\\2</span>', $message);
+		$message = preg_replace("#\[size=(10|15|20|25)\]([^\[]*)\[/size\]#uisU", '<span style="font-size:\\1px;">\\2</span>', $message);
 		$message = preg_replace("#\[center\]([^\[]*)\[/center\]#uisU", '<span style="display:block;width:100%;text-align:center;">\\1</span>', $message);
 		$message = preg_replace("#\[right\]([^\[]*)\[/right\]#uisU", '<span style="display:block;width:100%;text-align:right;">\\1</span>', $message);
 		$message = preg_replace("#\[left\]([^\[]*)\[/left\]#uisU", '<span style="display:block;width:100%;text-align:left;">\\1</span>', $message);
@@ -397,32 +395,30 @@ class PrintText {
 		
 		
 		if (!empty($_SESSION['module'])) {
-			$sizex = Config::read('img_size_x', $Register['dispath_params'][0]);
-			$sizey = Config::read('img_size_y', $Register['dispath_params'][0]);
+			$sizex = $Register['Config']->read('img_size_x', $Register['dispath_params'][0]);
+			$sizey = $Register['Config']->read('img_size_y', $Register['dispath_params'][0]);
 			$sizex = intval($sizex);
 			$sizey = intval($sizey);
 			if (!empty($sizex) && !empty($sizey)) {
 				$str = preg_replace("#\[img\][\s]*([^\"'\>\<\(\)]+)[\s]*\[\/img\]#isU"
-				,'<img style="max-width:'.$sizex.'px; max-height:'.$sizey
-				.'px;" src="\\1" alt="'.$title.'" title="'.$title.'" />',$str);
+				,'<a href="\\1" class="gallery"><img style="max-width:'.$sizex.'px; max-height:'.$sizey
+				.'px;" src="\\1" alt="'.$title.'" title="'.$title.'" /></a>',$str);
 				$str = preg_replace("#\[imgl\][\s]*([^\"'\>\<\(\)]+)[\s]*\[\/imgl\]#isU"
-				,'<img style="max-width:'.$sizex.'px; max-height:'
-				.$sizey.'px;" src="\\1" alt="'.$title.'" title="'.$title.'" /><div class="clear"></div>',$str);
+				,'<a style="float:left;" href="\\1" class="gallery"><img style="max-width:'.$sizex.'px; max-height:'
+				.$sizey.'px;" src="\\1" alt="'.$title.'" title="'.$title.'" /><div class="clear"></div></a>',$str);
 				return $str;
 			}
 		}
 		$str = preg_replace("#\[img\][\s]*([^\"'\>\<\(\)]+)[\s]*\[\/img\]#isU"
-		,'<img style="max-width:150px;" src="\\1" alt="'.$title.'" title="'.$title.'" />',$str);
+		,'<a href="\\1" class="gallery"><img style="max-width:150px;" src="\\1" alt="'.$title.'" title="'.$title.'" /></a>',$str);
 		$str = preg_replace("#\[imgl\][\s]*([^\"'\>\<\(\)]+)[\s]*\[\/imgl\]#isU"
-		,'<img style="max-width:150px;" src="\\1" alt="'.$title.'" title="'.$title.'" />',$str);
+		,'<a style="float:left;" href="\\1" class="gallery"><img style="max-width:150px;" src="\\1" alt="'.$title.'" title="'.$title.'" /></a>',$str);
 		return $str;
 	}
 	public function parseUrlBb($str) {
 		$str = preg_replace("#\[url\](http[s]*://[\w\d\-_.]*\.\w{2,}[\w\d\-_\\/.\?=\#&;%]*)\[\/url\]#iuU",'<noindex><a href="\\1" target="_blank">\\1</a></noindex>',$str);
 		$str = preg_replace("#\[url=(http[s]*://[\w\d\-_.]*\.\w{2,}[\w\d\-_\\/.\?=\#;&%]*)\]([^\[]*)\[/url\]#iuU", '<noindex><a href="\\1" target="_blank">\\2</a></noindex>', $str);
-
-		$str = preg_replace("#\[gallery=([\w\d\-_\\/.\?=\#;&%+]*)\]([^\[]*)\[/gallery\]#iuU", '<a href="\\1" class="gallery">\\2</a>', $str);
-
+		
 		return $str;
 	}
 
