@@ -395,8 +395,8 @@ class PrintText {
 		
 		
 		if (!empty($_SESSION['module'])) {
-			$sizex = $Register['Config']->read('img_size_x', $Register['dispath_params'][0]);
-			$sizey = $Register['Config']->read('img_size_y', $Register['dispath_params'][0]);
+			$sizex = Config::read('img_size_x', $Register['dispath_params'][0]);
+			$sizey = Config::read('img_size_y', $Register['dispath_params'][0]);
 			$sizex = intval($sizex);
 			$sizey = intval($sizey);
 			if (!empty($sizex) && !empty($sizey)) {
@@ -419,6 +419,8 @@ class PrintText {
 		$str = preg_replace("#\[url\](http[s]*://[\w\d\-_.]*\.\w{2,}[\w\d\-_\\/.\?=\#&;%]*)\[\/url\]#iuU",'<noindex><a href="\\1" target="_blank">\\1</a></noindex>',$str);
 		$str = preg_replace("#\[url=(http[s]*://[\w\d\-_.]*\.\w{2,}[\w\d\-_\\/.\?=\#;&%]*)\]([^\[]*)\[/url\]#iuU", '<noindex><a href="\\1" target="_blank">\\2</a></noindex>', $str);
 		
+		$str = preg_replace("#\[gallery=([\w\d\-_\\/.\?=\#;&%+]*)\]([^\[]*)\[/gallery\]#iuU", '<a href="\\1" class="gallery">\\2</a>', $str);
+
 		return $str;
 	}
 
