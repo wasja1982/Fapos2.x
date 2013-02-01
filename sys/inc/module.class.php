@@ -652,9 +652,10 @@ class Module {
 
 	
 	// Функция возвращает путь к файлам модуля
-	function getFilesPath($file = null)
+	function getFilesPath($file = null, $module = null)
 	{
-		$path = '/sys/files/' . $this->module . '/' . (!empty($file) ? $file : '');
+		if (!isset($module)) $module = $this->module;
+		$path = '/sys/files/' . $module . '/' . (!empty($file) ? $file : '');
 		return $path;
 	}
 
@@ -663,14 +664,6 @@ class Module {
 	function getTmpPath($file = null)
 	{
 		$path = '/sys/tmp/' . $this->module . '/' . (!empty($file) ? $file : '');
-		return $path;
-	}
-
-	
-	// Функция возвращает путь к временным файлам модуля (превью)
-	function getTmpPreviewPath($file = null)
-	{
-		$path = '/sys/tmp/previews/' . $this->module . '/' . (!empty($file) ? $file : '');
 		return $path;
 	}
 
@@ -686,26 +679,18 @@ class Module {
 	
 	
 	// Функция обрабатывает метку изображения
-	function insertImageAttach($message, $filename, $number)
+	function insertImageAttach($message, $filename, $number, $module = null)
 	{
-		$in_file = ROOT . $this->getFilesPath() . $filename;
-		$out_file = ROOT . $this->getTmpPreviewPath() . $filename;
-		
-		if (file_exists($in_file)) {
-			$img = getimagesize($in_file);
-			if (!file_exists($out_file) && Config::read('use_preview', $this->module) &&
-				($img[0] > Config::read('img_size_x', $this->module) || $img[1] > Config::read('img_size_y', $this->module))) {
-				$resample = resampleImage($in_file, $out_file, Config::read('img_size_x', $this->module), Config::read('img_size_y', $this->module));
-				if ($resample) chmod($out_file, 0644);
-			}
-
-			if (file_exists($out_file) && Config::read('use_preview', $this->module)) {
-				$message = str_replace('{IMAGE' . $number . '}', '[gallery=' . get_url($this->getFilesPath($filename)) . '][img]' . get_url($this->getTmpPreviewPath($filename)).'[/img][/gallery]'
-						, $message);
-			} else {
-				$message = str_replace('{IMAGE' . $number . '}', '[img]' . get_url($this->getFilesPath($filename)) . '[/img]', $message);
-			}
-		}
-		return $message;
+		if (!isset($module)) $module = $this->module;
+		$image_link = get_url($this->getFilesPath($filename, $module));
+		$preview_link = (Config::read('use_preview', $module) ? get_url('/image/' . $module . '/' . $filename) : $image_link);
+		$size_x = Config::read('img_size_x', $module);
+		$size_y = Config::read('img_size_y', $module);
+		return str_replace(
+			'{IMAGE' . $number . '}', 
+			(Config::read('use_preview', $module) ? '<a class="gallery" href="' . $image_link . '">' : '') .
+			'<img style="max-width:' . (isset($size_x) ? $size_x : 150) . 'px; max-height:' . (isset($size_y) ? $size_y : 150) . 'px;" src="' . $preview_link . '" />' .
+			(Config::read('use_preview', $module) ? '</a>' : ''), 
+			$message);
 	}
 }

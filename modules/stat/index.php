@@ -126,6 +126,14 @@ Class StatModule extends Module {
 			$announce = $result->getMain();
 			
 			
+			$announce = $this->Textarier->getAnnounce($announce
+				, $entry_url
+				, 0 
+				, Config::read('announce_lenght', $this->module)
+				, $result
+			);
+			
+			
 			// replace image tags in text
 			$attaches = $result->getAttaches();
 			if (!empty($attaches) && count($attaches) > 0) {
@@ -136,14 +144,6 @@ Class StatModule extends Module {
 				}
 			}
 
-			$announce = $this->Textarier->getAnnounce($announce
-				, $entry_url
-				, 0 
-				, Config::read('announce_lenght', $this->module)
-				, $result
-			);
-			
-			
 			$_addParams['announce'] = $announce;
 			
 			
@@ -279,6 +279,14 @@ Class StatModule extends Module {
 			$announce = $result->getMain();
 			
 			
+			$announce = $this->Textarier->getAnnounce($announce
+				, $entry_url
+				, 0 
+				, Config::read('announce_lenght', $this->module)
+				, $result
+			);
+			
+			
 			// replace image tags in text
 			$attaches = $result->getAttaches();
 			if (!empty($attaches) && count($attaches) > 0) {
@@ -289,14 +297,6 @@ Class StatModule extends Module {
 				}
 			}
 
-			$announce = $this->Textarier->getAnnounce($announce
-				, $entry_url
-				, 0 
-				, Config::read('announce_lenght', $this->module)
-				, $result
-			);
-			
-			
 			$_addParams['announce'] = $announce;
 			
 			
@@ -400,6 +400,8 @@ Class StatModule extends Module {
 		
 		
 		$announce = $entity->getMain();
+		$announce = $this->Textarier->print_page($announce, $entity->getAuthor()->getStatus(), $entity->getTitle());
+		
 		// replace image tags in text
 		$attaches = $entity->getAttaches();
 		if (!empty($attaches) && count($attaches) > 0) {
@@ -410,8 +412,6 @@ Class StatModule extends Module {
 			}
 		}
 
-		$announce = $this->Textarier->print_page($announce, $entity->getAuthor()->getStatus(), $entity->getTitle());
-		
 		$markers['mainText'] = $announce;
 		$entity->setAdd_markers($markers);
 		$entity->setTags(explode(',', $entity->getTags()));

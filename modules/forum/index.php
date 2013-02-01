@@ -765,7 +765,7 @@ Class ForumModule extends Module {
                 $author_status = ($post->getAuthor()) ? $post->getAuthor()->getStatus() : 0;
 				
 				
-				$message = $post->getMessage();
+				$message = $this->Textarier->print_page($post->getMessage(), $author_status);
 
 				$attachment = null;
 				$attach_list = $post->getAttacheslist();
@@ -774,7 +774,7 @@ Class ForumModule extends Module {
 					foreach ($attach_list as $attach) {
 						$step = false;
 						if (file_exists(ROOT . $this->getFilesPath($attach->getFilename()))) {
-							$attachment .= __('Attachment') . $attach->getAttach_number() 
+							$attachment .= __('Attachment') . ' ' . $attach->getAttach_number() 
 								. ': ' . get_img('/sys/img/file.gif', array('alt' => __('Open file'), 'title' => __('Open file'))) 
 								. '&nbsp;' . get_link(round($attach->getSize() / 1024, 2) .' Кб', $this->getModuleURL('download_file/' 
 								. $attach->getFilename()), array('target' => '_blank')) . '<br />';
@@ -797,7 +797,6 @@ Class ForumModule extends Module {
 				if ($attachment != null) {
 					$post->setAttachment($attachment);
 				}
-				$message = $this->Textarier->print_page($message, $author_status);
 
 				$post->setMessage($message);
 				

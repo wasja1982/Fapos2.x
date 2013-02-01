@@ -139,6 +139,10 @@ Class LoadsModule extends Module {
             $announce = $entity->getMain();
 			
 			
+            $announce = $this->Textarier->getAnnounce($announce, $entry_url, 0,
+                Config::read('announce_lenght', $this->module), $entity);
+			
+			
             $rec_attaches = $entity->getAttaches();
             // replace image tags in text
 			if (!empty($rec_attaches) && count($rec_attaches) > 0) {
@@ -149,10 +153,6 @@ Class LoadsModule extends Module {
                 }
             }
 
-            $announce = $this->Textarier->getAnnounce($announce, $entry_url, 0,
-                Config::read('announce_lenght', $this->module), $entity);
-			
-			
             $markers['announce'] = $announce;
 
 
@@ -287,6 +287,14 @@ Class LoadsModule extends Module {
             $announce = $result->getMain();
 			
 			
+            $announce = $this->Textarier->getAnnounce($announce
+                , $entry_url
+                , 0
+                , Config::read('announce_lenght', $this->module)
+                , $result
+            );
+			
+			
             // replace image tags in text
             $attaches = $result->getAttaches();
             if (!empty($attaches) && count($attaches) > 0) {
@@ -297,14 +305,6 @@ Class LoadsModule extends Module {
                 }
             }
 
-            $announce = $this->Textarier->getAnnounce($announce
-                , $entry_url
-                , 0
-                , Config::read('announce_lenght', $this->module)
-                , $result
-            );
-			
-			
             $_addParams['announce'] = $announce;
 
 
@@ -435,6 +435,7 @@ Class LoadsModule extends Module {
 
 
         $announce = $entity->getMain();
+        $announce = $this->Textarier->print_page($announce, $entity->getAuthor()->getStatus(), $entity->getTitle());
 
         // replace image tags in text
         $attaches = $entity->getAttaches();
@@ -446,8 +447,6 @@ Class LoadsModule extends Module {
             }
         }
 
-        $announce = $this->Textarier->print_page($announce, $entity->getAuthor()->getStatus(), $entity->getTitle());
-		
         $markers['main_text'] = $announce;
 
 		

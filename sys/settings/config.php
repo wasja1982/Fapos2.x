@@ -36,7 +36,6 @@ $set = array (
   'watermark_text_color' => 'FFFFFF',
   'watermark_text_border' => '0000FF',
   'watermark_text_font' => 'Scada-Bold.ttf',
-  'img_preview_size' => 200,
   'latest_on_home' => 
   array (
     0 => 'news',

@@ -24,24 +24,27 @@ if (!empty($params[0]) && !empty($params[1])) {
 	
 	// Size of future image
 	if (!empty($params[2])) {
-		$sample_size = (int)$params[2];
+		$size_x = intval($params[2]);
+		$size_y = intval($params[2]);
 	} else {
-		$sample_size = Config::read('img_preview_size');
+		$size_x = Config::read('img_size_x', $params[0]);
+		$size_y = Config::read('img_size_y', $params[0]);
 	}
 	
 	// Min allowed size
-	if ($sample_size < 50) $sample_size = 50;
+	if (!isset($size_x)) $size_x = 150;
+	if (!isset($size_y)) $size_y = 150;
 	
 
 	// New path
-	$tmpdir = ROOT . '/sys/tmp/img_cache/' . $sample_size . '/' . $params[0] . '/';
+	$tmpdir = ROOT . '/sys/tmp/img_cache/' . $size_x . '/' . $params[0] . '/';
 	if (!file_exists($tmpdir)) mkdir($tmpdir, 0777, true);
 	
 	
 	
 	if (!file_exists($tmpdir . $params[1])) {
 		$dest_path = ROOT . '/sys/files/'.$params[0].'/'.$params[1];
-		resampleImage($dest_path, $tmpdir . $params[1], $sample_size);
+		resampleImage($dest_path, $tmpdir . $params[1], $size_x, $size_y);
 	}
 	
 	

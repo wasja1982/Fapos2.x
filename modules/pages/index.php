@@ -230,17 +230,10 @@ Class PagesModule extends Module {
 						
 						
                         if (count($matattaches) > 0) {
-                            $attachDir = ROOT . '/sys/files/' . $result->getSkey() . '/';
                             foreach ($matattaches as $attach) {
-							
-                                if ($attach->getIs_image() == 1 && file_exists($attachDir . $attach->getFilename())) {
-								
-									$announce = str_replace('{IMAGE'.$attach->getAttach_number().'}'
-									, '<a class="gallery" href="' . get_url('/sys/files/' . $result->getSkey() . '/' . $attach->getFilename()) 
-									. '"><img src="' . get_url('/image/' . $result->getSkey() . '/' . $attach->getFilename()) . '" /></a>'
-									, $announce);
-										
-                                }
+								if ($attach->getIs_image() == '1') {
+									$announce = $this->insertImageAttach($announce, $attach->getFilename(), $attach->getAttach_number(), $result->getSkey());
+								}
                             }
                         }
 						

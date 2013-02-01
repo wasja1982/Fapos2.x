@@ -108,13 +108,6 @@ $settingsInfo = array(
 Используется во всех модулях где нет собственой подобной настройки',
 		),
 		
-		'img_preview_size' => array(
-			'type' => 'text',
-			'title' => 'Размер превью',
-			'help' => 'Px',
-			'description' => 'Автоматически уменьшеных изображений',
-		),
-		
 		'min_password_lenght' => array(
 			'type' => 'text',
 			'title' => 'Минимальная длина пароля пользователя',
