@@ -626,7 +626,7 @@ Class UsersModule extends Module {
 		$error = '';
 		$valobj = $this->Register['Validate'];
 		if (empty($name) and empty($email))  	
-			$error = $error.'<li>Не заполнено ни одно из полей</li>'."\n"; // надо перевести на англицкий
+			$error = $error.'<li>' . __('There is no filled textboxs') . '</li>'."\n";
 
 		// Проверяем поля формы на недопустимые символы
 		if (!empty($name) and !$valobj->cha_val($name, V_LOGIN) )
