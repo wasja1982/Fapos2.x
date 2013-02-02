@@ -579,6 +579,7 @@ Class UsersModule extends Module {
 	public function new_password_form()
 	{
 		$markers = array();
+		$markers['error'] = '';
 		if ( isset( $_SESSION['newPasswordForm']['error'] ) ) {
 			$context = array(
 				'info_message' =>  $_SESSION['newPasswordForm']['error'],
@@ -611,7 +612,7 @@ Class UsersModule extends Module {
 	{
 
 		// Если не переданы методом POST логин и e-mail - перенаправляем пользователя
-		if ( !isset( $_POST['username'] ) || !isset( $_POST['email'])) {
+		if ( !isset( $_POST['username'] ) and !isset( $_POST['email'])) {
 			redirect('/');
 		}
 
@@ -624,10 +625,8 @@ Class UsersModule extends Module {
 		// Проверяем, заполнены ли обязательные поля
 		$error = '';
 		$valobj = $this->Register['Validate'];
-		if (empty($name))  	
-			$error = $error.'<li>' . __('Empty field "login"') . '</li>'."\n";
-		if (empty($email)) 	
-			$error = $error.'<li>' . __('Empty field "email"') . '</li>'."\n";
+		if (empty($name) and empty($email))  	
+			$error = $error.'<li>Не заполнено ни одно из полей</li>'."\n"; // надо перевести на англицкий
 
 		// Проверяем поля формы на недопустимые символы
 		if (!empty($name) and !$valobj->cha_val($name, V_LOGIN) )
@@ -640,7 +639,11 @@ Class UsersModule extends Module {
 		if ( empty( $error ) ) {
 			touchDir(ROOT . '/sys/tmp/activate/');
 		
-			$res = $this->Model->getCollection(array('name' => $name, 'email' => $email));
+			if (!empty($name)) {
+				$res = $this->Model->getCollection(array('name' => $name));
+			} else {
+				$res = $this->Model->getCollection(array('email' => $email));
+			}
 			// Если пользователь с таким логином и e-mail существует
 			if (count($res) > 0 && empty($error)) {
 				// Небольшой код, который читает содержимое директории activate
@@ -665,6 +668,8 @@ Class UsersModule extends Module {
 				// и если он существует, активируем новый пароль.
 				$user = $res[0];
 				$id = $user->getId();
+				$name = $user->getName();
+				$email = $user->getEmail();
 				$newPassword = $this->_getNewPassword();
 				$code = md5($newPassword);
 				// file_put_contents(ROOT . '/sys/tmp/activate/'.$code, $id );
