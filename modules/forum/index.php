@@ -293,7 +293,7 @@ Class ForumModule extends Module {
 			
 			
 			// reply link
-			$addLink = ($this->Register['ACL']->turn(array($this->module, 'add_themes'), false)) 
+			$addLink = ($this->Register['ACL']->turn(array($this->module, 'add_themes', $id_forum), false)) 
 			? get_link(get_img('/template/' . getTemplateName().'/img/add_theme_button.png', 
 			array('alt' => __('New topic'))), '/forum/add_theme_form/' . $id_forum) : '';
 			
@@ -619,6 +619,10 @@ Class ForumModule extends Module {
 		if (!$theme || !$theme->getForum())  return $this->showInfoMessage(__('Can not find forum'), $this->getModuleURL() );
 
 		
+		//turn access
+		$this->ACL->turn(array($this->module, 'view_themes', $theme->getId_forum()));
+		
+		
 		// Check access to this forum. May be locked by pass or posts count
 		$this->__checkForumAccess($theme->getForum());
 		$id_forum = $theme->getId_forum();
@@ -692,7 +696,7 @@ Class ForumModule extends Module {
 			
 			
 			//if (!isset($_SESSION['user'])) $markers['add_link'] = '';
-			if (!$this->Register['ACL']->turn(array($this->module, 'add_posts'), false)) $markers['add_link'] = '';
+			if (!$this->Register['ACL']->turn(array($this->module, 'add_posts', $theme->getId_forum()), false)) $markers['add_link'] = '';
 			$markers['meta'] = '';
 			$this->_globalize($markers);
 			
@@ -1518,7 +1522,7 @@ Class ForumModule extends Module {
 	*/
 	public function add_theme_form($id_forum = null) {
 		//check access
-		$this->ACL->turn(array($this->module, 'add_themes'));
+		$this->ACL->turn(array($this->module, 'add_themes', $id_forum));
 		$id_forum = intval($id_forum);
 		if (empty($id_forum) || $id_forum < 1) redirect($this->getModuleURL());
 		$writer_status = (!empty($_SESSION['user']['status'])) ? $_SESSION['user']['status'] : 0;
@@ -1605,7 +1609,7 @@ Class ForumModule extends Module {
 	public function add_theme($id_forum = null) 
 	{
 		//check access
-		$this->ACL->turn(array($this->module, 'add_themes'));
+		$this->ACL->turn(array($this->module, 'add_themes', $id_forum));
 		if (!isset($id_forum) || !isset($_POST['theme']) || !isset($_POST['mainText'])) redirect($this->getModuleURL());
 		$id_forum = intval($id_forum);
 		if (empty($id_forum) || $id_forum < 1) redirect($this->getModuleURL());
@@ -2204,7 +2208,7 @@ Class ForumModule extends Module {
 		$writer_status = (!empty($_SESSION['user']['status'])) ? $_SESSION['user']['status'] : 0;
 
 
-		if ($this->ACL->turn(array($this->module, 'add_posts'), false)) {
+		if ($this->ACL->turn(array($this->module, 'add_posts', $theme->getId_forum()), false)) {
 			if ($theme->getLocked() == 1) {
 				$html = '<div class="not-auth-mess">' . __('Theme is locked') . '</div>';
 			} else {
@@ -2278,6 +2282,9 @@ Class ForumModule extends Module {
 		$themesModel = $this->Register['ModManager']->getModelInstance('Themes');
 		$theme = $themesModel->getById($id_theme);
 		if (!$theme) redirect($this->getModuleURL());
+		
+		$this->ACL->turn(array($this->module, 'add_posts', $theme->getId_forum()));
+
 		if ($theme->getLocked() == 1)
 			return $this->showInfoMessage(__('Can not write in a closed theme'), $this->getModuleURL('view_theme/' . $id_theme));
 			
