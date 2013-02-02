@@ -1571,7 +1571,7 @@ Class UsersModule extends Module {
 		$postsModel = $this->Register['ModManager']->getModelName('Posts');
 		$postsModel = new $postsModel();
 		$posts = $postsModel->getCollection(array('id_author' => $id), array('limit' => 1, 'order' => 'time DESC'));
-		if (!empty($posts[0]) && count($posts[0]) > 0) {
+		if (count($posts) > 0 && !empty($posts[0]) && count($posts[0]) > 0) {
 			$lastPost = $posts[0]->getTime();
 		} else {
 			$lastPost = '';
@@ -1809,7 +1809,7 @@ Class UsersModule extends Module {
 
 
 			//chek max count messages
-			if ($res[0]->getId()) {
+			if (is_array($res) && count($res) && $res[0]->getId()) {
 				$id_to = (int)$res[0]->getId();
 				$id_from = (int)$_SESSION['user']['id'];
 
@@ -2549,7 +2549,7 @@ Class UsersModule extends Module {
 		
 		
 		
-		if (empty($last_vote) || ($last_vote[0]->getFrom_user() != $from_id)) {
+		if (empty($last_vote) || (count($last_vote) > 0 && $last_vote[0]->getFrom_user() != $from_id)) {
 			$user->setRating($user->getRating() + 1);
 			$user->save();
 
