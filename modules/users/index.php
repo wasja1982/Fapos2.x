@@ -428,7 +428,7 @@ Class UsersModule extends Module {
 			}
 			if ($_FILES['avatar']['size'] > Config::read('max_avatar_size', $this->module)) {
 				$error = $error.'<li>'. sprintf(__('Avatar is wery big')
-				, (Config::read('max_avatar_size', $this->module) / 1024)) .'</li>'."\n";
+				, round(Config::read('max_avatar_size', $this->module) / 1024, 2)) .'</li>'."\n";
 				$check_image = true;
 			}
 			if (!isset($check_image) && move_uploaded_file($_FILES['avatar']['tmp_name'], $path)) {
@@ -2728,7 +2728,7 @@ Class UsersModule extends Module {
 		if ($adm_id == $uid) die(__('Some error occurred'));
 		
 		if (!$ban) {
-			$max_warnings = $this->Render['Config']->read('warnings_by_ban', $this->module);
+			$max_warnings = Config::read('warnings_by_ban', $this->module);
 			if ($intruder->getWarnings() > 0 && $intruder->getWarnings() + $points >= $max_warnings) {
 				$ban = 1;
 				$interval = Config::read('autoban_interval', $this->module);

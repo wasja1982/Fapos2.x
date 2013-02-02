@@ -34,7 +34,7 @@ $pageTitle = __('Forum');
 
 
 if (!isset($_GET['ac'])) $_GET['ac'] = 'index';
-$permis = array('add', 'del', 'index', 'edit');
+$permis = array('add', 'del', 'index', 'edit', 'acl');
 if (!in_array($_GET['ac'], $permis)) $_GET['ac'] = 'index';
 
 switch($_GET['ac']) {
@@ -49,6 +49,9 @@ switch($_GET['ac']) {
 		break;
 	case 'edit':
 		$content = edit();
+		break;
+	case 'acl':
+		$content = acl();
 		break;
 	default:
 		$content = index();
@@ -280,12 +283,50 @@ function index(&$page_title) {
 					$issubforum = (!empty($cat['parent_forum_id'])) 
 					? '&nbsp;<span style="color:#0373FE;">' . __('Under forum with ID') . ' ' . $cat['parent_forum_id'] . '</span>' : '';
 					
+					$Register = Register::getInstance();
+					$ACL = $Register['ACL'];
+					$acl_groups = $ACL->get_group_info();
+					$acl_rules = $ACL->getRules();
+					$acl_forums = $ACL->getForums();
+
+					$view_rules = $acl_forums['view_themes'][$cat['id']];
+					$theme_rules = $acl_forums['add_themes'][$cat['id']];
+					$post_rules = $acl_forums['add_posts'][$cat['id']];
+					
+					$rules_state = true;
+					
+					$view_selector = '';
+					$theme_selector = '';
+					$post_selector = '';
+					foreach($acl_groups as $number => $group) {
+						if ((bool)in_array($number, $acl_rules['forum']['view_themes'])) {
+							if (!empty($view_selector)) $view_selector .= '<br />';
+							$checked = !isset($view_rules) || (isset($view_rules) && in_array($number, $view_rules));
+							$view_selector .= '<label><input type="checkbox" name="view_themes_' . $number . '"' . 
+							($checked ? ' checked="checked"' : '') . ' /> ' . h($group['title']) . '</label>';
+							$rules_state = $rules_state && $checked;
+						}
+						if ((bool)in_array($number, $acl_rules['forum']['add_themes'])) {
+							if (!empty($theme_selector)) $theme_selector .= '<br />';
+							$checked = !isset($theme_rules) || (isset($theme_rules) && in_array($number, $theme_rules));
+							$theme_selector .= '<label><input type="checkbox" name="add_themes_' . $number . '"' . 
+							($checked ? ' checked="checked"' : '') . ' /> ' . h($group['title']) . '</label> ';
+							$rules_state = $rules_state && $checked;
+						}
+						if ((bool)in_array($number, $acl_rules['forum']['add_posts'])) {
+							if (!empty($post_selector)) $post_selector .= '<br />';
+							$checked = !isset($post_rules) || (isset($post_rules) && in_array($number, $post_rules));
+							$post_selector .= '<label><input type="checkbox" name="add_posts_' . $number . '"' .
+							($checked ? ' checked="checked"' : '') . ' /> ' . h($group['title']) . '</label> ';
+							$rules_state = $rules_state && $checked;
+						}
+					}
 					$html .= '<div class="category_row"><div class="category">[' . $cat['id'] . ']&nbsp;<b>' . $cat['title'] 
 					. '</b>&nbsp;( ' . $cat['cnt'] . ' ) ' . $issubforum . ' 
-						<div class="tools"><a href="javascript://" onClick="wiOpen(\'' . $cat['id'] . '_forum\')">
-						<img src="template/img/edit_16x16.png"  /></a>
-						<a href="?ac=del&id='
-						. $cat['id'] . '" onClick="return _confirm();"><img src="template/img/del.png"  /></a>';
+						<div class="tools"><a href="javascript://" onClick="wiOpen(\'' . $cat['id'] . '_forum\')"><img src="template/img/edit_16x16.png"  /></a>
+						<a href="javascript://" onClick="wiOpen(\'' . $cat['id'] . '_forum_acl\')"><img src="template/img/' . 
+						($rules_state ? 'round_not_ok.png' : 'round_ok.png') . '"  /></a>
+						<a href="?ac=del&id=' . $cat['id'] . '" onClick="return _confirm();"><img src="template/img/del.png"  /></a>';
 					/* EDIT FORUM FORM */
 					$html .= '
 						<div id="' . $cat['id'] . '_forum_dWin" class="fps-win" style="position:absolute;top:200px;left:40%;display:none">
@@ -343,8 +384,37 @@ function index(&$page_title) {
 						<div style="clear:both;"></div></div>
 						</form>
 						</div></div></div><div class="xw-bl"><div class="xw-br"><div class="xw-bc">
-						<div class="xw-footer"></div></div></div></div>
-						</div></div></div></div>';
+						<div class="xw-footer"></div></div></div></div></div>';
+					$html .= '
+						<div id="' . $cat['id'] . '_forum_acl_dWin" class="fps-win" style="position:absolute;top:200px;left:40%;display:none">
+						<div class="xw-tl"><div class="xw-tr"><div class="xw-tc xw-tsps"></div>
+						</div></div><div class="xw-ml"><div class="xw-mr"><div align="center" class="xw-mc">
+						<form action="forum_cat.php?ac=acl&id=' . $cat['id'] . '" method="POST" enctype="multipart/form-data">';
+						
+					if (!empty($view_selector)) {
+						$html .= '<div class="form-item2">Просматривать темы в форуме могут:<br />' . 
+						'<div style="text-align:left;">' . $view_selector . '</div>' .
+						'<div style="clear:both;"></div></div>';
+					}
+					if (!empty($theme_selector)) {
+						$html .= '<div class="form-item2">Создавать новые темы могут:<br />' . 
+						'<div style="text-align:left;">' . $theme_selector . '</div>' .
+						'<div style="clear:both;"></div></div>';
+					}
+					if (!empty($post_selector)) {
+						$html .= '<div class="form-item2">Добавлять ответы могут:<br />' . 
+						'<div style="text-align:left;">' . $post_selector . '</div>' .
+						'<div style="clear:both;"></div></div>';
+					}
+					$html .= '
+						<div class="form-item2 center">
+						<input type="submit" name="send" value="' . __('Save') . '" />
+						<input type="button" onClick="hideWin(\'' . $cat['id'] . '_forum_acl\')" value="' . __('Cancel') . '" />
+						<div style="clear:both;"></div></div>
+						</form>
+						</div></div></div><div class="xw-bl"><div class="xw-br"><div class="xw-bc">
+						<div class="xw-footer"></div></div></div></div></div>';
+					$html .= '</div></div></div>';
 					/* END EDIT FORUM FORM */
 				}
 			} else {
@@ -387,10 +457,8 @@ function edit() {
 		$in_cat = (int)$_POST['in_cat'];
 		$description = $_POST['description'];
 		if (!empty($_FILES['icon']['name'])) {
-			if ($_FILES['icon']['size'] > 100000) $error = $error . '<li>' . __('Max icon size 100Kb') . '</li>';
-			if ($_FILES['icon']['type'] != 'image/gif'
-			&& $_FILES['icon']['type'] != 'image/jpeg'
-			&& $_FILES['icon']['type'] != 'image/png') $error = $error . '<li>' . __('Wrong icon format') . '</li>';
+			if ($_FILES['icon']['size'] > 102400) $error = $error . '<li>' . __('Max icon size 100Kb') . '</li>';
+			if (!isImageFile($_FILES['icon']['type'])) $error = $error . '<li>' . __('Wrong icon format') . '</li>';
 			if (!empty($error)) {
 				$_SESSION['addErrors'] = $error;
 				redirect('/admin/forum_cat.php');
@@ -489,6 +557,44 @@ function edit() {
 }
 
 
+function acl() {
+	if (empty($_GET['id'])) {
+		redirect('/admin/forum_cat.php');
+	}
+	$id = (int)$_GET['id'];
+	if ($id < 1) {
+		redirect('/admin/forum_cat.php');
+	}
+
+	$Register = Register::getInstance();
+	$ACL = $Register['ACL'];
+	$acl_groups = $ACL->get_group_info();
+
+	$view_rules = array();
+	$theme_rules = array();
+	$post_rules = array();
+
+	foreach($acl_groups as $number => $group) {
+		if (isset($_POST['view_themes_' . $number])) {
+			$view_rules[] = $number;
+		}
+		if (isset($_POST['add_themes_' . $number])) {
+			$theme_rules[] = $number;
+		}
+		if (isset($_POST['add_posts_' . $number])) {
+			$post_rules[] = $number;
+		}
+	}
+	$acl_forums = $ACL->getForums();
+	$acl_forums['view_themes'][$id] = $view_rules;
+	$acl_forums['add_themes'][$id] = $theme_rules;
+	$acl_forums['add_posts'][$id] = $post_rules;
+	$ACL->save_forums($acl_forums);
+
+	redirect('/admin/forum_cat.php');
+}
+
+
 
 
 
@@ -533,10 +639,8 @@ function add() {
 	} elseif ($_POST['type'] == 'forum') {
 		$in_cat = (int)$_POST['in_cat'];
 		if (!empty($_FILES['icon']['name'])) {
-			if ($_FILES['icon']['size'] > 100000) $error = $error . '<li>' . __('Max icon size 100Kb') . '</li>';
-			if ($_FILES['icon']['type'] != 'image/gif'
-			&& $_FILES['icon']['type'] != 'image/jpeg'
-			&& $_FILES['icon']['type'] != 'image/png') $error = $error . '<li>' . __('Wrong icon format') . '</li>';
+			if ($_FILES['icon']['size'] > 102400) $error = $error . '<li>' . __('Max icon size 100Kb') . '</li>';
+			if (!isImageFile($_FILES['icon']['type'])) $error = $error . '<li>' . __('Wrong icon format') . '</li>';
 		}
 		
 		

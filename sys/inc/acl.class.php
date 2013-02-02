@@ -30,14 +30,17 @@ class ACL {
 
 	private $rules;
 	private $groups;
+	private $forums;
 
 
 	public function __construct($path) {
         include_once $path . 'acl_rules.php';
         include_once $path . 'acl_groups.php';
+        include_once $path . 'acl_forums.php';
 
 		$this->rules = $acl_rules;
 		$this->groups = $acl_groups;
+		$this->forums = $acl_forums;
 	}
 
 
@@ -53,11 +56,20 @@ class ACL {
 				$access = (bool)in_array($user_group, $this->rules[$params[0]]);
 				break;
 			case 2:
+			case 3:
 				if (!empty($this->rules[$params[0]][$params[1]]) 
 				&& is_array($this->rules[$params[0]][$params[1]])) {
 					$access = (bool)in_array($user_group, $this->rules[$params[0]][$params[1]]);
 				} else {
 					$access = false;
+				}
+				if (count($params) == 3 && $params[0] == 'forum') {
+					$cat_id = intval($params[2]);
+					if ($cat_id > 0 && in_array($params[1], array('view_themes', 'add_themes', 'add_posts'))) {
+						if (isset($this->forums[$params[1]][$cat_id])) {
+							$access = (bool)in_array($user_group, $this->forums[$params[1]][$cat_id]);
+						}
+					}
 				}
 				break;
 			default:
@@ -101,6 +113,20 @@ class ACL {
 	}
 	
 	
+	/**
+	*
+	*/
+	public function save_forums($forums) {
+		if ($fopen = fopen(ROOT . '/sys/settings/acl_forums.php', 'w')) {
+			fputs($fopen, '<?php ' . "\n" . '$acl_forums = ' . var_export($forums, true) . "\n" . '?>');
+			fclose($fopen);
+			return true;
+		} else {
+			return false;
+		}
+	}
+	
+	
 	public function getGroups()
 	{
 		$out= array();
@@ -123,6 +149,12 @@ class ACL {
     public function getRules()
     {
         return $this->rules;
+    }
+
+
+    public function getForums()
+    {
+        return $this->forums;
     }
 	
 	

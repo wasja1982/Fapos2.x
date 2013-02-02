@@ -468,7 +468,7 @@ Class FotoModule extends Module {
 			$errors = $errors .'<li>'.__('Not attaches').'</li>'. "\n";
 		} else {
 			if ($_FILES['foto']['size'] > $this->getMaxSize()) 
-				$errors = $errors .'<li>'. sprintf(__('Wery big file2'), ($this->getMaxSize() / 1024)) .'</li>'."\n";
+				$errors = $errors .'<li>'. sprintf(__('Wery big file2'), round($this->getMaxSize() / 1024, 2)) .'</li>'."\n";
 			$ext = strrchr($_FILES['foto']['name'], ".");
 			if (!isImageFile($_FILES['foto']['type'], $ext)) 
 				$errors = $errors .'<li>'.__('Wrong file format').'</li>'."\n";
@@ -551,7 +551,7 @@ Class FotoModule extends Module {
 		
 		
 		// Create watermark and resample image
-		$watermark_path = ROOT . '/sys/img/' . Config::read('watermark_img');
+		$watermark_path = ROOT . '/sys/img/' . (Config::read('watermark_type') == '1' ? 'watermark_text.png' : Config::read('watermark_img'));
 		if (Config::read('use_watermarks') && !empty($watermark_path) && file_exists($watermark_path)) {
 			$waterObj = new FpsImg;
 			$waterObj->createWaterMark($save_path, $watermark_path);
@@ -863,7 +863,7 @@ Class FotoModule extends Module {
 	*/
 	public function delete_comment($id = null)
 	{
-		include_once(R . 'sys/inc/includes/delete_comment.php');
+		include_once(ROOT . 'sys/inc/includes/delete_comment.php');
 	}
 	
 	

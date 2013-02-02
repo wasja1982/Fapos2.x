@@ -280,6 +280,9 @@ $language = array(
 	'Priority'                      => 'Приоритеты',
 	'Throught coma'                 => 'Через запятую',
 	'Status'                        => 'Статус',
+	'This module disabled'          => 'Этот модуль отключен',
+	'Pages'                         => '&nbsp;Страницы: ',
+	'Watermark settings'            => 'Настройки водяных знаков',
 	'Additional fields'             => 'Дополнительные поля',
 	'Add'             				=> 'Добавить',
 	'Type of field'             	=> 'Тип поля',
@@ -379,3 +382,7 @@ $language = array(
     'Search form' 					=> 'Форма поиска',
     'Search results' 				=> 'Вид результата',
 );
+
+
+
+

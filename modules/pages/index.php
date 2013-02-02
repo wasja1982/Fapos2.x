@@ -44,10 +44,6 @@ Class PagesModule extends Module {
 	* default action
 	*/
 	function index($id = null, $s =null, $x = null) {
-	
-		//$this->render('main.html', array()); die();
-	
-	
 		//if isset ID - we need load page with this ID
 		if (!empty($id)) {
 			if (is_int($id)) {
@@ -166,9 +162,8 @@ Class PagesModule extends Module {
                     }
 
 
-                    $all_attaches = array('news' => array(), 'stat' => array());
                     foreach ($mod_mats as $module => $mats) {
-                        if (count($mats) > 0 && ($module == 'news' || $module == 'stat')) {
+                        if (count($mats) > 0) {
                             $attach_ids = array();
                             foreach ($mats as $mat) {
                                 $attach_ids[] = $mat->getId();
@@ -231,21 +226,14 @@ Class PagesModule extends Module {
 
 						
                         $announce = $this->Textarier->getAnnounce($announce, $entry_url, 0,
-                            $this->Register['Config']->read('announce_lenght'), $result);
+                            Config::read('announce_lenght'), $result);
 						
 						
                         if (count($matattaches) > 0) {
-                            $attachDir = ROOT . '/sys/files/' . $result->getSkey() . '/';
                             foreach ($matattaches as $attach) {
-							
-                                if ($attach->getIs_image() == 1 && file_exists($attachDir . $attach->getFilename())) {
-								
-									$announce = str_replace('{IMAGE'.$attach->getAttach_number().'}'
-									, '<a class="gallery" href="' . get_url('/sys/files/' . $result->getSkey() . '/' . $attach->getFilename()) 
-									. '"><img src="' . get_url('/image/' . $result->getSkey() . '/' . $attach->getFilename()) . '" /></a>'
-									, $announce);
-										
-                                }
+								if ($attach->getIs_image() == '1') {
+									$announce = $this->insertImageAttach($announce, $attach->getFilename(), $attach->getAttach_number(), $result->getSkey());
+								}
                             }
                         }
 						

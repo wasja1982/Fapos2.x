@@ -1,5 +1,16 @@
 Здесь буду писать все запросы к БД, которые нужно выполнить при обновлении до новой версии движка. При новой установке они выполнятся автоматически.
 
+>>> Jan 28, 2013
+CREATE TABLE `polls` (`id` int( 11 ) NOT NULL AUTO_INCREMENT ,
+`theme_id` int( 11 ) NOT NULL ,
+`question` text NOT NULL ,
+`variants` text NOT NULL ,
+`voted_users` text NOT NULL ,
+PRIMARY KEY ( `id` )
+) ENGINE = MYISAM DEFAULT CHARSET = utf8;
+
+
+
 >>> Jan 08, 2013
 ALTER TABLE `users` ADD `template` VARCHAR( 255 ) NOT NULL
 

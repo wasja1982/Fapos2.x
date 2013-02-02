@@ -2,6 +2,13 @@
 	<tr>
 		<td class="title">{{ theme.title }}</td>
 	</tr>
+	{% if theme.poll %}
+	<tr>
+		<td>
+			{{ theme.poll }}
+		</td>
+	</tr>
+	{% endif %}
 	<tr>
 		<td class="postFirst">
 

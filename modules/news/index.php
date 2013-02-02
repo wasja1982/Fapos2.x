@@ -142,13 +142,9 @@ Class NewsModule extends Module {
 			// replace image tags in text
 			$attaches = $result->getAttaches();
 			if (!empty($attaches) && count($attaches) > 0) {
-				$attachDir = ROOT . '/sys/files/' . $this->module . '/';
 				foreach ($attaches as $attach) {
-					if ($attach->getIs_image() == 1 && file_exists($attachDir . $attach->getFilename())) {
-						$announce = str_replace('{IMAGE'.$attach->getAttach_number().'}'
-						, '<a class="gallery" href="' . get_url('/sys/files/' . $this->module . '/' . $attach->getFilename()) 
-						. '"><img src="' . get_url('/image/' . $this->module . '/' . $attach->getFilename()) . '" /></a>'
-						, $announce);
+					if ($attach->getIs_image() == '1') {
+						$announce = $this->insertImageAttach($announce, $attach->getFilename(), $attach->getAttach_number());
 					}
 				}
 			}
@@ -157,7 +153,7 @@ Class NewsModule extends Module {
 			$_addParams['announce'] = $announce;
 			
 			
-			$_addParams['category_url'] = get_url('/news/category/' . $result->getCategory_id());
+			$_addParams['category_url'] = get_url($this->getModuleURL('category/' . $result->getCategory_id()));
 			$_addParams['profile_url'] = getProfileUrl($result->getAuthor()->getId());
 			$result->setTags(explode(',', $result->getTags()));
 
@@ -300,13 +296,9 @@ Class NewsModule extends Module {
 			// replace image tags in text
 			$attaches = $result->getAttaches();
 			if (!empty($attaches) && count($attaches) > 0) {
-				$attachDir = ROOT . '/sys/files/' . $this->module . '/';
 				foreach ($attaches as $attach) {
-					if ($attach->getIs_image() == 1 && file_exists($attachDir . $attach->getFilename())) {
-						$announce = str_replace('{IMAGE'.$attach->getAttach_number().'}'
-						, '<a class="gallery" href="' . get_url('/sys/files/' . $this->module . '/' . $attach->getFilename()) 
-						. '"><img src="' . get_url('/image/' . $this->module . '/' . $attach->getFilename()) . '" /></a>'
-						, $announce);
+					if ($attach->getIs_image() == '1') {
+						$announce = $this->insertImageAttach($announce, $attach->getFilename(), $attach->getAttach_number());
 					}
 				}
 			}
@@ -362,9 +354,9 @@ Class NewsModule extends Module {
 		
 		if (empty($entity)) redirect('/error.php?ac=404');
 		if ($entity->getAvailable() == 0 && !$this->ACL->turn(array('other', 'can_see_hidden'), false)) 
-			return showInfoMessage(__('Permission denied'), $this->getModuleURL());
+			return $this->showInfoMessage(__('Permission denied'), $this->getModuleURL());
 		if (!$this->ACL->checkCategoryAccess($entity->getCategory()->getNo_access())) 
-			return showInfoMessage(__('Permission denied'), $this->getModuleURL());
+			return $this->showInfoMessage(__('Permission denied'), $this->getModuleURL());
 			
 		
 		// Some gemor with add fields
@@ -425,13 +417,9 @@ Class NewsModule extends Module {
 		// replace image tags in text
 		$attaches = $entity->getAttaches();
 		if (!empty($attaches) && count($attaches) > 0) {
-			$attachDir = ROOT . '/sys/files/' . $this->module . '/';
 			foreach ($attaches as $attach) {
-				if ($attach->getIs_image() == 1 && file_exists($attachDir . $attach->getFilename())) {
-					$announce = str_replace('{IMAGE'.$attach->getAttach_number().'}'
-					, '<a class="gallery" href="' . get_url('/sys/files/' . $this->module . '/' . $attach->getFilename()) 
-					. '"><img src="' . get_url('/image/' . $this->module . '/' . $attach->getFilename()) . '" /></a>'
-					, $announce);
+					if ($attach->getIs_image() == '1') {
+						$announce = $this->insertImageAttach($announce, $attach->getFilename(), $attach->getAttach_number());
 				}
 			}
 		}
@@ -606,24 +594,18 @@ Class NewsModule extends Module {
 		// Check attaches size and format
 		$max_attach = Config::read('max_attaches', $this->module);
 		if (empty($max_attach) || !is_numeric($max_attach)) $max_attach = 5;
-		$max_attach_size = Config::read('max_attaches_size', $this->module);
-		if (empty($max_attach_size) || !is_numeric($max_attach_size)) $max_attach_size = 1000;
+		$max_attach_size = $this->getMaxSize('max_attaches_size');
+		if (empty($max_attach_size) || !is_numeric($max_attach_size)) $max_attach_size = 1048576;
 		for ($i = 1; $i <= $max_attach; $i++) {
 			$attach_name = 'attach' . $i;
 			if (!empty($_FILES[$attach_name]['name'])) {
 			
-				$img_extentions = array('.png','.jpg','.gif','.jpeg', '.PNG','.JPG','.GIF','.JPEG');
 				$ext = strrchr($_FILES[$attach_name]['name'], ".");
 				
-				
 				if ($_FILES[$attach_name]['size'] > $max_attach_size) {
-					$error .= '<li>' . sprintf(__('Wery big file'), $i, round(($max_attach_size / 1000), 2)) . '</li>'."\n";
+					$error .= '<li>' . sprintf(__('Wery big file'), $i, round(($max_attach_size / 1024), 2)) . '</li>'."\n";
 				}
-				if (($_FILES[$attach_name]['type'] != 'image/jpeg'
-				&& $_FILES[$attach_name]['type'] != 'image/jpg'
-				&& $_FILES[$attach_name]['type'] != 'image/gif'
-				&& $_FILES[$attach_name]['type'] != 'image/png')
-				|| !in_array(strtolower($ext), $img_extentions)) {
+                if (!isImageFile($_FILES[$attach_name]['type'], $ext)) {
 					$error .= '<li>' . __('Wrong file format') . '</li>'."\n";
 				}
 			}
@@ -788,8 +770,6 @@ Class NewsModule extends Module {
 		$available = ($data->getAvailable()) ? 'checked="checked"' : '';
         if (!$this->ACL->turn(array($this->module, 'hide_material'), false)) $available .= ' disabled="disabled"';
 		$action = get_url($this->getModuleURL('update/' . $data->getId()));
-		
-		
 		$data->setCommented($commented);
 		$data->setAvailable($available);
 		
@@ -924,30 +904,24 @@ Class NewsModule extends Module {
         // Check attaches size and format
         $max_attach = Config::read('max_attaches', $this->module);
         if (empty($max_attach) || !is_numeric($max_attach)) $max_attach = 5;
-        $max_attach_size = Config::read('max_attaches_size', $this->module);
-        if (empty($max_attach_size) || !is_numeric($max_attach_size)) $max_attach_size = 1000;
+        $max_attach_size = $this->getMaxSize('max_attaches_size');
+        if (empty($max_attach_size) || !is_numeric($max_attach_size)) $max_attach_size = 1048576;
         for ($i = 1; $i <= $max_attach; $i++) {
             // Delete attaches. If need
             $dattach = $i . 'dattach';
-            if (array_key_exists($dattach, $_POST)) {
+			$attach_name = 'attach' . $i;
+			if (array_key_exists($dattach, $_POST) || !empty($_FILES[$attach_name]['name'])) {
                 deleteAttach($this->module, $id, $i);
             }
 
-            $attach_name = 'attach' . $i;
             if (!empty($_FILES[$attach_name]['name'])) {
 
-                $img_extentions = array('.png','.jpg','.gif','.jpeg', '.PNG','.JPG','.GIF','.JPEG');
                 $ext = strrchr($_FILES[$attach_name]['name'], ".");
 
-
                 if ($_FILES[$attach_name]['size'] > $max_attach_size) {
-                    $error .= '<li>' . sprintf(__('Wery big file'), $i, round(($max_attach_size / 1000), 2)) . '</li>'."\n";
+                    $error .= '<li>' . sprintf(__('Wery big file'), $i, round(($max_attach_size / 1024), 2)) . '</li>'."\n";
                 }
-                if (($_FILES[$attach_name]['type'] != 'image/jpeg'
-                && $_FILES[$attach_name]['type'] != 'image/jpg'
-                && $_FILES[$attach_name]['type'] != 'image/gif'
-                && $_FILES[$attach_name]['type'] != 'image/png')
-                || !in_array(strtolower($ext), $img_extentions)) {
+                if (!isImageFile($_FILES[$attach_name]['type'], $ext)) {
                     $error .= '<li>' . __('Wrong file format') . '</li>'."\n";
                 }
             }
@@ -1029,7 +1003,7 @@ Class NewsModule extends Module {
 		if (!$this->ACL->turn(array($this->module, 'delete_materials'), false) 
 		&& (!empty($_SESSION['user']['id']) && $target->getAuthor_id() == $_SESSION['user']['id'] 
 		&& $this->ACL->turn(array($this->module, 'delete_mine_materials'), false)) === false) {
-			return showInfoMessage(__('Permission denied'), $this->getModuleURL());
+			return $this->showInfoMessage(__('Permission denied'), $this->getModuleURL());
 		}
 		
 		
@@ -1298,3 +1272,4 @@ Class NewsModule extends Module {
 	
 	
 }
+
