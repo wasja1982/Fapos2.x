@@ -152,6 +152,7 @@ $language = array(
 	'Avatar is wery big' 			=> 'размер файла аватора больше %d Кб',
 	'Some error in avatar' 			=> 'Неопределенная ошибка при обработке аватара.',
 	'Registeration complete' 		=> 'Теперь вы зарегистрированы и можете авторизоваться!',
+	'There is no filled textboxs' 	=> 'Не заполнено ни одно из полей',
 	'Accaunt activated' 			=> 'Ваша учетная запись активирована.',
 	'Wrong activation code' 		=> 'Неверный код активации.',
 	'Pass repair'		 			=> 'Востанвление пароля',
