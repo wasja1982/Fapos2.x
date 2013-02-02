@@ -186,7 +186,7 @@ class Document_Parser {
 			$markers['fps_user_group'] = $userGroup['title'];
 
 			$get_unix_time_reg = explode('-', substr($_SESSION['user']['puttime'], 0, 10));
-			$get_difference_time = (time() - mktime(0,0,0,$get_unix_time_reg[2],$get_unix_time_reg[1],$get_unix_time_reg[0])) / 86400;
+			$get_difference_time = (time() - mktime(0,0,0,$get_unix_time_reg[1],$get_unix_time_reg[2],$get_unix_time_reg[0])) / 86400;
 
 			$markers['fps_user_reg_days'] = substr($get_difference_time, 0, 1);
 		} else {
