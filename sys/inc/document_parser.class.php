@@ -185,10 +185,9 @@ class Document_Parser {
 			$userGroup = $Register['ACL']->get_user_group($_SESSION['user']['status']);
 			$markers['fps_user_group'] = $userGroup['title'];
 
-			$get_unix_time_reg = explode('-', substr($_SESSION['user']['puttime'], 0, 10));
-			$get_difference_time = (time() - mktime(0,0,0,$get_unix_time_reg[1],$get_unix_time_reg[2],$get_unix_time_reg[0])) / 86400;
+			$get_difference_time = (time() - strtotime($_SESSION['user']['puttime'])) / 86400;
 
-			$markers['fps_user_reg_days'] = substr($get_difference_time, 0, 1);
+			$markers['fps_user_reg_days'] = round($get_difference_time);
 		} else {
 			$markers['personal_page_link'] = get_url('/users/add_form/');
 			$markers['fps_user_name'] = 'Гость'; //TODO
@@ -363,4 +362,3 @@ class Document_Parser {
 	}
 	
 }
-
