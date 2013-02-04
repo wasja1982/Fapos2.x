@@ -80,7 +80,7 @@ Class UsersModule extends Module {
 		);
 		$records = $this->Model->getCollection(array(), $queryParams);
 
-		if (is_object($this->AddFields) && count($records) > 0) {
+		if (is_object($this->AddFields) && is_array($records) && count($records) > 0) {
 			$records = $this->AddFields->mergeRecords($records);
 		}
 	
@@ -414,7 +414,7 @@ Class UsersModule extends Module {
 		$res = $this->Model->getSameNics($new_name);
 
 
-		if (count($res) > 0) $error = $error.'<li>' . sprintf(__('Name already state'), $new_name) . '</li>'."\n";
+		if (is_array($res) && count($res) > 0) $error = $error.'<li>' . sprintf(__('Name already state'), $new_name) . '</li>'."\n";
 		
 		/* check avatar */
 		$tmp_key = rand(0, 9999999);
@@ -557,7 +557,7 @@ Class UsersModule extends Module {
 		$this->Register['DB']->cleanSqlCache();
 		$res = $this->Model->getCollection(array('activation' => $code), array('limit' => 1));
 
-		if (count($res) > 0 ) {
+		if (is_array($res) && count($res) > 0) {
 			$id = $res[0]->getId();
 			$res[0]->setActivation('');
 			$res[0]->setLast_visit(new Expr('NOW()'));
@@ -645,7 +645,7 @@ Class UsersModule extends Module {
 				$res = $this->Model->getCollection(array('email' => $email));
 			}
 			// Если пользователь с таким логином и e-mail существует
-			if (count($res) > 0 && empty($error)) {
+			if (is_array($res) && count($res) > 0 && empty($error)) {
 				// Небольшой код, который читает содержимое директории activate
 				// и удаляет старые файлы для активации пароля (были созданы более суток назад)
 				if ($dir = opendir( ROOT . '/sys/tmp/activate')) {
@@ -1158,8 +1158,8 @@ Class UsersModule extends Module {
 
 		// Получаем данные о пользователе из БД
 		$user = $this->Model->getById($id);
-		if (count($user) == 0) return $this->showInfoMessage(__('Can not find user'), $this->getModuleURL() );
-		if (is_object($this->AddFields) && count($user) > 0) {
+		if (!$user || count($user) == 0) return $this->showInfoMessage(__('Can not find user'), $this->getModuleURL() );
+		if (is_object($this->AddFields) && is_array($user) && count($user) > 0) {
 			$user = $this->AddFields->mergeRecords(array($user), true);
 			$user = $user[0];
 		}
@@ -1556,8 +1556,8 @@ Class UsersModule extends Module {
 		
 		
 		$user = $this->Model->getById($id);
-		if (count($user) == 0) return $this->showInfoMessage(__('Can not find user'), $this->getModuleURL() );
-		if (is_object($this->AddFields) && count($user) > 0) {
+		if (!$user || count($user) == 0) return $this->showInfoMessage(__('Can not find user'), $this->getModuleURL() );
+		if (is_object($this->AddFields) && is_array($user) && count($user) > 0) {
 			$user = $this->AddFields->mergeRecords(array($user));
 			$user = $user[0];
 		}
@@ -1576,7 +1576,7 @@ Class UsersModule extends Module {
 		$postsModel = $this->Register['ModManager']->getModelName('Posts');
 		$postsModel = new $postsModel();
 		$posts = $postsModel->getCollection(array('id_author' => $id), array('limit' => 1, 'order' => 'time DESC'));
-		if (count($posts) > 0 && !empty($posts[0]) && count($posts[0]) > 0) {
+		if (is_array($posts) && count($posts) > 0 && !empty($posts[0]) && count($posts[0]) > 0) {
 			$lastPost = $posts[0]->getTime();
 		} else {
 			$lastPost = '';
@@ -2554,7 +2554,7 @@ Class UsersModule extends Module {
 		
 		
 		
-		if (empty($last_vote) || (count($last_vote) > 0 && $last_vote[0]->getFrom_user() != $from_id)) {
+		if (empty($last_vote) || (is_array($last_vote) && count($last_vote) > 0 && $last_vote[0]->getFrom_user() != $from_id)) {
 			$user->setRating($user->getRating() + 1);
 			$user->save();
 
