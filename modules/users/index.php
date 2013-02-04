@@ -1952,7 +1952,7 @@ Class UsersModule extends Module {
 		
 		// Помечаем сообщение, как прочитанное
 		if ($inBox and $message->getViewed() != 1) {
-			$message->setViewed($message->getViewed());
+			$message->setViewed(1);
 			$message->save();
 		}
 		$message->setMessage($text);
