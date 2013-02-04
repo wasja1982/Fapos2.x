@@ -188,11 +188,21 @@ class Document_Parser {
 			$get_difference_time = (time() - strtotime($_SESSION['user']['puttime'])) / 86400;
 
 			$markers['fps_user_reg_days'] = round($get_difference_time);
+
+			$usersModel = $this->Register['ModManager']->getModelInstance('Users');
+			$res = $usersModel->getNewPmMessages($_SESSION['user']['id']);
+			if ($res) {
+				$markers['unread_pm'] = $res;
+			} else {
+				$markers['unread_pm'] = '0';
+			}
+
 		} else {
 			$markers['personal_page_link'] = get_url('/users/add_form/');
 			$markers['fps_user_name'] = 'Гость'; //TODO
 			$markers['fps_user_group'] = 'Гости';
 			$markers['fps_user_reg_days'] = '';
+			$markers['unread_pm'] = '';
 		}
 		
 		
@@ -362,4 +372,3 @@ class Document_Parser {
 	}
 	
 }
-
