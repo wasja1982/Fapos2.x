@@ -224,7 +224,7 @@ class Document_Parser {
 		? h($overal_stats['max_users_online_date']) : 'Uncnown';
 		
 	
-		if (strstr($page, '{{ fps_chat }}')) {
+		if (Config::read('active', 'chat')) {
 			include_once ROOT . '/modules/chat/index.php';
 			$chat_link = get_url('/chat/view_messages/');
 			$markers['fps_chat'] = '<iframe id="fpsChat" src="' . $chat_link 
