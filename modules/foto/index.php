@@ -476,7 +476,7 @@ Class FotoModule extends Module {
 		
 		
 		//categories list
-		$catsModel = $this->Register['ModManager']->getModelInstance($this->module . 'Sections');
+		$catsModel = $this->_loadModel(ucfirst($this->module) . 'Sections');
 		$cat = $catsModel->getById($in_cat);
 
 		if (empty($cat)) $errors = $errors . '<li>' . __('Can not find category') . '</li>' . "\n";
@@ -632,7 +632,7 @@ Class FotoModule extends Module {
 	
 	
 		//categories list
-		$catsModel = $this->Register['ModManager']->getModelInstance($this->module . 'Sections');
+		$catsModel = $this->_loadModel(ucfirst($this->module) . 'Sections');
 		$cats = $catsModel->getCollection();
 		$cats_selector = $this->_buildSelector($cats, (!empty($in_cat)) ? $in_cat : $entity->getCategory_id());
 		
@@ -702,7 +702,7 @@ Class FotoModule extends Module {
 			$errors = $errors.'<li>'.sprintf(__('Wery big "description"'), Config::read('description_lenght', $this->module)).'</li>'."\n";
 			
 			
-		$catsModel = $this->Register['ModManager']->getModelInstance($this->module . 'Sections');
+		$catsModel = $this->_loadModel(ucfirst($this->module) . 'Sections');
 		$cat = $catsModel->getById($in_cat);
 
 		if (empty($cat)) $errors = $errors . '<li>' . __('Can not find category') . '</li>' . "\n";
