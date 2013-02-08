@@ -393,7 +393,7 @@ Class FotoModule extends Module {
 
 		
 		//categories list
-		$catsModel = $this->Register['ModManager']->getModelInstance($this->module . 'Sections');
+		$catsModel = $this->_loadModel(ucfirst($this->module) . 'Sections');
 		$cats = $catsModel->getCollection();
 		$cats_selector = $this->_buildSelector($cats, (!empty($in_cat) ? $in_cat : false));
 		
