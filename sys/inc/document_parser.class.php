@@ -123,7 +123,7 @@ class Document_Parser {
 		$Register = Register::getInstance();
         $FpsDB = $Register['DB'];
 
-        $tpl = preg_match_all('#\{\[([!]*)(\w+)\]\}#U', $page, $mas);
+        $tpl = preg_match_all('#\{\[\s*([!]?)(\w+)\s*\]\}#U', $page, $mas);
         for ($i= 0; $i < count($mas[2]); $i++) {
 			$cached = true;
 			$block_name = $mas[2][$i];
@@ -224,7 +224,7 @@ class Document_Parser {
 		? h($overal_stats['max_users_online_date']) : 'Uncnown';
 		
 	
-		if (strstr($page, '{{ fps_chat }}')) {
+		if (Config::read('active', 'chat')) {
 			include_once ROOT . '/modules/chat/index.php';
 			$chat_link = get_url('/chat/view_messages/');
 			$markers['fps_chat'] = '<iframe id="fpsChat" src="' . $chat_link 
