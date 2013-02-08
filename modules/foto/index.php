@@ -558,7 +558,7 @@ Class FotoModule extends Module {
 		}
 
 		
-		$resample = resampleImage($save_path, $save_sempl_path, 150);
+		$resample = resampleImage($save_path, $save_sempl_path, 150, 150);
 		if ($resample) chmod($save_sempl_path, 0644);
 		
 		//clean cache
