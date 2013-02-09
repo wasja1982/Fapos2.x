@@ -68,6 +68,7 @@ if (empty($html)) {
 			} else {
 				$markers['name_a'] = h($comment->getName());
 			}
+			$markers['name'] = h($comment->getName());
 
 			
 			$markers['moder_panel'] = $moder_panel;
