@@ -357,7 +357,7 @@ $array[] = "CREATE TABLE `{$set['db']['prefix']}users` (
 	`activation` varchar(255) character set utf8 NOT NULL default '',
 	`warnings` INT DEFAULT '0' NOT NULL,
 	`ban_expire` DATETIME DEFAULT 0 NOT NULL,
-  `template` VARCHAR( 255 ) DEFAULT '' NOT NULL,
+	`template` VARCHAR( 255 ) DEFAULT '' NOT NULL,
 	PRIMARY KEY  (`id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci";
 ##########################################################################
@@ -393,6 +393,7 @@ $array[] = "CREATE TABLE `{$set['db']['prefix']}foto` (
   `category_id` int(11) default NULL,
   `author_id` int(11) NOT NULL,
   `comments` int(11) NOT NULL default '0',
+  `commented` ENUM( '0', '1' ) DEFAULT '1' NOT NULL,
   PRIMARY KEY  (`id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci";
 #############################################################################
