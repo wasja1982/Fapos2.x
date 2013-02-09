@@ -54,11 +54,7 @@ if (empty($html)) {
 				'title' => h($comment->getName()),
 				'class' => 'ava',
 			);
-			if ($comment->getUser_id() && file_exists(ROOT . '/sys/avatars/' . $comment->getUser_id() . '.jpg')) {
-				$markers['avatar'] = get_img('/sys/avatars/' . $comment->getUser_id() . '.jpg', $img);
-			} else {
-				$markers['avatar'] = get_img('/sys/img/noavatar.png', $img);
-			}
+			$markers['avatar'] = getAvatar($comment->getUser_id());
 			
 			
 			if ($comment->getUser_id()) {

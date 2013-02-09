@@ -51,8 +51,7 @@ class UsersRating {
 		if (!empty($users)) {
 			foreach ($users as $key => $user) {
 				$link = get_link($user['name'], '/users/info/' . $user['id']);
-				$ava = (file_exists(ROOT . '/sys/avatars/' . $user['id'] . '.jpg')) 
-				? get_url('/sys/avatars/' . $user['id'] . '.jpg') : get_url('/sys/img/noavatar.png');
+				$ava = getAvatar($user['id']);
 				
 				$output .= sprintf($this->wrap, $ava, $link, $user['rating'], $user['posts']);
 			}

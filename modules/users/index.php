@@ -823,11 +823,7 @@ Class UsersModule extends Module {
 		
 
 
-		if (file_exists(ROOT . '/sys/avatars/' . $anket->getId() . '.jpg')) {
-			$data->setAvatar(get_url('/sys/avatars/' . $anket->getId() . '.jpg'));
-		} else {
-			$data->setAvatar(get_url('/sys/img/noavatar.png'));
-		}
+		$data->setAvatar(getAvatar($anket->getId()));
 
 
 		$options = '';
@@ -1193,11 +1189,7 @@ Class UsersModule extends Module {
 		
 
 
-		if (file_exists(ROOT . '/sys/avatars/' . $data->getId() . '.jpg')) {
-			$data->setAvatar(get_url('/sys/avatars/' . $data->getId() . '.jpg'));
-		} else {
-			$data->setAvatar(get_url('/sys/img/noavatar.png'));
-		}
+		$data->setAvatar(getAvatar($data->getId()));
 
 		
 		$options = '';
@@ -1622,11 +1614,7 @@ Class UsersModule extends Module {
 
 		
 		// Аватар
-		if (file_exists(ROOT . '/sys/avatars/' . $user->getId() . '.jpg')) {
-			$markers['avatar'] = get_url('/sys/avatars/' . $user->getId() . '.jpg');
-		} else {
-			$markers['avatar'] = get_url('/sys/img/noavatar.png');
-		}
+		$markers['avatar'] = getAvatar($user->getId());
 		
 		
 		// Edit profile link {EDIT_PROFILE_LINK}

@@ -667,3 +667,41 @@ function getTemplateName()
 				!empty($_SESSION['user']['template']) ? $_SESSION['user']['template'] : Config::read('template'));
 	return $template;
 }
+
+/**
+ * Get either a Gravatar URL or complete image tag for a specified email address.
+ *
+ * @param string $email The email address
+ * @param string $s Size in pixels, defaults to 80px [ 1 - 2048 ]
+ * @param string $d Default imageset to use [ 404 | mm | identicon | monsterid | wavatar ]
+ * @param string $r Maximum rating (inclusive) [ g | pg | r | x ]
+ * @return String containing either just a URL or a complete image tag
+ */
+function getGravatar($email, $s = 120, $d = 'mm', $r = 'g') {
+	$url = 'http://www.gravatar.com/avatar/' . md5(strtolower(trim($email))) . ".png?s=$s&d=$d&r=$r";
+	return $url;
+}
+
+function getAvatar($id_user = null, $email_user = null) {
+	$def = get_url('/sys/img/noavatar.png');
+	
+	if (isset($id_user) && $id_user > 0) {
+		if (is_file(ROOT . '/sys/avatars/' . $id_user . '.jpg')) {
+			return get_url('/sys/avatars/' . $id_user . '.jpg');
+		} else {
+			if (Config::read('use_gravatar', 'users')) {
+				if (!isset($email_user)) {
+					$Register = Register::getInstance();
+					$usersModel = $Register['ModManager']->getModelInstance('Users');
+					$user = $usersModel->getById($id_user);
+					$email_user = $user->getEmail();
+				}
+				return getGravatar($email_user);
+			} else {
+				return $def;
+			}
+		}
+	} else {
+		return $def;
+	}
+}

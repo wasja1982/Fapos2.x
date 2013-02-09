@@ -724,11 +724,7 @@ Class ForumModule extends Module {
 				if ($postAuthor) {
 
 					// Аватар
-					if (is_file(ROOT . '/sys/avatars/' . $post->getId_author() . '.jpg')) {
-						$postAuthor->setAvatar(get_url('/sys/avatars/' . $post->getId_author() . '.jpg'));
-					} else {
-						$postAuthor->setAvatar(get_url('/sys/img/noavatar.png'));
-					}
+					$postAuthor->setAvatar(getAvatar($post->getId_author()));
 
 
 					// Статус пользователя
@@ -766,7 +762,7 @@ Class ForumModule extends Module {
 
                 // Если автор сообщения - незарегистрированный пользователь
 				} else {
-				    $postAuthor->setAvatar(get_url('/sys/img/noavatar.png'));
+				    $postAuthor->setAvatar(getAvatar());
 				    $postAuthor->setName(__('Guest'));
 				}
 				

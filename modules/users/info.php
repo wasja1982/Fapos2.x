@@ -197,6 +197,15 @@ $settingsInfo = array(
     ),
 
     'Прочее' => 'Прочее',
+	'use_gravatar' => array(
+		'type' => 'select',
+		'title' => 'Использование Gravatar',
+		'description' => 'Загруженные на сайт аватары имеют больший приоритет.',
+		'options' => array(
+			'1' => 'Разрешено',
+			'0' => 'Запрещено',
+		),
+	),
     'active' => array(
         'type' => 'checkbox',
         'title' => 'Статус',
