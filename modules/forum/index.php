@@ -335,9 +335,14 @@ Class ForumModule extends Module {
 			$markers['navigation'] = get_link(__('Home'), '/') . __('Separator') 
 			. get_link(__('Forums list'), $this->getModuleURL()) . __('Separator') 
 			. get_link(h($forum->getTitle()), $this->getModuleURL('view_forum/' . $id_forum));
+
+			$perPage = Config::read('themes_per_page', $this->module);
+			$cntPages = ceil($total / $perPage);
+			$recOnPage = ($page == $cntPages) ? ($total % $perPage) : $perPage;
+
 			$markers['pagination'] = $pages;
-			$markers['add_link'] = '';
-			$markers['meta'] = $addLink;
+			$markers['add_link'] = $addLink;
+			$markers['meta'] = __('Count all topics') . $total . '. ' . __('Count visible') . $recOnPage;
 			$this->_globalize($markers);
 			
 			
