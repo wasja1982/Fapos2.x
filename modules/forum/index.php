@@ -924,10 +924,10 @@ Class ForumModule extends Module {
 			
 			// Polls render
 			$polls = $theme->getPoll();
-			if (!isset($polls) || empty($polls)) {
-				$theme->setPoll('');
-			} elseif (!empty($polls[0])) {
+			if (is_array($polls) && count($polls) && !empty($polls[0])) {
 				$theme->setPoll($this->_renderPoll($polls[0]));
+			} else {
+				$theme->setPoll('');
 			}
 			
 			
@@ -2049,7 +2049,7 @@ Class ForumModule extends Module {
 			foreach ($posts as $post) {
 				// Удаляем файл, если он есть
 				$attach_files = $attachModel->getCollection(array('post_id' => $post->getId()));
-				if (count($attach_files) > 0) {
+				if (count($attach_files) && is_array($attach_files)) {
 					foreach ($attach_files as $attach_file) {
 						if (file_exists(ROOT . $this->getFilesPath($attach_file->getFilename()))) {
 							if (@unlink(ROOT . $this->getFilesPath($attach_file->getFilename()))) {
@@ -2781,7 +2781,7 @@ Class ForumModule extends Module {
 		$attachModel = $this->Register['ModManager']->getModelInstance('ForumAttaches');
 		if ($post->getAttaches()) {
 			$attach_files = $attachModel->getCollection(array('post_id' => $id));
-			if (count($attach_files) > 0) {
+			if (count($attach_files) && is_array($attach_files)) {
 				foreach ($attach_files as $attach_file) {
 					if (file_exists(ROOT . $this->getFilesPath($attach_file->getFilename()))) {
 						if (@unlink(ROOT . $this->getFilesPath($attach_file->getFilename()))) {
@@ -2858,17 +2858,19 @@ Class ForumModule extends Module {
 			'limit' => 1,
 			'order' => '`last_post` DESC',
 		));
+		if (is_array($lastTheme) && !empty($lastTheme[0])) $lastTheme = $lastTheme[0];
+
 		$forum = $this->Model->getById($theme->getId_forum());
 		if ($deleteTheme) {
 			$forum->setThemes($forum->getThemes() - 1);
 			$forum->setPosts($forum->getPosts() - 1);
-			$forum->setLast_theme_id(count($lastTheme) > 0 ? $lastTheme[0]->getId() : '0');
+			$forum->setLast_theme_id($lastTheme ? $lastTheme->getId() : '0');
 			$forum->save();
 			return $this->showInfoMessage(__('Operation is successful'), $this->getModuleURL('view_forum/' . $theme->getId_forum()));
 			
 		} else {
 			$forum->setPosts($forum->getPosts() - 1);
-			$forum->setLast_theme_id(count($lastTheme) > 0 ? $lastTheme[0]->getId() : '0');
+			$forum->setLast_theme_id($lastTheme ? $lastTheme->getId() : '0');
 			$forum->save();
 			return $this->showInfoMessage(__('Operation is successful'), getReferer());
 		}
