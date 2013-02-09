@@ -66,7 +66,7 @@ class ModulesManager
 	
 	public function getModelName($modelName)
 	{
-        return $modelName . 'Model';
+        return ucfirst($modelName) . 'Model';
 		//$modelClassName = ucfirst(strtolower($module)) . 'Model';
         //$modelClassName = $this->_removeUnderLine($modelClassName);
 		//return $modelClassName;

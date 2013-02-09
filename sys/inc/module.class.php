@@ -235,13 +235,6 @@ class Module {
 	}
 	
 
-	protected function _loadModel($modelName)
-	{
-		$modelName = $modelName . 'Model';
-		return new $modelName();
-	}
-	
-	
 	protected function setModel()
 	{
 		$class = ucfirst($this->module) . 'Model';

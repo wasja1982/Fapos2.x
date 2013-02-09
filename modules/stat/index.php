@@ -185,8 +185,8 @@ Class StatModule extends Module {
 		if (empty($id) || $id < 1) redirect('/');
 
 		
-		$SectionsModel = $this->_loadModel(ucfirst($this->module) . 'Sections');
-		$category = $SectionsModel->getById($id);
+		$catsModel = $this->Register['ModManager']->getModelInstance($this->module . 'Sections');
+		$category = $catsModel->getById($id);
 		if (!$category)
 			return $this->showInfoMessage(__('Can not find category'), $this->getModuleURL());
 		if (!$this->ACL->checkCategoryAccess($category->getNo_access())) 
@@ -206,7 +206,7 @@ Class StatModule extends Module {
 		}
 	
 		// we need to know whether to show hidden
-		$childCats = $SectionsModel->getOneField('id', array('parent_id' => $id));
+		$childCats = $catsModel->getOneField('id', array('parent_id' => $id));
 		$childCats[] = $id;
 		$childCats = implode(', ', $childCats);
 		$query_params = array('cond' => array(
@@ -474,8 +474,8 @@ Class StatModule extends Module {
         if (isset($_SESSION['FpsForm'])) unset($_SESSION['FpsForm']);
 		
 		
-		$SectionsModel = $this->_loadModel(ucfirst($this->module) . 'Sections');
-		$sql = $SectionsModel->getCollection();
+		$catsModel = $this->Register['ModManager']->getModelInstance($this->module . 'Sections');
+		$sql = $catsModel->getCollection();
 		$data['cats_selector'] = $this->_buildSelector($sql, ((!empty($data['in_cat'])) ? $data['in_cat'] : false));
 		
 		

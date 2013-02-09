@@ -152,8 +152,8 @@ Class FotoModule extends Module {
 		if (empty($id) || $id < 1) redirect('/');
 
 		
-		$SectionsModel = $this->_loadModel(ucfirst($this->module) . 'Sections');
-		$category = $SectionsModel->getById($id);
+		$catsModel = $this->Register['ModManager']->getModelInstance($this->module . 'Sections');
+		$category = $catsModel->getById($id);
 		if (!$category)
 			return $this->showInfoMessage(__('Can not find category'), $this->getModuleURL());
 		if (!$this->ACL->checkCategoryAccess($category->getNo_access())) 
@@ -173,7 +173,7 @@ Class FotoModule extends Module {
 		}
 	
 		// we need to know whether to show hidden
-		$childCats = $SectionsModel->getOneField('id', array('parent_id' => $id));
+		$childCats = $catsModel->getOneField('id', array('parent_id' => $id));
 		$query_params = array('cond' => array(
 			'`category_id` = ' . $id
 		));
@@ -393,7 +393,7 @@ Class FotoModule extends Module {
 
 		
 		//categories list
-		$catsModel = $this->_loadModel(ucfirst($this->module) . 'Sections');
+		$catsModel = $this->Register['ModManager']->getModelInstance($this->module . 'Sections');
 		$cats = $catsModel->getCollection();
 		$cats_selector = $this->_buildSelector($cats, (!empty($in_cat) ? $in_cat : false));
 		
@@ -476,7 +476,7 @@ Class FotoModule extends Module {
 		
 		
 		//categories list
-		$catsModel = $this->_loadModel(ucfirst($this->module) . 'Sections');
+		$catsModel = $this->Register['ModManager']->getModelInstance($this->module . 'Sections');
 		$cat = $catsModel->getById($in_cat);
 
 		if (empty($cat)) $errors = $errors . '<li>' . __('Can not find category') . '</li>' . "\n";
@@ -632,7 +632,7 @@ Class FotoModule extends Module {
 	
 	
 		//categories list
-		$catsModel = $this->_loadModel(ucfirst($this->module) . 'Sections');
+		$catsModel = $this->Register['ModManager']->getModelInstance($this->module . 'Sections');
 		$cats = $catsModel->getCollection();
 		$cats_selector = $this->_buildSelector($cats, (!empty($in_cat)) ? $in_cat : $entity->getCategory_id());
 		
@@ -702,7 +702,7 @@ Class FotoModule extends Module {
 			$errors = $errors.'<li>'.sprintf(__('Wery big "description"'), Config::read('description_lenght', $this->module)).'</li>'."\n";
 			
 			
-		$catsModel = $this->_loadModel(ucfirst($this->module) . 'Sections');
+		$catsModel = $this->Register['ModManager']->getModelInstance($this->module . 'Sections');
 		$cat = $catsModel->getById($in_cat);
 
 		if (empty($cat)) $errors = $errors . '<li>' . __('Can not find category') . '</li>' . "\n";

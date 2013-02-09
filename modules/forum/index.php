@@ -342,7 +342,7 @@ Class ForumModule extends Module {
 
 			$markers['pagination'] = $pages;
 			$markers['add_link'] = $addLink;
-			$markers['meta'] = __('Count all topics') . $total . '. ' . __('Count visible') . $recOnPage;
+			$markers['meta'] = __('Count all topics') . ' ' . $total . '. ' . __('Count visible') . ' ' . $recOnPage;
 			$this->_globalize($markers);
 			
 			
