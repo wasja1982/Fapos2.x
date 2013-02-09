@@ -40,8 +40,8 @@ class PostsModel extends FpsModel
             'foreignKey' => 'id_editor',
       	),
         'theme' => array(
-            'model' => 'Users',
-            'type' => 'has_many',
+            'model' => 'Themes',
+            'type' => 'has_one',
             'foreignKey' => 'id_theme',
       	),
         'attacheslist' => array(
