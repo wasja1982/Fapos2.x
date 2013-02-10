@@ -40,6 +40,7 @@ class ThemesEntity extends FpsEntity
 	protected $important;
 	protected $description;
 	protected $group_access;
+	protected $first_top;
 
 	
 	
@@ -59,6 +60,7 @@ class ThemesEntity extends FpsEntity
 			'important' => $this->important,
 			'description' => $this->description,
 			'group_access' => implode('.', (array)$this->group_access),
+			'first_top' => $this->first_top,
 		);
 		if ($this->id) $params['id'] = $this->id;
 		$Register = Register::getInstance();

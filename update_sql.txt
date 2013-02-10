@@ -1,5 +1,10 @@
 Здесь буду писать все запросы к БД, которые нужно выполнить при обновлении до новой версии движка. При новой установке они выполнятся автоматически.
 
+>>> Feb 10, 2013
+ALTER TABLE `themes` ADD `first_top` ENUM( '0', '1' ) DEFAULT '0' NOT NULL
+
+
+
 >>> Jan 28, 2013
 CREATE TABLE `polls` (`id` int( 11 ) NOT NULL AUTO_INCREMENT ,
 `theme_id` int( 11 ) NOT NULL ,

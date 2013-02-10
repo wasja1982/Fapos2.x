@@ -718,6 +718,19 @@ Class ForumModule extends Module {
 			
 			
 			$usersModel = $this->Register['ModManager']->getModelInstance('Users');
+			$first_top = false;
+			if ($page > 1 && $theme->getFirst_top() == '1') {
+				$post = $postsModel->getCollection(array(
+					'id_theme' => $id_theme,
+				), array(
+					'order' => 'time ASC, id ASC',
+					'limit' => 1,
+				));
+				if (is_array($post) && count($post) == 1) {
+					$posts = array_merge($post, $posts);
+					$first_top = true;
+				}
+			}
 			foreach ($posts as $post) {
 				// Если автор сообщения (поста) - зарегистрированный пользователь
 				$postAuthor = $usersModel->getById($post->getId_author());
@@ -907,8 +920,13 @@ Class ForumModule extends Module {
 				
 				
 				//message number
-				$post_num++;
-				$post->setPost_number($post_num);
+				if ($first_top) {
+					$post->setPost_number(1);
+					$first_top = false;
+				} else {
+					$post_num++;
+					$post->setPost_number($post_num);
+				}
 				$post_number_url = 'http://' . $_SERVER['HTTP_HOST'] . get_url($this->getModuleURL('view_post/' . $post->getId()), true);
 				$post->setPost_number_url($post_number_url);
 
@@ -1553,6 +1571,7 @@ Class ForumModule extends Module {
 			$description = h($_SESSION['viewMessage']['description']);
 			$message = $_SESSION['viewMessage']['message'];
 			$gr_access = $_SESSION['viewMessage']['gr_access'];			
+			$first_top = $_SESSION['viewMessage']['first_top'];			
 			unset( $_SESSION['viewMessage'] );
 		}
 
@@ -1568,6 +1587,7 @@ Class ForumModule extends Module {
 			$description = h($_SESSION['addThemeForm']['description']); 
 			$message = $_SESSION['addThemeForm']['message'];			
 			$gr_access = $_SESSION['addThemeForm']['gr_access'];			
+			$first_top = $_SESSION['addThemeForm']['first_top'];			
 			unset($_SESSION['addThemeForm']);
 		}
 
@@ -1578,6 +1598,7 @@ Class ForumModule extends Module {
 			'description' => (!empty($description)) ? $description : '',
 			'main_text' => (!empty($message)) ? $message : '',
 			'gr_access' => (!empty($gr_access)) ? $gr_access : array(),
+			'first_top' => (!empty($first_top)) ? first_top : '0',
 		);
 
 		$markers['users_groups'] = $this->Register['ACL']->getGroups();
@@ -1632,6 +1653,7 @@ Class ForumModule extends Module {
 		$theme   = trim($theme);
 		$description = trim(mb_substr($_POST['description'], 0, 128)); 
 		$message = trim($message);
+		$first_top = isset($_POST['first_top']) ? '1' : '0'; 
 		
 		$gr_access = array();
 		$groups = $this->Register['ACL']->getGroups();
@@ -1646,6 +1668,7 @@ Class ForumModule extends Module {
 			$_SESSION['viewMessage']['description'] = $description; 
 			$_SESSION['viewMessage']['message'] = $message;
 			$_SESSION['viewMessage']['gr_access'] = $gr_access;
+			$_SESSION['viewMessage']['first_top'] = $first_top;
 			redirect($this->getModuleURL('add_theme_form/' . $id_forum));
 		}
 
@@ -1678,6 +1701,7 @@ Class ForumModule extends Module {
 			$_SESSION['addThemeForm']['description'] = $description; 
 			$_SESSION['addThemeForm']['message'] = $message;
 			$_SESSION['addThemeForm']['gr_access'] = $gr_access;
+			$_SESSION['addThemeForm']['first_top'] = $first_top;
 			redirect($this->getModuleURL('add_theme_form/' . $id_forum));
 		}
 		
@@ -1695,6 +1719,7 @@ Class ForumModule extends Module {
 			'last_post'      => new Expr('NOW()'),
 			'id_forum'       => $id_forum, 
 			'group_access'   => $gr_access, 
+			'first_top'	     => $first_top, 
 		);
 		$theme = new ThemesEntity($data);
 		$id_theme = $theme->save();
@@ -1851,11 +1876,13 @@ Class ForumModule extends Module {
 			$name = h($_SESSION['editThemeForm']['theme']);
 			$description = h($_SESSION['editThemeForm']['description']); 
 			$gr_access = $_SESSION['editThemeForm']['gr_access'];
+			$first_top = $_SESSION['editThemeForm']['first_top'];
 			unset($_SESSION['editThemeForm']);
 		} else {
 			$name = h($theme->getTitle());
 			$description = h($theme->getDescription()); 
 			$gr_access = $theme->getGroup_access(); 
+			$first_top = $theme->getFirst_top(); 
 		}
 
 		
@@ -1881,6 +1908,7 @@ Class ForumModule extends Module {
 			'author' => $author_name,
 			'options' => $options,
 			'gr_access' => (!empty($gr_access)) ? $gr_access : array(),
+			'first_top' => (!empty($first_top)) ? $first_top : '0',
 		);
 			
 		$data['users_groups'] = $this->Register['ACL']->getGroups();
@@ -1929,6 +1957,7 @@ Class ForumModule extends Module {
 		$id_from_forum = $theme->getId_forum();
 		$name = trim(mb_substr($_POST['theme'], 0, 55));
 		$description = trim(mb_substr($_POST['description'], 0, 128)); 
+		$first_top = isset($_POST['first_top']) ? '1' : '0'; 
 		
 		$gr_access = array();
 		$groups = $this->Register['ACL']->getGroups();
@@ -1953,6 +1982,7 @@ Class ForumModule extends Module {
 			$_SESSION['editThemeForm']['theme'] = $name;
 			$_SESSION['editThemeForm']['description'] = $description;
 			$_SESSION['editThemeForm']['gr_access'] = $gr_access;			
+			$_SESSION['editThemeForm']['first_top'] = $first_top;			
 			redirect($this->getModuleURL('edit_theme_form/' . $id_theme));
 		}
 		
@@ -1971,6 +2001,7 @@ Class ForumModule extends Module {
 		$theme->setDescription($description);
 		$theme->setId_forum($id_forum);
 		$theme->setGroup_access($gr_access);
+		$theme->setFirst_top($first_top);
 		$theme->save();
 		
 		

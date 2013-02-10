@@ -323,6 +323,7 @@ $array[] = "CREATE TABLE `{$set['db']['prefix']}themes` (
   `important` enum('0','1') NOT NULL default '0',
   `description` TEXT NOT NULL,
   `group_access` varchar(255) default '' NOT NULL,
+  `first_top` ENUM( '0', '1' ) DEFAULT '0' NOT NULL,
   PRIMARY KEY  (`id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci";
 #####################################################################
