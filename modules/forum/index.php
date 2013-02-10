@@ -907,9 +907,9 @@ Class ForumModule extends Module {
 				
 				
 				//message number
-				$post_num++; $post->setPost_number($post_num);
-				$post_number_url = 'http://' . $_SERVER['HTTP_HOST'] 
-				. get_url($this->getModuleURL('view_theme/' . $id_theme . '?page=' . $page . '#post' . $post_num), true);
+				$post_num++;
+				$post->setPost_number($post_num);
+				$post_number_url = 'http://' . $_SERVER['HTTP_HOST'] . get_url($this->getModuleURL('view_post/' . $post->getId()), true);
 				$post->setPost_number_url($post_number_url);
 
 				
@@ -2513,8 +2513,7 @@ Class ForumModule extends Module {
 		// Получаем из БД сообщение
 		$postModel = $this->Register['ModManager']->getModelInstance('Posts');
 		$post = $postModel->getById($id);
-		if (!$post)
-			return $this->showInfoMessage(__('Some error occurred'),  $this->getModuleURL() );
+		if (!$post) return $this->showInfoMessage(__('Some error occurred'),  $this->getModuleURL() );
 		
 		$id_theme = $post->getId_theme();		
 		
@@ -3235,6 +3234,31 @@ Class ForumModule extends Module {
 		$this->Cache->clean(CACHE_MATCHING_TAG, array('module_forum', 'action_index'));
 		$this->Register['DB']->cleanSqlCache();
 		if ($this->Log) $this->Log->write('delete theme(because error uccured)', 'theme id(' . $id_theme . ')');
-	}	
+	}
 	
+	
+	public function view_post($id_post) {
+		$id_post = intval($id_post);
+		if (empty($id_post) || $id_post < 1) redirect($this->getModuleURL());
+
+		$postsModel = $this->Register['ModManager']->getModelInstance('Posts');
+		$post = $postsModel->getById($id_post);
+		if (!$post) return $this->showInfoMessage(__('Some error occurred'),  $this->getModuleURL());
+		
+		$id_theme = $post->getId_theme();
+		$post_num = $postsModel->getTotal(
+			array(
+				'order' => 'id ASC',
+				'cond' => array(
+					'id_theme' => $id_theme,
+					'id < ' . $id_post,
+				),
+			)
+		);
+		
+		$page = floor($post_num / Config::read('posts_per_page', $this->module)) + 1;
+		$post_num++;
+
+		redirect($this->getModuleURL('view_theme/' . $id_theme . '?page=' . $page . '#post' . $post_num));
+	}
 }
