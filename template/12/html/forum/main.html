@@ -18,7 +18,9 @@
 <script language="JavaScript" type="text/javascript" src="{{ www_root }}/sys/js/send_message.js"></script>
 <!-- <script language="JavaScript" type="text/javascript" src="{{ www_root }}/sys/js/textarearesizer.js"></script> -->
 <script type="text/javascript">
-check_pm('{{ fps_user.id }}');
+{% if fps_user_id %}
+	check_pm('{{ fps_user_id }}');
+{% endif %}
 
 /*
 $(document).ready(function() {

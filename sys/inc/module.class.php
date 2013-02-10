@@ -384,7 +384,7 @@ class Module {
 			'comments_form' => $this->comments_form,
             'fps_curr_page' => (!empty($Register['page'])) ? intval($Register['page']) : 1,
             'fps_pagescnt' => (!empty($Register['pagescnt'])) ? intval($Register['pagescnt']) : 1,
-            'fps_user' => (!empty($_SESSION['user'])) ? $_SESSION['user'] : array(),
+            // 'fps_user' => (!empty($_SESSION['user'])) ? $_SESSION['user'] : array(),
         );
 		$markers = array_merge($markers1, $markers2);
         return $markers;
