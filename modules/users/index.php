@@ -794,8 +794,8 @@ Class UsersModule extends Module {
 
 		$anket = $this->Model->getById((int)$_SESSION['user']['id']);
 		if (is_object($this->AddFields) && $anket) {
-			$anket = $this->AddFields->mergeRecords(array($anket), true);
-			$anket = $anket[0];
+			$ankets = $this->AddFields->mergeRecords(array($anket), true);
+			$anket = $ankets[0];
 		}
 
 
@@ -1156,8 +1156,8 @@ Class UsersModule extends Module {
 		$user = $this->Model->getById($id);
 		if (!$user || count($user) == 0) return $this->showInfoMessage(__('Can not find user'), $this->getModuleURL() );
 		if (is_object($this->AddFields) && is_array($user) && count($user) > 0) {
-			$user = $this->AddFields->mergeRecords(array($user), true);
-			$user = $user[0];
+			$users = $this->AddFields->mergeRecords(array($user), true);
+			$user = $users[0];
 		}
 
 
@@ -1296,8 +1296,8 @@ Class UsersModule extends Module {
 		$user = $this->Model->getById($id);
 		if (!$user) return $this->showInfoMessage(__('Can not find user'), $this->getModuleURL() );
 		if (is_object($this->AddFields) && $user) {
-			$user = $this->AddFields->mergeRecords(array($user), true);
-			$user = $user[0];
+			$users = $this->AddFields->mergeRecords(array($user), true);
+			$user = $users[0];
 		}
 
 
@@ -1550,8 +1550,8 @@ Class UsersModule extends Module {
 		$user = $this->Model->getById($id);
 		if (!$user || count($user) == 0) return $this->showInfoMessage(__('Can not find user'), $this->getModuleURL() );
 		if (is_object($this->AddFields) && is_array($user) && count($user) > 0) {
-			$user = $this->AddFields->mergeRecords(array($user));
-			$user = $user[0];
+			$users = $this->AddFields->mergeRecords(array($user));
+			$user = $users[0];
 		}
 
 		

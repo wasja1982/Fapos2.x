@@ -352,9 +352,8 @@ Class StatModule extends Module {
 		
 		// Some gemor with add fields
 		if (is_object($this->AddFields)) {
-			$array = array(0 => $entity);
-			$array = $this->AddFields->mergeRecords($array);
-			$entity = $array[0];
+			$entities = $this->AddFields->mergeRecords(array($entity));
+			$entity = $entities[0];
 		}
 		
 		
@@ -707,8 +706,8 @@ Class StatModule extends Module {
 		
 		
 		if (is_object($this->AddFields) && count($entity) > 0) {
-			$entity = $this->AddFields->mergeRecords(array(0 => $entity), true);
-			$entity = $entity[0];
+			$entities = $this->AddFields->mergeRecords(array($entity), true);
+			$entity = $entities[0];
 		}
 		
 		
