@@ -34,10 +34,11 @@ if (!$check) {
 		$this->Model->bindModel('author');
 		$this->Model->bindModel('attaches');
 		$records = $this->Model->getCollection(
-			array(), 
 			array(
+				'available' => '1',
+			), array(
 				'limit' => Config::read('rss_cnt', 'common'),
-				'order' => 'id DESC',
+				'order' => 'date DESC',
 			)
 		);
 
