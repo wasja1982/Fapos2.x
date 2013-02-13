@@ -3292,4 +3292,16 @@ Class ForumModule extends Module {
 
 		redirect($this->getModuleURL('view_theme/' . $id_theme . '?page=' . $page . '#post' . $post_num));
 	}
+	
+
+
+    /**
+     * RSS
+	 *
+     */
+    function rss()
+    {
+		include_once ROOT . '/sys/inc/includes/rss.php';
+    }
+	
 }

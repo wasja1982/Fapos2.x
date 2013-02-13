@@ -129,7 +129,7 @@ $set = array (
     'system_log' => 1,
     'max_log_size' => '99999744',
     'autorization_protected_key' => 0,
-    'session_time' => '116013',
+    'session_time' => '600',
   ),
   'users' => 
   array (
@@ -200,6 +200,7 @@ $set = array (
     'rss_news' => 1,
     'rss_stat' => 1,
     'rss_loads' => 1,
+    'rss_forum' => 1,
     'rss_lenght' => 300,
     'rss_cnt' => 10,
   ),

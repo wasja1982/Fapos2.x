@@ -332,6 +332,13 @@ $settingsInfo = array(
              'checked' => '1',
              'value' => '1',
        	),
+        'rss_forum' => array(
+             'type' => 'checkbox',
+             'title' => 'Форум',
+             'description' => '',
+             'checked' => '1',
+             'value' => '1',
+       	),
     ),
 	
 	/* Sitemap */
