@@ -79,7 +79,9 @@ class PrintText {
 		//pr($announce);
 		$announce = $this->closeOpenTags($announce); 
 		$announce = $this->print_page($announce, $ustatus, $title); 
-		$announce .= ' ... <br /><div style="clear:both;"></div> <a class="fps-show-mat" href="' . get_url($url) . '">'.__('Show material').'</a>';
+		if (!empty($url)) {
+			$announce .= ' ... <br /><div style="clear:both;"></div> <a class="fps-show-mat" href="' . get_url($url) . '">'.__('Show material').'</a>';
+		}
 		return $announce;
 	}
 	

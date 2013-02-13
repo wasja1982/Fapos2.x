@@ -32,6 +32,7 @@ if (!$check) {
 
 		$this->Model->bindModel('category');
 		$this->Model->bindModel('author');
+		$this->Model->bindModel('attaches');
 		$records = $this->Model->getCollection(
 			array(), 
 			array(
@@ -47,17 +48,22 @@ if (!$check) {
 				$html .= '<link>' . $sitename . get_url(entryUrl($record, $this->module)) . '</link>';
 				$html .= '<pubDate>' . date('r', strtotime($record->getDate())) . '</pubDate>';
 				$html .= '<title>' . $record->getTitle() . '</title>';
-				$html .= '<description><![CDATA[' . mb_substr($record->getMain(), 0, Config::read('rss_lenght', 'common')) . '<br />';
+				$announce = $this->Textarier->getAnnounce($record->getMain(), null, 0, Config::read('rss_lenght', 'common'), $record);
+				$atattaches = ($record->getAttaches() && count($record->getAttaches())) ? $record->getAttaches() : array();
+				if (count($atattaches) > 0) {
+					foreach ($atattaches as $attach) {
+						if ($attach->getIs_image() == '1') {
+							$announce = $this->insertImageAttach($announce, $attach->getFilename(), $attach->getAttach_number(), $record->getSkey());
+						}
+					}
+				}
+				$html .= '<description><![CDATA[' . $announce . '<br />';
 				$html .= 'Автор: ' . $record->getAuthor()->getName() . '<br />]]></description>';
 				$html .= '<category>' . $record->getCategory()->getTitle() . '</category>';
 				$html .= '<guid>' . $sitename . $this->module . '/view/' . $record->getId() . '</guid>';
 				$html .= '</item>';
 			}
 		}
-
-
-
-
 
 		$html .= '</channel>';
 		$html .= '</rss>';
