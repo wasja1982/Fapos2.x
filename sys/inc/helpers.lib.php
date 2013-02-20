@@ -642,9 +642,11 @@ function utf8Filter($str) {
 
 function _unlink($path) {
 	if (is_dir($path)) {
-		$files = glob(trim($path, '/\\') . '/*');
-		foreach ($files as $file) {
-			_unlink($file);
+		$files = glob(rtrim($path, '/\\') . '/*');
+		if (is_array($files)) {
+			foreach ($files as $file) {
+				_unlink($file);
+			}
 		}
 		rmdir($path);
 	} else if (is_file($path)) {
