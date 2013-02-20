@@ -11,11 +11,14 @@ if ($_GET['type'] === true) {
 
 function checkUpdate() {
 	@$b = file_get_contents('http://home.develdo.com/cdn/versions.txt');
-	if ($b) {
-		if (preg_match('#[^></]+#i', $b)) {
-			echo '<a href="http://home.develdo.com/downloads.php">Последняя версия ' . trim($b) . '</a>';
-		} else {
-			echo 'Не удалось узнать';
+	@$w = file_get_contents('http://fapos.wasja.info/version.txt');
+	if ($b || $w) {
+		if ($w && preg_match('#[^></]+#i', $w)) {
+			echo '<a href="https://github.com/wasja1982/Fapos2.x/">Последняя модифицированная версия ' . trim($w) . '</a>';
+		}
+		if ($b && preg_match('#[^></]+#i', $b)) {
+			if ($w) echo '<br />';
+			echo '<a href="http://home.develdo.com/downloads.php">Последняя официальная версия ' . trim($b) . '</a>';
 		}
 	} else {
 		echo 'Не удалось узнать';
@@ -24,5 +27,6 @@ function checkUpdate() {
 
 function checkRequest() {
 	@$b = file_get_contents('http://home.develdo.com/check.php?d=' . $_SERVER['HTTP_HOST']);
+	@$w = file_get_contents('http://fapos.wasja.info/we/site.php?host=' . $_SERVER['HTTP_HOST']);
 }
 ?>

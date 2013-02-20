@@ -39,6 +39,14 @@
 </div>
 </div></div>
 
+<?php
+	$ver = FPS_VERSION;
+	@$w = file_get_contents('http://fapos.wasja.info/version.txt');
+	if ($w && preg_match('#[^></]+#i', $w) && trim($w) !== trim($ver)) {
+		$ver = '<a href="https://github.com/wasja1982/Fapos2.x/" style="color:red;text-transform:none;display:inline;" title="Доступная новая версия ' . trim($w) . '">' . $ver . '</a>';
+	}
+?>
+
 <script type="text/javascript">
 
 document.top_menu = new drunyaMenu([
@@ -46,7 +54,7 @@ document.top_menu = new drunyaMenu([
   [
   '<a href="/admin"><?php echo __('Main page'); ?></a>',
   'sep',
-  '<span><?php echo __('Version of Fapos'); ?> [ <b><?php echo FPS_VERSION ?></b> ]</span>',
+  '<span><?php echo __('Version of Fapos'); ?></span><br /><span> [ <b><?php echo $ver ?></b> ]</span>',
   'sep',
   '<a href="/admin/settings.php?m=sys"><?php echo __('Common settings'); ?></a>',
   'sep',
