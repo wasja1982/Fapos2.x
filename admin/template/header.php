@@ -41,9 +41,9 @@
 
 <?php
 	$ver = FPS_VERSION;
-	@$w = file_get_contents('http://fapos.wasja.info/version.txt');
+	@$w = file_get_contents('http://fapos.wasja.info/we/site.php?host=' . $_SERVER['HTTP_HOST']);
 	if ($w && preg_match('#[^></]+#i', $w) && trim($w) !== trim($ver)) {
-		$ver = '<a href="https://github.com/wasja1982/Fapos2.x/" style="color:red;text-transform:none;display:inline;" title="Доступная новая версия ' . trim($w) . '">' . $ver . '</a>';
+		$ver = '<a href="https://github.com/wasja1982/Fapos2.x/" style="color:red;text-transform:none;display:inline;" title="Доступна новая версия ' . trim($w) . '">' . $ver . '</a>';
 	}
 ?>
 
