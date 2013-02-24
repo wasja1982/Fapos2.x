@@ -32,8 +32,8 @@ if (!empty($params[0]) && !empty($params[1])) {
 	}
 	
 	// Min allowed size
-	if (!isset($size_x)) $size_x = 150;
-	if (!isset($size_y)) $size_y = 150;
+	if (!isset($size_x) || $size_x < 150) $size_x = 150;
+	if (!isset($size_y) || $size_y < 150) $size_y = 150;
 	
 
 	// New path

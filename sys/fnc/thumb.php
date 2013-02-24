@@ -1,6 +1,9 @@
 <?php
 
 function resampleImage($path, $new_path, $sizew, $sizeh) {
+	if (!isset($sizew) || $sizew < 150) $sizew = 150;
+	if (!isset($sizeh) || $sizeh < 150) $sizeh = 150;
+
 	$itype = 2;
 	if (function_exists('exif_imagetype')) {
 		$itype = exif_imagetype($path);
