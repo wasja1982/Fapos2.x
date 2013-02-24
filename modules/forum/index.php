@@ -1601,8 +1601,6 @@ Class ForumModule extends Module {
 			'first_top' => (!empty($first_top)) ? first_top : '0',
 		);
 
-		$markers['users_groups'] = $this->Register['ACL']->getGroups();
-		
 		// nav block
 		$navi = array();
 		$navi['navigation'] = get_link(__('Home'), '/') . __('Separator') 
@@ -1911,8 +1909,6 @@ Class ForumModule extends Module {
 			'first_top' => (!empty($first_top)) ? $first_top : '0',
 		);
 			
-		$data['users_groups'] = $this->Register['ACL']->getGroups();
-		
 		// nav block
 		$navi = array();
 		$navi['navigation'] = get_link(__('Home'), '/') . __('Separator') 
