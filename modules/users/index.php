@@ -248,8 +248,6 @@ Class UsersModule extends Module {
 	 */
 	public function add()
 	{
-		error_reporting(E_ALL);
-		ini_set('display_errors', '1');
 		if (!empty($_SESSION['user']['id'])) redirect('/');
 	
 		// Если не переданы данные формы - значит функция была вызвана по ошибке
