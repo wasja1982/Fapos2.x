@@ -28,12 +28,17 @@ function resampleImage($path, $new_path, $sizew, $sizeh) {
 	}
 	$w = imagesx($img);
 	$h = imagesy($img);
-	if ($w / $sizew < ($h / $sizeh)) {
-		$nw = intval($w * $sizeh / $h);
-		$nh = $sizeh;
+	if ($w < $sizew && $h < $sizeh) {
+		$nw = $w;
+		$nh = $h;
 	} else {
-		$nw = $sizew;
-		$nh = intval($h * $sizew / $w);
+		if (($w / $sizew) < ($h / $sizeh)) {
+			$nw = intval($w * $sizeh / $h);
+			$nh = $sizeh;
+		} else {
+			$nw = $sizew;
+			$nh = intval($h * $sizew / $w);
+		}
 	}
 
 	$dest = imagecreatetruecolor($nw, $nh);
