@@ -258,6 +258,7 @@ class Document_Parser {
 		$markers['today_born_users'] = (!empty($tbout)) ? $tbout : __('No today born users');
 
 		$markers['fps_users_groups'] = $Register['ACL']->getGroups();
+		$markers['fps_users_edit'] = ($Register['ACL']->turn(array('users', 'edit_users'), false)) ? '1' : '0';
 		
 		return 	$markers;
 	}
