@@ -361,6 +361,7 @@ $language = array(
 	'Posts cnt must be numeric' 	=> 'Кол-во сообщений должно быть числом',
 	'Recalculation forum' 			=> 'Пересчет данных форума',
 	'All done' 						=> 'Все готово.',
+	'No changing own group'         => 'Нельзя изменять свою группу',
 	
 	
 	// Templates name

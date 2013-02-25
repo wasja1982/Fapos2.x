@@ -2899,5 +2899,35 @@ Class UsersModule extends Module {
 			
 		die();
 	}
+	
+	
+	public function update_group($user_id, $group = null)
+	{
+		// Fps counter OFF
+		$this->counter = false;
+		$this->cached = false;
+
+		// Check rules
+		if (!isset($_SESSION['user'])) die(__('Permission denied'));
+		if (!$this->ACL->turn(array($this->module, 'edit_users'), false)) die(__('Permission denied'));
+
+		$user_id = intval($user_id);
+		if ($user_id < 1) die(__('Can not find user'));
+		if (intval($_SESSION['user']['id']) == $user_id) die(__('No changing own group'));
+		
+		if ($group === null && !empty($_POST['group'])) $group = $_POST['points'];
+		$group = intval($group);
+		
+		$groups = $this->Register['ACL']->getGroups();
+		if ($group < 1 || !isset($groups[$group])) die(__('Can not find user'));
+		
+		// Check user exists
+		$user = $this->Model->getById($user_id);
+		if (empty($user)) die(__('Can not find user'));
+		
+		$user->setStatus($group);
+		$user->save();
+		die('ok');
+	}
 }
 
