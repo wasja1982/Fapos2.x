@@ -634,3 +634,18 @@ function check_pm(uid){
 		});
 	}
 }
+
+function setGroup(uid, formId) {
+	var fgroup = $('#' + formId + ' option:selected');
+	if (fgroup[0] != undefined) {
+		var group = fgroup[0].value;
+		$.post('/users/update_group/' + uid + '/' + group, {"group":group}, function(data){
+			if (data == 'ok') {
+				$('#infomess_' + uid).html('Группа изменена успешно!');
+			} else {
+				$('#infomess_' + uid).html(data);
+			}
+			return true;
+		});
+	}
+}
