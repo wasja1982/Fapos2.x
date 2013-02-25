@@ -90,18 +90,16 @@ Class UsersModule extends Module {
 			$uid = $user->getId();
 			
 
-			$markers['user_name'] = get_link(h($user->getName()), $this->getModuleURL('info/' . $uid));
-			
 			$markers['moder_panel'] = '';
 			if ($this->ACL->turn(array($this->module, 'edit_users'), false)) {
-				$markers['adm_panel'] = get_link(get_img('/sys/img/edit_16x16.png',
+				$markers['moder_panel'] = get_link(get_img('/sys/img/edit_16x16.png',
 				array('alt' => __('Edit'), 'title' => __('Edit'))),
 				$this->getModuleURL('edit_form_by_admin/' . $uid));
 			}
 			
 			
 			$status = $this->ACL->get_user_group($user->getStatus());
-			$markers['status'] = h($status['title']);
+			$markers['group'] = h($status['title']);
 
 			if (isset($_SESSION['user'])) {
 				$markers['pm'] = get_link(__('Write'), $this->getModuleURL('send_msg_form/' . $uid));
@@ -125,7 +123,10 @@ Class UsersModule extends Module {
 				$markers['age'] = '';
 			}
 			
-			$user->setAdd_markers($markers);
+			foreach($markers as $k => $v) {
+				$setter = 'set' . ucfirst($k);
+				$user->$setter($v);
+			}
 		}
 		
 
@@ -1578,7 +1579,8 @@ Class UsersModule extends Module {
 		$markers = array();
 		$markers['user_id'] 		= intval($user->getId());
 		$markers['regdate'] 		= h($user->getPuttime());
-		$markers['status'] 			= h($status_info['title']);
+		$markers['status'] 			= h($user->getStatus());
+		$markers['group'] 			= h($status_info['title']);
 		$markers['lastvisit']   	= h($user->getLast_visit());
 		$markers['lastpost'] 		= h($lastPost);
 		$markers['totalposts'] 		= h($user->getPosts());
