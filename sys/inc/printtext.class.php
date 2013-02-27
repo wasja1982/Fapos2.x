@@ -295,7 +295,12 @@ class PrintText {
 		
 		$message = preg_replace("#\[quote\](.+)\[\/quote\]#uisU",'<div class="bbQuoteBlock"><div class="bbQuoteName" style=""><b>Цитата</b></div><div class="quoteMessage" style="">\\1</div></div>',$message);
 		$message = preg_replace("#\[quote=([-_0-9a-zа-я]{1,30})\](.+)\[\/quote\]#isuU", '<div class="bbQuoteBlock"><div class="bbQuoteName" style=""><b>\\1 пишет:</b></div><div class="quoteMessage" style="">\\2</div></div>', $message);
-		$message = preg_replace("#\[quote=&quot;([-_ 0-9a-zа-я]{1,30})&quot;\](.+)\[\/quote\]#isuU", '<div class="bbQuoteBlock"><div class="bbQuoteName" style=""><b>\\1 пишет:</b></div><div class="quoteMessage" style="">\\2</div></div>', $message);
+		if (!$ACL->turn(array('bbcodes', 'html'), false, $ustatus) 
+		|| !Config::read('allow_html')) {
+			$message = preg_replace("#\[quote=&quot;([-_ 0-9a-zа-я]{1,30})&quot;\](.+)\[\/quote\]#isuU", '<div class="bbQuoteBlock"><div class="bbQuoteName" style=""><b>\\1 пишет:</b></div><div class="quoteMessage" style="">\\2</div></div>', $message);
+		} else {
+			$message = preg_replace("#\[quote=\"([-_ 0-9a-zа-я]{1,30})\"\](.+)\[\/quote\]#isuU", '<div class="bbQuoteBlock"><div class="bbQuoteName" style=""><b>\\1 пишет:</b></div><div class="quoteMessage" style="">\\2</div></div>', $message);
+		}
 		$message = $this->parseImgBb($message, $title);
 		
 		
