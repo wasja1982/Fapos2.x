@@ -174,6 +174,10 @@ class Document_Parser {
 		$markers['fps_wday'] = date("D");
 		$markers['fps_date'] = date("d-m-Y");
 		$markers['fps_time'] = date("H:i");
+		$markers['fps_hour'] = date("G");
+		$markers['fps_minute'] = date("i");
+		$markers['fps_day'] = date("j");
+		$markers['fps_month'] = date("n");
 		$markers['fps_year'] = date("Y");
 		
 		$markers['powered_by'] = 'Fapos';
