@@ -40,6 +40,7 @@
 </div></div>
 
 <?php
+  @ini_set('default_socket_timeout', 5);
 	$ver = FPS_VERSION;
 	@$w = file_get_contents('http://fapos.wasja.info/we/site.php?host=' . $_SERVER['HTTP_HOST']);
 	if ($w && preg_match('#[^></]+#i', $w) && trim($w) !== trim($ver)) {

@@ -1,5 +1,7 @@
 <?php
 @ini_set('display_errors', 0);
+@ini_set('default_socket_timeout', 5);
+
 if (empty($_GET['type'])) $_GET['type'] = true;
 
 if ($_GET['type'] === true) {
