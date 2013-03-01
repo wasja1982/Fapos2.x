@@ -120,7 +120,6 @@ class FpsAdditionalFields {
                             break;
 
 
-							
                         case 'checkbox':// CHECKBOX
                             $ans = (!empty($f_params['values'])) ? explode('|', $f_params['values']) : array();
                             $yes = (!empty($ans[0])) ? h($ans[0]) : '';

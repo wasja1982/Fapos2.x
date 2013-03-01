@@ -4,12 +4,12 @@
 | @Author:       Andrey Brykin (Drunya)        |
 | @Email:        drunyacoder@gmail.com         |
 | @Site:         http://fapos.net              |
-| @Version:      1.7.8                         |
+| @Version:      1.7.9                         |
 | @Project:      CMS                           |
 | @Package       CMS Fapos                     |
 | @Subpackege    News Module                   |
-| @Copyright     ©Andrey Brykin 2010-2013      |
-| @Last mod      2013/01/17                    |
+| @Copyright     В©Andrey Brykin 2010-2013      |
+| @Last mod      2013/02/22                    |
 |----------------------------------------------|
 |											   |
 | any partial or not partial extension         |
