@@ -2896,7 +2896,7 @@ Class UsersModule extends Module {
 		
 		$res = $this->Model->getNewPmMessages($uid);
 		if ($res) {
-			die($res['cnt']);
+			die($res);
 		}
 			
 		die();
