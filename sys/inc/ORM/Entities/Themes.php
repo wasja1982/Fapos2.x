@@ -2,12 +2,12 @@
 /*---------------------------------------------\
 |											   |
 | @Author:       Andrey Brykin (Drunya)        |
-| @Version:      1.0                           |
+| @Version:      1.1                           |
 | @Project:      CMS                           |
 | @package       CMS Fapos                     |
 | @subpackege    Themes Entity                 |
-| @copyright     ©Andrey Brykin 2010-2012      |
-| @last mod      2012/05/20                    |
+| @copyright     ©Andrey Brykin 2010-2013      |
+| @last mod      2013/02/25                    |
 |----------------------------------------------|
 |											   |
 | any partial or not partial extension         |
