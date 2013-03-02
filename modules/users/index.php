@@ -461,7 +461,7 @@ Class UsersModule extends Module {
 		// Все поля заполнены правильно - продолжаем регистрацию
 		$data = array(
 			'name'  	=> $name,
-			'passw' 	=> md5( $password ),
+			'passw' 	=> md5crypt( $password ),
 			'email' 	=> $email,
 			'timezone' 	=> $timezone,
 			'url' 		=> $url,
@@ -660,8 +660,8 @@ Class UsersModule extends Module {
 				// Как происходит процедура восстановления пароля? Пользователь ввел свой логин
 				// и e-mail, мы проверяем существование такого пользователя в таблице БД. Потом
 				// генерируем с помощью функции getNewPassword() новый пароль, создаем файл с именем
-				// md5( $newPassword ) в директории activate. Файл содержит ID пользователя.
-				// В качестве кода активации выступает хэш пароля - md5( $newPassword ).
+				// хэша пароля в директории activate. Файл содержит ID пользователя.
+				// В качестве кода активации выступает хэш пароля.
 				// Когда пользователь перейдет по ссылке в письме для активации своего нового пароля,
 				// мы проверяем наличие в директории activatePassword файла с именем кода активации,
 				// и если он существует, активируем новый пароль.
@@ -670,10 +670,10 @@ Class UsersModule extends Module {
 				$name = $user->getName();
 				$email = $user->getEmail();
 				$newPassword = $this->_getNewPassword();
-				$code = md5($newPassword);
-				// file_put_contents(ROOT . '/sys/tmp/activate/'.$code, $id );
-				$fp = fopen( ROOT . '/sys/tmp/activate/' . $code, "w" );
-				fwrite($fp, $id);
+				$code = md5crypt($newPassword);
+				$filename = md5($code);
+				$fp = fopen( ROOT . '/sys/tmp/activate/' . $filename, "w" );
+				fwrite($fp, $id . "\n" . $code);
 				fclose($fp);
 
 
@@ -689,7 +689,7 @@ Class UsersModule extends Module {
 						 обратитесь к администратору форума</p>'."\n";
 				$message = $message.'<p>Прежде чем использовать новый пароль, вы должны его активировать.
 						 Для этого перейдите по ссылке:</p>'."\n";
-				$link = 'http://'.$_SERVER['SERVER_NAME'] . $this->getModuleURL('activate_password/' . $code);
+				$link = 'http://'.$_SERVER['SERVER_NAME'] . $this->getModuleURL('activate_password/' . $filename);
 				$message = $message.'<p><a href="'.$link.'">Активировать пароль</a></p>'."\n";
 				$message = $message.'<p>В случае успешной активации вы сможете входить в систему, используя
 						 следующий пароль: '.$newPassword.'</p>'."\n";
@@ -744,7 +744,7 @@ Class UsersModule extends Module {
 			unlink($f_path);
 			$id_user = (int)trim($file[0]);
 			$user = $this->Model->getById($id_user);
-			$user->setPassw($code);
+			$user->setPassw(count($file) > 1 ? trim($file[1]) : $code);
 			$user->save();
 			$message = __('New pass is ready');
 			if ($this->Log) $this->Log->write('activate new passw', 'user id(' . $id_user . ')');
@@ -1087,8 +1087,9 @@ Class UsersModule extends Module {
 
 		$user_data = array();
 		if ( $changePassword ) {
-			$user->setPassw(md5($newpassword));
-			$_SESSION['user']['passw'] = md5( $newpassword );
+			$npass = md5crypt($newpassword);
+			$user->setPassw($npass);
+			$_SESSION['user']['passw'] = $npass;
 		}
 		if ( $changeEmail ) {
 			$user->setEmail($email);
@@ -1113,12 +1114,6 @@ Class UsersModule extends Module {
 		if (is_object($this->AddFields)) {
 			$this->AddFields->save($_SESSION['user']['id'], $_addFields);
 		}
-		
-		
-		// Теперь надо обновить данные о пользователе в массиве $_SESSION['user']
-		if ( $changePassword ) $_SESSION['user']['passw'] = md5( $newpassword );
-		if ( $changeEmail ) $_SESSION['user']['email'] = $email;
-		//$_SESSION['user'] = array_merge($_SESSION['user'], $user_data);
 		
 		
 		// ... и в массиве $_COOKIE
@@ -1500,7 +1495,7 @@ Class UsersModule extends Module {
 
 		// Все поля заполнены правильно - записываем изменения в БД
 		if ( $changePassword ) {
-			$user->setPassw(md5($newpassword));
+			$user->setPassw(md5crypt($newpassword));
 		}
 		if ( $changeEmail ) {
 			$user->setEmail($email);

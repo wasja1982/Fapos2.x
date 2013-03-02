@@ -743,3 +743,17 @@ function checkPassword($md5_password, $password) {
 	}
 	return $check_password;
 }
+
+function md5crypt($password){
+	$Register = Register::getInstance();
+	if ($Register['Config']->read('use_md5_salt', 'users') == 1) {
+		$alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
+		$salt = '';
+		for($i = 0; $i < 4; $i++) {
+			$salt .= $alphabet[rand(0, strlen($alphabet)-1)];
+		}
+		return crypt($password, '$1$' . $salt . '$');
+	} else {
+		return md5($password);
+	}
+}
