@@ -453,7 +453,7 @@ Class UsersModule extends Module {
 			redirect($this->getModuleURL('add_form/yes'));
 		}
 
-		if (!empty($url) and substr($url, 0, 7) != 'http://') $url = 'http://' . $url;
+		if (!empty($url) && mb_substr($url, 0, mb_strlen('http://')) !== 'http://') $url = 'http://' . $url;
 
 		// Уникальный код для активации учетной записи
 		$email_activate = $this->Register['Config']->read('email_activate');
@@ -1080,7 +1080,7 @@ Class UsersModule extends Module {
 		}
 
 		// Все поля заполнены правильно - записываем изменения в БД
-		if (mb_substr($url, 0, mb_strlen('http://')) !== 'http://') $url = 'http://' . $url;
+		if (!empty($url) && mb_substr($url, 0, mb_strlen('http://')) !== 'http://') $url = 'http://' . $url;
 
 
 		$user = $this->Model->getById($_SESSION['user']['id']);
@@ -1628,6 +1628,28 @@ Class UsersModule extends Module {
 			. get_link(h($this->module_title), $this->getModuleURL()) . __('Separator') . __('Profile');
 		$this->_globalize($nav);
 
+		$stat = array();
+		$modules = glob(ROOT . '/modules/*', GLOB_ONLYDIR);
+		if (count($modules)) {
+			foreach ($modules as $path) {
+				$title = substr(strrchr($path, '/'), 1);
+				$classname = $this->Register['ModManager']->getModelName($title);
+				if ($this->Register['Config']->read($title) && class_exists($classname)) {
+					@$mod = new $classname;
+					if (isset($mod)) {
+						if (method_exists($mod, 'getUserStatistic')) {
+							$stats = $mod->getUserStatistic($id);
+							if (!empty($stats) && is_array($stats)) {
+								$stat = array_merge($stat, $stats);
+							}
+						}
+						unset($mod);
+					}
+				}
+			}
+		}
+		uasort($stat, 'cmpText');
+		$markers['stat'] = $stat;
 
 		foreach($markers as $k => $v) {
 			$setter = 'set' . ucfirst($k);
@@ -2927,4 +2949,3 @@ Class UsersModule extends Module {
 		die('ok');
 	}
 }
-

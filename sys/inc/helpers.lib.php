@@ -757,3 +757,14 @@ function md5crypt($password){
 		return md5($password);
 	}
 }
+
+function cmpText($a, $b) {
+	if (is_array($a) && is_array($b) && isset($a['text']) && isset($b['text'])) {
+		if ($a['text'] == $b['text']) {
+			return 0;
+		}
+		return ($a['text'] < $b['text']) ? -1 : 1;
+	} else {
+		return 0;
+	}
+}
