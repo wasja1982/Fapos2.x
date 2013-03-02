@@ -154,15 +154,19 @@ class UsersModel extends FpsModel
 	public function getByNamePass($name, $password)
 	{
         $Register = Register::getInstance();
-		$entity = $Register['DB']->query("SELECT *, UNIX_TIMESTAMP(last_visit) as unix_last_visit
+		$entities = $Register['DB']->query("SELECT *, UNIX_TIMESTAMP(last_visit) as unix_last_visit
 			FROM `" . $Register['DB']->getFullTableName('users') . "`  WHERE name='"
-			.mysql_real_escape_string( $name )."' AND passw='".mysql_real_escape_string( md5( $password ) )
-			."' LIMIT 1");
+			.mysql_real_escape_string( $name )."' LIMIT 1");
 
-		if (!empty($entity[0])) {
-            $entity = $this->getAllAssigned($entity);
+		$check_password = false;
+		if (count($entities) > 0 && !empty($entities[0])) {
+			$check_password = checkPassword($entities[0]['passw'], $password);
+		}
+
+		if (count($entities) > 0 && !empty($entities[0]) && $check_password) {
+            $entities = $this->getAllAssigned($entities);
 			$entityClassName = $Register['ModManager']->getEntityNameFromModel(get_class($this));
-			$entity = new $entityClassName($entity[0]);
+			$entity = new $entityClassName($entities[0]);
 			return (!empty($entity)) ? $entity : false;
 		}
 		return false;

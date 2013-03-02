@@ -974,7 +974,7 @@ Class UsersModule extends Module {
 		$changePassword = false;
 		$changeEmail = false;
 		if (!empty($password)) {
-			if ( md5($password) != $_SESSION['user']['passw'] ) 
+			if (!checkPassword($_SESSION['user']['passw'], $password)) 
 				$error = $error.'<li>' . __('Wrong current pass') . '</li>'."\n";
 			// Надо выяснить, что хочет сделать пользователь:
 			// поменять свой e-mail, изменить пароль или и то и другое

@@ -55,14 +55,17 @@ class UserAuth
 		$query = "SELECT *, UNIX_TIMESTAMP(last_visit) as unix_last_visit
 				FROM `" . $FpsDB->getFullTableName('users') . "`
 				WHERE `id`='".mysql_real_escape_string( $user_id )."'
-				AND `passw`='".mysql_real_escape_string( $password )."'
 				LIMIT 1";
 		$res = $FpsDB->query( $query );
 
+		$check_password = false;
+		if (count($res) > 0 && !empty($res[0])) {
+			$check_password = checkPassword($res[0]['passw'], $password);
+		}
 
 		// Если пользователь с таким логином и паролем не найден -
 		// значит данные неверные и надо их удалить
-		if ( count( $res ) < 1 ) {
+		if (count($res) < 1 || !$check_password) {
 			//$tmppos = strrpos( $_SERVER['PHP_SELF'], '/' ) + 1;
 			//$path = substr( $_SERVER['PHP_SELF'], 0, $tmppos );
 			$path = '/';

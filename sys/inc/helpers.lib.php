@@ -733,3 +733,13 @@ function getAvatar($id_user = null, $email_user = null) {
 		return $def;
 	}
 }
+
+function checkPassword($md5_password, $password) {
+	$check_password = false;
+	if (strpos($md5_password, '$1$') === 0 && CRYPT_MD5 == 1) {
+		$check_password = (crypt($password, $md5_password) === $md5_password);
+	} else {
+		$check_password = (md5($password) === $md5_password);
+	}
+	return $check_password;
+}
