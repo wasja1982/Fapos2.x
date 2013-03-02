@@ -208,7 +208,7 @@ class SearchModule extends Module {
 		
 		$index_interval = intval(Config::read('index_interval', $this->module));
 		if ($index_interval < 1) $index_interval = 1;
-		$meta['expire'] = (time() + ($index_interval * 8));
+		$meta['expire'] = (time() + ($index_interval * 84000));
 		file_put_contents($meta_file, serialize($meta));
 		return true;
 	}
