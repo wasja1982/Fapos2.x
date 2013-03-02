@@ -88,10 +88,9 @@ class SearchModule extends Module {
 				}
 			}
 
-			
+			$_SESSION['search_query'] = $str;
 			if (!empty($error)) {
 				$_SESSION['errorForm'] = array();
-				$_SESSION['errorForm']['search'] = $str;
 				$_SESSION['errorForm']['error'] = $error;
 				redirect($this->getModuleURL());
 			}
@@ -104,11 +103,11 @@ class SearchModule extends Module {
 					} else {
 						$announce = mb_substr($result->getIndex(), 0, 150);
 					}
-					if (preg_match('#(' . $str . '(([\s]+)|([^\s]{0,100})){0,7})#miu', $announce, $match)) {
-						$title = h($match[1]);
-					} else {
-						$title = h($str);
-					}
+					$title = $this->Model->getTitleName($result->getModule(), $result->getEntity_id());
+
+
+
+					$result->getEntity_id();
 
 					
 					$announce = str_replace($str, '<strong>' . $str . '</strong>', h($announce));
@@ -120,6 +119,8 @@ class SearchModule extends Module {
 			} else {
 				$error = __('No results'); // TODO
 			}
+		} else {
+			$_SESSION['search_query'] = '';
 		}
 	
 		
@@ -176,14 +177,11 @@ class SearchModule extends Module {
 			$markers['info'] = $this->render('infomessage.html', array('context' => array(
 				'info_message' => $_SESSION['errorForm']['error'],
 			)));
-			$search_str = $_SESSION['errorForm']['search'];
 			unset($_SESSION['errorForm']);
 		}
 		
+		$markers['search'] = $_SESSION['search_query'];
 
-		if ($this->returnForm)
-			$markers['search'] = '';
-			
 		$source = $this->render('search_form.html', array('context' => $markers));
 		return ($this->returnForm) ? $this->_view($source) : $source;
 	}
@@ -210,7 +208,7 @@ class SearchModule extends Module {
 		
 		$index_interval = intval(Config::read('index_interval', $this->module));
 		if ($index_interval < 1) $index_interval = 1;
-		$meta['expire'] = (time() + ($index_interval * 84000));
+		$meta['expire'] = (time() + ($index_interval * 8));
 		file_put_contents($meta_file, serialize($meta));
 		return true;
 	}
@@ -268,7 +266,7 @@ class SearchModule extends Module {
 						case 'news':
 						case 'stat':
 						case 'loads':
-							$text = $rec->getTitle() . $rec->getMain();
+							$text = $rec->getTitle().' '.$rec->getMain().' '.$rec->getTags();
 							if (mb_strlen($text) < $this->minInputStr || !is_string($text)) continue;
 							$entity_view = '/view/';
 							$module = $table;
@@ -286,7 +284,7 @@ class SearchModule extends Module {
 							break;
 
 						default:
-							$text = $rec->gettitle() . $rec->getMain();
+							$text = $rec->gettitle().' '.$rec->getMain().' '.$rec->getTags();
 							if (mb_strlen($text) < $this->minInputStr || !is_string($text)) continue;
 							$entity_view = '/view/';
 							$module = $table;
