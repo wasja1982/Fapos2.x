@@ -52,4 +52,15 @@ class SearchModel extends FpsModel
 			
 		return $results;
 	}
+
+	public function getTitleName($module, $id)
+	{
+		if ($module!='forum') {
+			$res = $this->getDbDriver()->query("SELECT `title` FROM `" . $this->getDbDriver()->getFullTableName($module) . "` WHERE `id` LIKE '".$id."'");
+		} else {
+			$idtheme = $this->getDbDriver()->query("SELECT `id_theme` FROM `" . $this->getDbDriver()->getFullTableName('posts') . "` WHERE `id` LIKE '".$id."'");
+			$res = $this->getDbDriver()->query("SELECT `title` FROM `" . $this->getDbDriver()->getFullTableName('themes') . "` WHERE `id` LIKE '".$idtheme[0]['id_theme']."'");
+		}
+		return (!empty($res[0]) && !empty($res[0]['title'])) ? (string)$res[0]['title'] : 0;
+	}
 }
