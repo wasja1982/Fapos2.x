@@ -168,11 +168,11 @@ if (isset($_POST['send'])) {
 			if (!empty($params['onsave']['func'])
 				&& function_exists((string)$params['onsave']['func'])) {
 				if ($params['type'] == 'file' && (isset($_POST[$fname]) || isset($_FILES[$fname]))) {
-					call_user_func((string)$params['onsave']['func'], &$tmpSet);
+					call_user_func((string)$params['onsave']['func'], $tmpSet);
 					continue;
 				} else {
 					$tmpSet[$fname] = $value;
-					call_user_func((string)$params['onsave']['func'], &$tmpSet);
+					call_user_func((string)$params['onsave']['func'], $tmpSet);
 				}
 			}
 		}
