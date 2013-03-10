@@ -403,9 +403,9 @@ class PrintText {
 		$Register = Register::getInstance();
 		
 		
-		if (!empty($_SESSION['module'])) {
-			$sizex = $Register['Config']->read('img_size_x', $Register['dispath_params'][0]);
-			$sizey = $Register['Config']->read('img_size_y', $Register['dispath_params'][0]);
+		if (!empty($Register['module'])) {
+			$sizex = $Register['Config']->read('img_size_x', $Register['module']);
+			$sizey = $Register['Config']->read('img_size_y', $Register['module']);
 			$sizex = intval($sizex);
 			$sizey = intval($sizey);
 			if (!empty($sizex) && !empty($sizey)) {
