@@ -2407,7 +2407,7 @@ Class ForumModule extends Module {
 		
 		if ($gluing === true) {
 			$message = $prev_post[0]->getMessage() . "\n\n" . '[color=939494]' 
-			. __('Added') . date("Y.m.d  H-i") . "[/color]\n\n" . $message;
+			. __('Added') . " " . date("Y.m.d  H-i") . "[/color]\n\n" . $message;
 			
 			$prev_post[0]->setMessage($message);
 			$prev_post[0]->setTime(new Expr('NOW()'));
