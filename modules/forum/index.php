@@ -134,11 +134,13 @@ Class ForumModule extends Module {
 		foreach ($categories as $cat) {
 			$cat->setCat_url(get_url($this->getModuleURL('index/' . $cat->getId())));
 			$forums = $cat->getForums();	
-			if (!empty($forums)) {
+			if ($forums && !empty($forums)) {
 				foreach ($forums as $forum) {
-					$subforums = $forum->getSubforums();
-					//forming forums
-					$forum = $this->_parseForumTable($forum);
+					if ($forum) {
+						$subforums = $forum->getSubforums();
+						//forming forums
+						$forum = $this->_parseForumTable($forum);
+					}
 				}
 			} else {
 				$info = __('Subforum is empty');
@@ -500,7 +502,7 @@ Class ForumModule extends Module {
 		
 		//USER PROFILE
 		$author_url = __('Guest');
-		if ($theme->getId_author()) {
+		if ($theme->getId_author() && $theme->getAuthor()) {
 			$author_url = get_link(h($theme->getAuthor()->getName()), getProfileUrl($theme->getId_author()));
 		}
 		$theme->setAuthorUrl($author_url); 
@@ -508,7 +510,7 @@ Class ForumModule extends Module {
 		
 		// Last post author
 		$last_user = __('Guest');
-		if ($theme->getId_last_author()) {
+		if ($theme->getId_last_author() && $theme->getLast_author()) {
 			$last_user = get_link(h($theme->getLast_author()->getName()), getProfileUrl($theme->getId_last_author()));
 		}
 		$last_page = get_link(__('To last'), $this->getModuleURL('view_theme/' . $theme->getId() . '&page=99999'));
@@ -729,7 +731,6 @@ Class ForumModule extends Module {
 			
 			
 			
-			$usersModel = $this->Register['ModManager']->getModelInstance('Users');
 			$first_top = false;
 			if ($page > 1 && $theme->getFirst_top() == '1') {
 				$post = $postsModel->getCollection(array(
@@ -745,55 +746,115 @@ Class ForumModule extends Module {
 			}
 			foreach ($posts as $post) {
 				// Если автор сообщения (поста) - зарегистрированный пользователь
-				$postAuthor = $usersModel->getById($post->getId_author());
+				$postAuthor = $post->getAuthor();
+                $author_status = ($postAuthor && $postAuthor->getStatus()) ? $postAuthor->getStatus() : 0;
 				if ($postAuthor) {
+					if (!property_exists($postAuthor, 'processComplete')) {
+						// Аватар
+						$postAuthor->setAvatar(getAvatar($post->getId_author()));
 
-					// Аватар
-					$postAuthor->setAvatar(getAvatar($post->getId_author()));
+
+						// Статус пользователя
+						$status = $this->Register['ACL']->get_group_info();
+						$user_status = $status[$author_status];
+						$postAuthor->setStatus_title($user_status['title']);
 
 
-					// Статус пользователя
-					$status = $this->Register['ACL']->get_group_info();
-					$user_status = $status[$postAuthor->getStatus()];
-					$postAuthor->setStatus_title($user_status['title']);
-					
+						// Рейтинг пользователя (по количеству сообщений)
+						$rating = $postAuthor->getPosts();
+						$rank_star = getUserRating($rating, $rating_settings);
+						$postAuthor->setRank($rank_star['rank']);
+						if ($postAuthor->getState()) $postAuthor->setRank($postAuthor->getState());
+						$postAuthor->setUser_rank(get_img('/sys/img/' . $rank_star['img']));
 
-					// Рейтинг пользователя (по количеству сообщений)
-					$rating = $postAuthor->getPosts();
-					$rank_star = getUserRating($rating, $rating_settings);
-					$postAuthor->setRank($rank_star['rank']);
-					if ($postAuthor->getState()) $postAuthor->setRank($postAuthor->getState());
-					$postAuthor->setUser_rank(get_img('/sys/img/' . $rank_star['img']));
-					
 
-					// Если автор сообщения сейчас "на сайте"
-					$users_on_line = getOnlineUsers(); 
-					if (isset($users_on_line) &&  isset($users_on_line[$post->getId_author()])) {
-						$postAuthor->setStatus_on(__('Online'));
-						$postAuthor->setStatus_line('Online');
-					} else {
-						$postAuthor->setStatus_on(__('Offline'));
-						$postAuthor->setStatus_line('Offline');
+						// Если автор сообщения сейчас "на сайте"
+						$users_on_line = getOnlineUsers(); 
+						if (isset($users_on_line) &&  isset($users_on_line[$post->getId_author()])) {
+							$postAuthor->setStatus_on(__('Online'));
+							$postAuthor->setStatus_line('Online');
+						} else {
+							$postAuthor->setStatus_on(__('Offline'));
+							$postAuthor->setStatus_line('Offline');
+						}
+
+
+						// Если пользователь заблокирован
+						if ($postAuthor->getBlocked()) {
+							$postAuthor->setStatus_on('<span class="statusBlock">' . __('Banned') . '</span>');
+							$postAuthor->setStatus_line('');
+						}
+				
+
+						$signature = ($postAuthor->getSignature())
+						? $this->Textarier->getSignature($postAuthor->getSignature(), $author_status) : '' ;
+						$postAuthor->setSignature($signature);
+
+
+						// If author is authorized user. 
+						$email = '';
+						$privat_message = '';
+						$author_site = '';
+						$user_profile = '';
+						$icon_params = array('class' => 'user-details');
+
+
+						if ($post->getId_author()) {
+							$user_profile = '&nbsp;' . get_link(
+								get_img(
+									'/template/' . getTemplateName() . '/img/icon_profile.png', 
+									array('alt' => __('View profile'), 'title' => __('View profile'))
+								), 
+								'/users/info/' . $post->getId_author(), 
+								$icon_params
+							);
+
+
+							if (isset($_SESSION['user'])) {
+								$email = '&nbsp;' . get_link(
+									get_img(
+										'/template/' . getTemplateName() . '/img/icon_email.png', 
+										array('alt' => __('Send mail'), 'title' => __('Send mail'))
+									), 
+									'/users/send_mail_form/' . $post->getId_author(), 
+									$icon_params
+								);
+								$privat_message = '&nbsp;' . get_link(
+									get_img(
+										'/template/' . getTemplateName() . '/img/icon_pm.png', 
+										array('alt' => __('PM'), 'title' => __('PM'))
+									), 
+									'/users/send_msg_form/' . $post->getId_author(), 
+									$icon_params
+								);
+							}
+
+
+							$author_site = ($postAuthor->getUrl()) 
+								? '&nbsp;' . get_link(
+									get_img(
+										'/template/' . getTemplateName() . '/img/icon_www.png', 
+										array('alt' => __('Author site'), 'title' => __('Author site'))
+									), 
+									h($postAuthor->getUrl()), 
+									array_merge($icon_params, array('target' => '_blank')), true) 
+								: '';
+						}
+						$postAuthor->setAuthor_site($author_site);
+						$postAuthor->setProfile_url($user_profile);
+						$postAuthor->setEmail_url($email);
+						$postAuthor->setPm_url($privat_message);
+						
+						$postAuthor->processComplete = true;
 					}
 
-
-					// Если пользователь заблокирован
-					if ($postAuthor->getBlocked()) {
-						$postAuthor->setStatus_on('<span class="statusBlock">' . __('Banned') . '</span>');
-						$postAuthor->setStatus_line('');
-					}
-
-
-
+				
                 // Если автор сообщения - незарегистрированный пользователь
 				} else {
-				    $postAuthor->setAvatar(getAvatar());
-				    $postAuthor->setName(__('Guest'));
+					$postAuthor = new FpsEntity();
+					$postAuthor->setAvatar(getAvatar());
+					$postAuthor->setName(__('Guest'));
 				}
-				
-				
-                $author_status = ($post->getAuthor()) ? $post->getAuthor()->getStatus() : 0;
-				
 				
 				$message = $this->Textarier->print_page($post->getMessage(), $author_status);
 
@@ -829,73 +890,13 @@ Class ForumModule extends Module {
 				}
 
 				$post->setMessage($message);
-				
-
-				$signature = ($postAuthor->getSignature())
-				? $this->Textarier->getSignature($postAuthor->getSignature(), $postAuthor->getStatus()) : '' ;
-                $postAuthor->setSignature($signature);
-
-				
-				// If author is authorized user. 
-				$email = '';
-				$privat_message = '';
-				$author_site = '';
-                $user_profile = '';
-				$icon_params = array('class' => 'user-details');
-				
-				
-				if ($post->getId_author()) {
-					$user_profile = '&nbsp;' . get_link(
-						get_img(
-							'/template/' . getTemplateName() . '/img/icon_profile.png', 
-							array('alt' => __('View profile'), 'title' => __('View profile'))
-						), 
-						'/users/info/' . $post->getId_author(), 
-						$icon_params
-					);
-					
-					
-					if (isset($_SESSION['user'])) {
-						$email = '&nbsp;' . get_link(
-							get_img(
-								'/template/' . getTemplateName() . '/img/icon_email.png', 
-								array('alt' => __('Send mail'), 'title' => __('Send mail'))
-							), 
-							'/users/send_mail_form/' . $post->getId_author(), 
-							$icon_params
-						);
-						$privat_message = '&nbsp;' . get_link(
-							get_img(
-								'/template/' . getTemplateName() . '/img/icon_pm.png', 
-								array('alt' => __('PM'), 'title' => __('PM'))
-							), 
-							'/users/send_msg_form/' . $post->getId_author(), 
-							$icon_params
-						);
-					}
-					
-					
-					$author_site = ($postAuthor->getUrl()) 
-						? '&nbsp;' . get_link(
-							get_img(
-								'/template/' . getTemplateName() . '/img/icon_www.png', 
-								array('alt' => __('Author site'), 'title' => __('Author site'))
-							), 
-							h($postAuthor->getUrl()), 
-							array_merge($icon_params, array('target' => '_blank')), true) 
-						: '';
-				}
-				$postAuthor->setAuthor_site($author_site);
-				$postAuthor->setProfile_url($user_profile);
-				$postAuthor->setEmail_url($email);
-				$postAuthor->setPm_url($privat_message);
 
 
 				$post->setAuthor($postAuthor);
 				
 				
 				// Если сообщение редактировалось...
-				if ($post->getId_editor()) {
+				if ($post->getId_editor() && $post->getEditor()) {
 					if ($post->getId_author() && $post->getId_author() == $post->getId_editor()) {
 						$editor = __('Edit by author') . ' ' . $post->getEdittime();
 					} else {
@@ -1174,7 +1175,7 @@ Class ForumModule extends Module {
 	
 	private function __checkThemeAccess($theme)
 	{
-		$fid = $theme->getForum()->getId();
+		$fid = $theme->getForum() ? $theme->getForum()->getId() : 0;
 		$rules = $theme->getGroup_access();
 		$id = (!empty($_SESSION['user']['status'])) ? $_SESSION['user']['status'] : 0;
 		
@@ -1237,14 +1238,16 @@ Class ForumModule extends Module {
 		
 		
 		foreach ($themes as $theme) {
-			$theme_pf = get_link($theme->getForum()->getTitle(), $this->getModuleURL('view_forum/' . $theme->getId_forum()));
-			$theme->setParent_forum($theme_pf);
-			$theme = $this->__parseThemeTable($theme);
-			
-			//set cache tags
-			$this->setCacheTag(array(
-				'theme_id_' . $theme->getId(),
-			));
+			if ($theme) {
+				$theme_pf = $theme->getForum() ? get_link($theme->getForum()->getTitle(), $this->getModuleURL('view_forum/' . $theme->getId_forum())) : '';
+				$theme->setParent_forum($theme_pf);
+				$theme = $this->__parseThemeTable($theme);
+
+				//set cache tags
+				$this->setCacheTag(array(
+					'theme_id_' . $theme->getId(),
+				));
+			}
 		}
 		
 		
@@ -1910,7 +1913,7 @@ Class ForumModule extends Module {
 		}
 
 
-		$author_name = ($theme->getId_author()) ? h($theme->getAuthor()->getName()) : __('Guest');
+		$author_name = ($theme->getId_author() && $theme->getAuthor()) ? h($theme->getAuthor()->getName()) : __('Guest');
 		$data = array(
 			'action' => get_url($this->getModuleURL('update_theme/' . $id_theme)),
 			'theme' => $name,
@@ -2976,16 +2979,18 @@ Class ForumModule extends Module {
 		
 
 		foreach ($themes as $theme) {
-			$parent_forum = get_link($theme->getForum()->getTitle()
-				, $this->getModuleURL('view_forum/' . $theme->getId_forum()));
-			$theme->setParent_forum($parent_forum);
-			$theme = $this->__parseThemeTable($theme);
+			if ($theme) {
+				$parent_forum = $theme->getForum() ? get_link($theme->getForum()->getTitle()
+					, $this->getModuleURL('view_forum/' . $theme->getId_forum())) : '';
+				$theme->setParent_forum($parent_forum);
+				$theme = $this->__parseThemeTable($theme);
 
-			
-			//set cache tags
-			$this->setCacheTag(array(
-				'theme_id_' . $theme->getId(),
-			));
+
+				//set cache tags
+				$this->setCacheTag(array(
+					'theme_id_' . $theme->getId(),
+				));
+			}
 		}			
 		
 		
