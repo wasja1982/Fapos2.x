@@ -1819,9 +1819,11 @@ Class ForumModule extends Module {
 		if (!empty($_SESSION['user'])) {
 			$userModel = $this->Register['ModManager']->getModelInstance('Users');
 			$user = $userModel->getById($_SESSION['user']['id']);
-			$user->setThemes($user->getThemes() + 1);
-			$user->setPosts($user->getPosts() + 1);
-			$user->save();
+			if ($user) {
+				$user->setThemes($user->getThemes() + 1);
+				$user->setPosts($user->getPosts() + 1);
+				$user->save();
+			}
 		}
 		
 		
@@ -2508,8 +2510,10 @@ Class ForumModule extends Module {
 			if (isset($_SESSION['user'])) {
 				$usersModel = $this->Register['ModManager']->getModelInstance('Users');
 				$user = $usersModel->getById($id_user);
-				$user->setPosts($user->getPosts() + 1);
-				$user->save();
+				if ($user) {
+					$user->setPosts($user->getPosts() + 1);
+					$user->save();
+				}
 			}
 			
 			
