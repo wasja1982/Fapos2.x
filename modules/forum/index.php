@@ -196,8 +196,10 @@ Class ForumModule extends Module {
 			}
 			
 			
+			$id_last_post = $forum->getLast_theme()->getId_last_post();
 			$last_post = $forum->getLast_theme()->getLast_post() . '<br>' . get_link(h($last_post_title), 
-				$this->getModuleURL('view_theme/' . $forum->getLast_theme()->getId() . '?page=999'), 
+				$this->getModuleURL($id_last_post ? 'view_post/' . $id_last_post :
+				'view_theme/' . $forum->getLast_theme()->getId() . '?page=999'), 
 				array('title' => __('To last post')))
 			    . __('Post author') . $last_theme_author;
 		}
@@ -512,7 +514,9 @@ Class ForumModule extends Module {
 		if ($theme->getId_last_author() && $theme->getLast_author()) {
 			$last_user = get_link(h($theme->getLast_author()->getName()), getProfileUrl($theme->getId_last_author()));
 		}
-		$last_page = get_link(__('To last'), $this->getModuleURL('view_theme/' . $theme->getId() . '&page=99999'));
+		$id_last_page = $theme->getId_last_post();
+		$last_page = get_link(__('To last'), $this->getModuleURL($id_last_page ? 'view_post/' . $id_last_page :
+			'view_theme/' . $theme->getId() . '&page=99999'));
 		
 		
 		//NEAR PAGES
@@ -2533,12 +2537,15 @@ Class ForumModule extends Module {
 		
 		if ($gluing === false) {
 			if ($this->Log) $this->Log->write('adding post', 'post id(' . $post_id . '), theme id(' . $id_theme . ')');
-			return $this->showInfoMessage(__('Your message has been added'), $this->getModuleURL('view_theme/' 
-			. $id_theme . '?page=999#post' . $cnt_posts_from_theme));
+			return $this->showInfoMessage(__('Your message has been added'), $this->getModuleURL(
+				$post_id ? 'view_post/' . $post_id :
+				'view_theme/' . $id_theme . '?page=999#post' . $cnt_posts_from_theme));
 		} else {
 			if ($this->Log) $this->Log->write('adding post', 'post id(*gluing), theme id(' . $id_theme . ')');
-			return $this->showInfoMessage(__('Your message has been added'), $this->getModuleURL('view_theme/' 
-			. $id_theme . '?page=999#post' . $prev_post[0]->getPosts()));
+			$id_last_post = $prev_post[0]->getId_last_post();
+			return $this->showInfoMessage(__('Your message has been added'), $this->getModuleURL(
+				$id_last_post ? 'view_post/' . $id_last_post :
+				'view_theme/' . $id_theme . '?page=999#post' . $prev_post[0]->getPosts()));
 		}
 	}
 
@@ -3308,7 +3315,7 @@ Class ForumModule extends Module {
 				'order' => 'id ASC',
 				'cond' => array(
 					'id_theme' => $id_theme,
-					'id < ' . $id_post,
+					'((time = \'' . $post->getTime() . '\' AND id < ' . $id_post . ') OR time < \'' . $post->getTime() . '\')',
 				),
 			)
 		);
