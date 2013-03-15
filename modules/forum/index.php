@@ -81,8 +81,7 @@ Class ForumModule extends Module {
 		}
 		
 		//get forums categories records
-		$catsModel = $this->Register['ModManager']->getModelName('ForumCat');
-		$catsModel = new $catsModel;
+		$catsModel = $this->Register['ModManager']->getModelInstance('ForumCat');
 		$cats = $catsModel->getCollection(array($conditions), array('order' => 'previev_id'));
 		if (empty($cats)) {
 			$html = __('No categories') . "\n" . $this->_get_stat();
@@ -306,8 +305,7 @@ Class ForumModule extends Module {
 			
 			
 			// count themes for page nav
-			$themesClassName = $this->Register['ModManager']->getModelName('Themes');
-			$themesClass = new $themesClassName;
+			$themesClass = $this->Register['ModManager']->getModelInstance('Themes');
 			$themesClass->bindModel('author');
 			$themesClass->bindModel('last_author');
 			$total = $themesClass->getTotal(array('cond' => array('id_forum' => $id_forum)));
@@ -666,8 +664,7 @@ Class ForumModule extends Module {
 			
 			
 			// Page nav
-			$postsModelName = $this->Register['ModManager']->getModelName('Posts');
-			$postsModel = new $postsModelName;
+			$postsModel = $this->Register['ModManager']->getModelInstance('Posts');
 			$total = $postsModel->getTotal(array('cond' => array('id_theme' => $id_theme)));
 			
 			if ($total === 0) {
@@ -727,8 +724,7 @@ Class ForumModule extends Module {
 			
 			
 			//serialize rating settings
-			$settingsModelName = $this->Register['ModManager']->getModelName('UsersSettings');
-			$settingsModel = new $settingsModelName;
+			$settingsModel = $this->Register['ModManager']->getModelInstance('UsersSettings');
 			$rating_settings = $settingsModel->getCollection(array('type' => 'rating'));
 			$rating_settings = (count($rating_settings) > 0) ? $rating_settings[0]->getValues() : ''; 
 			
@@ -1209,8 +1205,7 @@ Class ForumModule extends Module {
 		
 		// Page nav
 		$nav = array();
-		$themesModelName = $this->Register['ModManager']->getModelName('Themes');
-		$themesModel = new $themesModelName;
+		$themesModel = $this->Register['ModManager']->getModelInstance('Themes');
 		$total = $themesModel->getTotal();
 		$perPage = $this->Register['Config']->read('themes_per_page', $this->module);
         list($pages, $page) = pagination($total, $perPage, $this->getModuleURL('last_posts/'));
@@ -3408,8 +3403,7 @@ Class ForumModule extends Module {
 
 
 		// Page nav
-		$postsModelName = $this->Register['ModManager']->getModelName('Posts');
-		$postsModel = new $postsModelName;
+		$postsModel = $this->Register['ModManager']->getModelInstance('Posts');
 
 		$where = array('id_theme' => $id_theme);
 		$first_post = $postsModel->getCollection(array(
@@ -3681,8 +3675,7 @@ Class ForumModule extends Module {
 
 
 		// Page nav
-		$postsModelName = $this->Register['ModManager']->getModelName('Posts');
-		$postsModel = new $postsModelName;
+		$postsModel = $this->Register['ModManager']->getModelInstance('Posts');
 
 		$where = array('id_theme' => $id_theme);
 		$first_post = $postsModel->getCollection(array(

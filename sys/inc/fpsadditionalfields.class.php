@@ -160,8 +160,7 @@ class FpsAdditionalFields {
     {
 		if (empty($module)) $module = $this->module;
 		$Register = Register::getInstance();
-        $ModelName = $Register['ModManager']->getModelName(ucfirst($module) . 'AddFields');
-        $Model = new $ModelName();
+        $Model = $Register['ModManager']->getModelInstance(ucfirst($module) . 'AddFields');
 
         $Model->bindModel(ucfirst($module) . 'AddContent');
 		if (!empty($records)) $addFields = $records;
@@ -217,8 +216,7 @@ class FpsAdditionalFields {
 	public function checkFields($module = null) {
 		if (empty($module)) $module = $this->module;
 		$Register = Register::getInstance();
-        $ModelName = $Register['ModManager']->getModelName(ucfirst($module) . 'AddFields');
-        $Model = new $ModelName();
+        $Model = $Register['ModManager']->getModelInstance(ucfirst($module) . 'AddFields');
 		
         $Model->bindModel(ucfirst($module) . 'AddContent');
         $addFields = $Model->getCollection();

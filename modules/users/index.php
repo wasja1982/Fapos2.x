@@ -153,8 +153,7 @@ Class UsersModule extends Module {
 	
 		// View rules
 		if (empty($key)) {
-			$usClassName = $this->Register['ModManager']->getModelName('UsersSettings');
-			$usModel = new $usClassName;
+			$usModel = $this->Register['ModManager']->getModelInstance('UsersSettings');
 			$rules = $usModel->getByType('reg_rules');
 			$markers = array();
 			$markers['rules'] = $rules[0]['values'];
@@ -1559,8 +1558,7 @@ Class UsersModule extends Module {
 		
 
 
-		$postsModel = $this->Register['ModManager']->getModelName('Posts');
-		$postsModel = new $postsModel();
+		$postsModel = $this->Register['ModManager']->getModelInstance('Posts');
 		$posts = $postsModel->getCollection(array('id_author' => $id), array('limit' => 1, 'order' => 'time DESC'));
 		if (is_array($posts) && count($posts) > 0 && !empty($posts[0]) && count($posts[0]) > 0) {
 			$lastPost = $posts[0]->getTime();
@@ -1824,8 +1822,7 @@ Class UsersModule extends Module {
 				$id_from = (int)$_SESSION['user']['id'];
 
 
-				$className = $this->Register['ModManager']->getModelName('Messages');
-				$model = new $className;
+				$model = $this->Register['ModManager']->getModelInstance('Messages');
 				$cnt_to = $model->getTotal(array(
 					 'cond' => array(
 						 "(`to_user` = '{$id_to}' OR `from_user` = '{$id_to}') AND `id_rmv` != '{$id_to}'"
@@ -2067,8 +2064,7 @@ Class UsersModule extends Module {
 	public function delete_message($id_msg = null)
 	{
 		if (!isset( $_SESSION['user'])) redirect('/');
-		$messagesModel = $this->Register['ModManager']->getModelName('Messages');
-		$messagesModel = new $messagesModel;
+		$messagesModel = $this->Register['ModManager']->getModelInstance('Messages');
 		
 		$multi_del = true;
 		if (empty($_POST['ids']) 
@@ -2548,8 +2544,7 @@ Class UsersModule extends Module {
 		
 		
 
-		$votesModel = $this->Register['ModManager']->getModelName('UsersVotes');
-		$votesModel = new $votesModel;
+		$votesModel = $this->Register['ModManager']->getModelInstance('UsersVotes');
 		$last_vote = $votesModel->getCollection(array(
 			'to_user' => $to_id
 		), array(
@@ -2599,8 +2594,7 @@ Class UsersModule extends Module {
 		if (empty($to_user)) redirect('/');
 
 		
-		$votesModel = $this->Register['ModManager']->getModelName('UsersVotes');
-		$votesModel = new $votesModel;
+		$votesModel = $this->Register['ModManager']->getModelInstance('UsersVotes');
 		$votesModel->bindModel('Users');
 		$messages = $votesModel->getCollection(array('to_user' => $user_id), array('order' => '`date` DESC'));
 		if (count($messages) < 1) {
@@ -2647,8 +2641,7 @@ Class UsersModule extends Module {
 		
 		
 		if ($this->ACL->turn(array($this->module, 'delete_rating_comments'), false)) {
-			$votesModel = $this->Register['ModManager']->getModelName('UsersVotes');
-			$votesModel = new $votesModel;
+			$votesModel = $this->Register['ModManager']->getModelInstance('UsersVotes');
 			$vote = $votesModel->getById($voteID);
 
 	
@@ -2757,8 +2750,7 @@ Class UsersModule extends Module {
 
 		if (!empty($clean_warnings)) { 
 			$intruder->setWarnings(0);
-			$votesModelName = $this->Register['ModManager']->getModelName('UsersVotes');
-			$votesModel = new $votesModelName;
+			$votesModel = $this->Register['ModManager']->getModelInstance('UsersVotes');
 			$votesModel->deleteUserWarnings($uid);
 
 			
@@ -2822,8 +2814,7 @@ Class UsersModule extends Module {
 		}
 		
 	
-		$warnModelName = $this->Register['ModManager']->getModelName('UsersWarnings');
-		$warModel = new $warnModelName;
+		$warModel = $this->Register['ModManager']->getModelInstance('UsersWarnings');
 		$warModel->bindModel('Users');
 		$warnings = $warModel->getColection(array(
 			'user_id' => $uid
@@ -2871,8 +2862,7 @@ Class UsersModule extends Module {
 		
 		
 		if ($this->ACL->turn(array($this->module, 'delete_warnings'), false)) {
-			$warnModelName = $this->Register['ModManager']->getModelName('UsersWarnings');
-			$warModel = new $warnModelName;
+			$warModel = $this->Register['ModManager']->getModelInstance('UsersWarnings');
 			$warning = $warModel->getById($wID);
 	
 	

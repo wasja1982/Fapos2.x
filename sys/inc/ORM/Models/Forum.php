@@ -153,8 +153,7 @@ class ForumModel extends FpsModel
 			
 			if (!empty($uids)) {
 				$uids = implode(', ', $uids);
-				$usersModelName = $Register['ModManager']->getModelName('Users');
-				$usersModel = new $usersModelName;
+				$usersModel = $Register['ModManager']->getModelInstance('Users');
 				$users = $usersModel->getCollection(array("`id` IN ({$uids})"));
 				
 				
