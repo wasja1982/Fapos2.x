@@ -725,21 +725,20 @@ Class ForumModule extends Module {
 			
 			//serialize rating settings
 			$settingsModel = $this->Register['ModManager']->getModelInstance('UsersSettings');
-			$rating_settings = $settingsModel->getCollection(array('type' => 'rating'));
-			$rating_settings = (count($rating_settings) > 0) ? $rating_settings[0]->getValues() : ''; 
+			$rating_settings = $settingsModel->getFirst(array('type' => 'rating'));
+			$rating_settings = $rating_settings ? $rating_settings->getValues() : ''; 
 			
 			
 			
 			$first_top = false;
 			if ($page > 1 && $theme->getFirst_top() == '1') {
-				$post = $postsModel->getCollection(array(
+				$post = $postsModel->getFirst(array(
 					'id_theme' => $id_theme,
 				), array(
 					'order' => 'time ASC, id ASC',
-					'limit' => 1,
 				));
-				if (is_array($post) && count($post) == 1) {
-					$posts = array_merge($post, $posts);
+				if ($post) {
+					array_unshift($posts, $post);
 					$first_top = true;
 				}
 			}
@@ -1410,16 +1409,14 @@ Class ForumModule extends Module {
 		
 		
 		
-		$dforum = $this->Model->getCollection(array(
+		$dforum = $this->Model->getFirst(array(
 			'pos < ' . $order_up, 
 			'in_cat' => $forum->getIn_cat(),
 			'parent_forum_id' => $forum->getParent_forum_id(),
 		), array(
 			'order' => 'pos DESC',
-			'limit' => 1,
 		));
 		if (!$dforum) return $this->showInfoMessage(__('Forum is above all'), $this->getModuleURL() );
-		if (is_array($dforum)) $dforum = $dforum[0];
 		
 	
 		// Порядок следования и ID форума, который находится выше и будет "опущен" вниз
@@ -1477,10 +1474,8 @@ Class ForumModule extends Module {
 			'parent_forum_id' => $forum->getParent_forum_id(),
 		), array(
 			'order' => 'pos ASC',
-			'limit' => 1,
 		));
 		if (!$dforum) return $this->showInfoMessage(__('Some error occurred'), $this->getModuleURL() );
-		if (is_array($dforum)) $dforum = $dforum[0];
 		
 	
 		// Порядок следования и ID форума, который находится ниже и будет "поднят" вверх
@@ -2391,30 +2386,30 @@ Class ForumModule extends Module {
 		//gluing posts
 		if ($gluing === true) {
 			$postsModel = $this->Register['ModManager']->getModelInstance('Posts');
-			$prev_post = $postsModel->getCollection(array(
+			$prev_post = $postsModel->getFirst(array(
 				'id_theme' => $id_theme,
 			), array(
 				'order' => 'time DESC, id DESC',
-				'limit' => 1,
 			));
 			if ($prev_post) {
-				$prev_post_author = $prev_post[0]->getId_author();
+				$prev_post_author = $prev_post->getId_author();
+				if (empty($prev_post_author)) $gluing = false;
+				if ((mb_strlen($prev_post->getMessage() . $message)) > $this->Register['Config']->read('max_post_lenght', $this->module)) $gluing = false;
+				if ($prev_post_author != $id_user || empty($id_user)) $gluing = false;
+			} else {
+				$gluing = false;
 			}
-			
-			if (empty($prev_post_author)) $gluing = false;
-			if ((mb_strlen($prev_post[0]->getMessage() . $message)) > $this->Register['Config']->read('max_post_lenght', $this->module)) $gluing = false;
-			if ($prev_post_author != $id_user || empty($id_user)) $gluing = false;
 		}		
 		
 		
 		
 		if ($gluing === true) {
-			$message = $prev_post[0]->getMessage() . "\n\n" . '[color=939494]' 
+			$message = $prev_post->getMessage() . "\n\n" . '[color=939494]' 
 			. __('Added') . " " . date("Y.m.d  H-i") . "[/color]\n\n" . $message;
-			
-			$prev_post[0]->setMessage($message);
-			$prev_post[0]->setTime(new Expr('NOW()'));
-			$prev_post[0]->save();
+
+			$prev_post->setMessage($message);
+			$prev_post->setTime(new Expr('NOW()'));
+			$prev_post->save();
 			
 			$theme->setId_last_author($id_user);
 			$theme->setLast_post(new Expr('NOW()'));
@@ -2537,10 +2532,10 @@ Class ForumModule extends Module {
 				'view_theme/' . $id_theme . '?page=999#post' . $cnt_posts_from_theme));
 		} else {
 			if ($this->Log) $this->Log->write('adding post', 'post id(*gluing), theme id(' . $id_theme . ')');
-			$id_last_post = $prev_post[0]->getId_last_post();
+			$id_last_post = $prev_post->getId_last_post();
 			return $this->showInfoMessage(__('Your message has been added'), $this->getModuleURL(
 				$id_last_post ? 'view_post/' . $id_last_post :
-				'view_theme/' . $id_theme . '?page=999#post' . $prev_post[0]->getPosts()));
+				'view_theme/' . $id_theme . '?page=999#post' . $prev_post->getPosts()));
 		}
 	}
 
@@ -2878,18 +2873,17 @@ Class ForumModule extends Module {
 		
 		// ... и таблицу .themes
 		if (!$deleteTheme) {
-			$lastPost = $postsModel->getCollection(array(
+			$last_post = $postsModel->getFirst(array(
 				'id_theme' => $post->getId_theme(),
 			), array(
-				'limit' => 1, 
 				'order' => 'id DESC'
 			));
 			
-			$id_last_author = $lastPost[0]->getId_author();
-			$last_post = $lastPost[0]->getTime();
 			if ($theme) {
-				$theme->setId_last_author($id_last_author);
-				$theme->setLast_post($last_post);
+				if ($last_post) {
+					$theme->setId_last_author($last_post->getId_author());
+					$theme->setLast_post($last_post->getTime());
+				}
 				$theme->setPosts($postscnt - 1);
 				$theme->save();
 			}
@@ -2905,20 +2899,18 @@ Class ForumModule extends Module {
 		
 		
 		//update forum info
-		$lastTheme = $themesModel->getCollection(array(
+		$last_theme = $themesModel->getFirst(array(
 			'id_forum' => $theme->getId_forum(),
 		), array(
-			'limit' => 1,
 			'order' => '`last_post` DESC',
 		));
-		if (is_array($lastTheme) && !empty($lastTheme[0])) $lastTheme = $lastTheme[0];
 
 		$forum = $this->Model->getById($theme->getId_forum());
 		if ($deleteTheme) {
 			if ($forum) {
 				$forum->setThemes($forum->getThemes() - 1);
 				$forum->setPosts($forum->getPosts() - 1);
-				$forum->setLast_theme_id($lastTheme ? $lastTheme->getId() : '0');
+				$forum->setLast_theme_id($last_theme ? $last_theme->getId() : '0');
 				$forum->save();
 			}
 			return $this->showInfoMessage(__('Operation is successful'), $this->getModuleURL('view_forum/' . $theme->getId_forum()));
@@ -2926,7 +2918,7 @@ Class ForumModule extends Module {
 		} else {
 			if ($forum) {
 				$forum->setPosts($forum->getPosts() - 1);
-				$forum->setLast_theme_id($lastTheme ? $lastTheme->getId() : '0');
+				$forum->setLast_theme_id($last_theme ? $last_theme->getId() : '0');
 				$forum->save();
 			}
 			return $this->showInfoMessage(__('Operation is successful'), getReferer());
@@ -3406,14 +3398,13 @@ Class ForumModule extends Module {
 		$postsModel = $this->Register['ModManager']->getModelInstance('Posts');
 
 		$where = array('id_theme' => $id_theme);
-		$first_post = $postsModel->getCollection(array(
+		$first_post = $postsModel->getFirst(array(
 			'id_theme' => $id_theme,
 		), array(
 			'order' => 'time ASC, id ASC',
-			'limit' => 1,
 		));
-		if (is_array($first_post) && count($first_post) == 1) {
-			$where[] = 'id != ' . $first_post[0]->getId();
+		if ($first_post) {
+			$where[] = 'id != ' . $first_post->getId();
 		}
 
 		$posts_per_page = 100; // $this->Register['Config']->read('posts_per_page', $this->module);
@@ -3565,17 +3556,16 @@ Class ForumModule extends Module {
 		$postsModel->moveToTheme($id_new_theme, $posts_select);
 		
 		
-		$new_last_post = $postsModel->getCollection(array(
+		$new_last_post = $postsModel->getFirst(array(
 			'id_theme' => $theme->getId(),
 		), array(
-			'limit' => 1, 
 			'order' => 'id DESC'
 		));
 
 		// update theme
-		if (!empty($new_last_post) && count($new_last_post) > 0) {
-			$theme->setId_last_author($new_last_post[0]->getId_author());
-			$theme->setLast_post($new_last_post[0]->getTime());
+		if ($new_last_post) {
+			$theme->setId_last_author($new_last_post->getId_author());
+			$theme->setLast_post($new_last_post->getTime());
 		}
 		$theme->setPosts($theme->getPosts() > count($posts_select) ? $theme->getPosts() - count($posts_select) : 0);
 		$theme->save();
@@ -3678,14 +3668,13 @@ Class ForumModule extends Module {
 		$postsModel = $this->Register['ModManager']->getModelInstance('Posts');
 
 		$where = array('id_theme' => $id_theme);
-		$first_post = $postsModel->getCollection(array(
+		$first_post = $postsModel->getFirst(array(
 			'id_theme' => $id_theme,
 		), array(
 			'order' => 'time ASC, id ASC',
-			'limit' => 1,
 		));
-		if (is_array($first_post) && count($first_post) == 1) {
-			$where[] = 'id != ' . $first_post[0]->getId();
+		if ($first_post) {
+			$where[] = 'id != ' . $first_post->getId();
 		}
 
 		$posts_per_page = 100; // $this->Register['Config']->read('posts_per_page', $this->module);
@@ -3804,17 +3793,16 @@ Class ForumModule extends Module {
 		$postsModel->moveToTheme($id_new_theme, $posts_select);
 		
 		
-		$new_last_post = $postsModel->getCollection(array(
+		$new_last_post = $postsModel->getFirst(array(
 			'id_theme' => $theme->getId(),
 		), array(
-			'limit' => 1, 
 			'order' => 'id DESC'
 		));
 
 		// update theme
-		if (!empty($new_last_post) && count($new_last_post) > 0) {
-			$theme->setId_last_author($new_last_post[0]->getId_author());
-			$theme->setLast_post($new_last_post[0]->getTime());
+		if ($new_last_post) {
+			$theme->setId_last_author($new_last_post->getId_author());
+			$theme->setLast_post($new_last_post->getTime());
 		}
 		$theme->setPosts($theme->getPosts() > count($posts_select) ? $theme->getPosts() - count($posts_select) : 0);
 		$theme->save();

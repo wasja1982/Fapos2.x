@@ -281,7 +281,7 @@ class FpsAdditionalFields {
 			$classNameM = ucfirst($module) . 'AddContentModel';
 			$classNameE = ucfirst($module) . 'AddContentEntity';
 			$fieldsModel = new $classNameM;
-			$check = $fieldsModel->getCollection($where, array('limit' => 1));
+			$check = $fieldsModel->getFirst($where);
 			
 			
 			$data = array(
@@ -289,7 +289,7 @@ class FpsAdditionalFields {
 				'field_id' => $field['field_id'],
 				'content' => $field['content'],
 			);
-			if ($check) $data['id'] = $check[0]->getId();
+			if ($check) $data['id'] = $check->getId();
 			$entity = new $classNameE($data);
 			$entity->save();
 		}

@@ -553,13 +553,13 @@ Class UsersModule extends Module {
 		$code = preg_replace( "#[^0-9a-f]#i", '', $code );
 		/* clean DB cache */
 		$this->Register['DB']->cleanSqlCache();
-		$res = $this->Model->getCollection(array('activation' => $code), array('limit' => 1));
+		$res = $this->Model->getFirst(array('activation' => $code));
 
-		if (is_array($res) && count($res) > 0) {
-			$id = $res[0]->getId();
-			$res[0]->setActivation('');
-			$res[0]->setLast_visit(new Expr('NOW()'));
-			$res[0]->save();
+		if ($res) {
+			$id = $res->getId();
+			$res->setActivation('');
+			$res->setLast_visit(new Expr('NOW()'));
+			$res->save();
 			if ($this->Log) $this->Log->write('activate user', 'user id(' . $id . ')');
 			return $this->showInfoMessage(__('Accaunt activated'), $this->getModuleURL('login_form/'));
 		}
@@ -1559,11 +1559,11 @@ Class UsersModule extends Module {
 
 
 		$postsModel = $this->Register['ModManager']->getModelInstance('Posts');
-		$posts = $postsModel->getCollection(array('id_author' => $id), array('limit' => 1, 'order' => 'time DESC'));
-		if (is_array($posts) && count($posts) > 0 && !empty($posts[0]) && count($posts[0]) > 0) {
-			$lastPost = $posts[0]->getTime();
+		$posts = $postsModel->getFirst(array('id_author' => $id), array('order' => 'time DESC'));
+		if ($posts) {
+			$last_post = $posts->getTime();
 		} else {
-			$lastPost = '';
+			$last_post = '';
 		}
 		
 		$status_info = $this->ACL->get_user_group($user->getStatus());
@@ -1575,7 +1575,7 @@ Class UsersModule extends Module {
 		$markers['status'] 			= h($user->getStatus());
 		$markers['group'] 			= h($status_info['title']);
 		$markers['lastvisit']   	= h($user->getLast_visit());
-		$markers['lastpost'] 		= h($lastPost);
+		$markers['lastpost'] 		= h($last_post);
 		$markers['totalposts'] 		= h($user->getPosts());
 		$markers['email'] 			= $email;
 		$markers['telephone'] 		= ($user->getTelephone()) ? h($user->getTelephone()) : '';
@@ -1800,25 +1800,22 @@ Class UsersModule extends Module {
 		// Проверяем, есть ли такой пользователь
 		if (!empty($toUser)) {
 			$to = preg_replace( "#[^- _0-9a-zА-Яа-я]#iu", '', $toUser );
-			$res = $this->Model->getCollection(
+			$res = $this->Model->getFirst(
 				array(
 					'name' => $toUser
-				),
-				array(
-					'limit' => 1
 				)
 			);
 
 
-			if (empty($res))
+			if (!$res)
 				$error = $error.'<li>' . sprintf(__('Not user with this name'), $to) . '</li>'."\n";
-			if ((count($res) && is_array($res) ) && ($res[0]->getId() == $_SESSION['user']['id']) )
+			elseif ($res->getId() == $_SESSION['user']['id'])
 				$error = $error.'<li>' . __('You can not send message to you') . '</li>'."\n";
 
 
 			//chek max count messages
-			if (is_array($res) && count($res) && $res[0]->getId()) {
-				$id_to = (int)$res[0]->getId();
+			if ($res && $res->getId()) {
+				$id_to = (int)$res->getId();
 				$id_from = (int)$_SESSION['user']['id'];
 
 
@@ -1858,7 +1855,6 @@ Class UsersModule extends Module {
 		}
 
 		// Все поля заполнены правильно - "посылаем" сообщение
-		$res = $res[0];
 		$to = $res->getId();
 		$from = $_SESSION['user']['id'];
 
@@ -2545,16 +2541,15 @@ Class UsersModule extends Module {
 		
 
 		$votesModel = $this->Register['ModManager']->getModelInstance('UsersVotes');
-		$last_vote = $votesModel->getCollection(array(
+		$last_vote = $votesModel->getFirst(array(
 			'to_user' => $to_id
 		), array(
 			'order' => 'date DESC',
-			'limit' => 1
 		));
 		
 		
 		
-		if (empty($last_vote) || (is_array($last_vote) && count($last_vote) > 0 && $last_vote[0]->getFrom_user() != $from_id)) {
+		if (empty($last_vote) || ($last_vote->getFrom_user() != $from_id)) {
 			$user->setRating($user->getRating() + 1);
 			$user->save();
 
