@@ -282,6 +282,9 @@ Class ForumModule extends Module {
 
 		
 			// Получаем информацию о форуме
+			$this->Model->bindModel('subforums');
+			$this->Model->bindModel('category');
+			$this->Model->bindModel('last_theme');
 			$forum = $this->Model->getById($id_forum);
 			if (!$forum) {
 				return $this->showInfoMessage(__('Can not find forum'), $this->getModuleURL());
@@ -301,10 +304,6 @@ Class ForumModule extends Module {
 			
 			
 			// count themes for page nav
-			$this->Model->bindModel('subforums');
-			$this->Model->bindModel('category');
-			$this->Model->bindModel('last_theme');
-			$forum = $this->Model->getById($id_forum);
 			$themesClassName = $this->Register['ModManager']->getModelName('Themes');
 			$themesClass = new $themesClassName;
 			$themesClass->bindModel('author');
@@ -1283,8 +1282,6 @@ Class ForumModule extends Module {
 		
 		
 		$html = '';
-		// Получаем из БД информацию о форуме
-		$forum = $this->Model->getById($id_forum);
 		$action = get_url($this->getModuleURL('update_forum/' . $id_forum));
 
 		
@@ -1300,8 +1297,10 @@ Class ForumModule extends Module {
 			$description = h($_SESSION['editForumForm']['description']);			
 			unset($_SESSION['editForumForm']);
 		} else {
-			$title       = h($forum->getTitle());
-			$description = h($forum->getDescription());
+			// Получаем из БД информацию о форуме
+			$forum = $this->Model->getById($id_forum);
+			$title       = $forum ? h($forum->getTitle()) : '';
+			$description = $forum ? h($forum->getDescription()) : '';
 		}
 		
 		
@@ -1661,11 +1660,9 @@ Class ForumModule extends Module {
 		
 		
 		// cut lenght
-		$theme   = mb_substr($_POST['theme'], 0, 55);
-		$message = $_POST['mainText'];
-		$theme   = trim($theme);
+		$name   = trim(mb_substr($_POST['theme'], 0, 55));
 		$description = trim(mb_substr($_POST['description'], 0, 128)); 
-		$message = trim($message);
+		$message = trim($_POST['mainText']);
 		$first_top = isset($_POST['first_top']) ? '1' : '0'; 
 		
 		$gr_access = array();
@@ -1677,7 +1674,7 @@ Class ForumModule extends Module {
 		
 		// preview
 		if (isset($_POST['viewMessage'])) {
-			$_SESSION['viewMessage']['theme']   = $theme;
+			$_SESSION['viewMessage']['theme']   = $name;
 			$_SESSION['viewMessage']['description'] = $description; 
 			$_SESSION['viewMessage']['message'] = $message;
 			$_SESSION['viewMessage']['gr_access'] = $gr_access;
@@ -1688,9 +1685,9 @@ Class ForumModule extends Module {
 		// Check fields of empty values and valid chars
 		$error = '';
 		$valobj = $this->Register['Validate'];
-		if (empty($theme)) 
+		if (empty($name)) 
 			$error = $error . '<li>' . __('Empty field "theme"') . '</li>'."\n";
-		elseif (!$valobj->cha_val($theme, V_TITLE)) 
+		elseif (!$valobj->cha_val($name, V_TITLE)) 
 			$error = $error. '<li>' . __('Wrong chars in "theme"').'</li>'."\n";
 		if (empty($message)) 
 			$error = $error. '<li>' . __('Empty field "message"').'</li>'."\n";
@@ -1710,7 +1707,7 @@ Class ForumModule extends Module {
 			$_SESSION['addThemeForm'] = array();
 			$_SESSION['addThemeForm']['error'] = '<p class="errorMsg">' . __('Some error in form') . '</p>'.
 				"\n" . '<ul class="errorMsg">' . "\n" . $error . '</ul>' . "\n";
-			$_SESSION['addThemeForm']['theme'] = $theme;
+			$_SESSION['addThemeForm']['theme'] = $name;
 			$_SESSION['addThemeForm']['description'] = $description; 
 			$_SESSION['addThemeForm']['message'] = $message;
 			$_SESSION['addThemeForm']['gr_access'] = $gr_access;
@@ -1724,7 +1721,7 @@ Class ForumModule extends Module {
 		$user_id = (!empty($_SESSION['user'])) ? $_SESSION['user']['id'] : 0;
 		
 		$data = array(
-			'title'          => $theme,
+			'title'          => $name,
 			'description'    => $description,
 			'id_author'      => $user_id,
 			'time'           => new Expr('NOW()'),
@@ -1809,16 +1806,18 @@ Class ForumModule extends Module {
 		if ($attaches_exists == 1) {
 			$postsModel = $this->Register['ModManager']->getModelInstance('Posts');
 			$post = $postsModel->getById($post_id);
-			$post->setAttaches('1');
-			$post->save();
+			if ($post) {
+				$post->setAttaches('1');
+				$post->save();
+			}
 		}
 		/***** END ATTACH *****/
 		
 		
 		// Обновляем число оставленных сообщений и созданных тем
 		if (!empty($_SESSION['user'])) {
-			$userModel = $this->Register['ModManager']->getModelInstance('Users');
-			$user = $userModel->getById($_SESSION['user']['id']);
+			$usersModel = $this->Register['ModManager']->getModelInstance('Users');
+			$user = $usersModel->getById($_SESSION['user']['id']);
 			if ($user) {
 				$user->setThemes($user->getThemes() + 1);
 				$user->setPosts($user->getPosts() + 1);
@@ -1827,7 +1826,6 @@ Class ForumModule extends Module {
 		}
 		
 		
-		$forum = $this->Model->getById($id_forum);
 		$forum->setThemes($forum->getThemes() + 1);
 		$forum->setPosts($forum->getPosts() + 1);
 		$forum->setLast_theme_id($id_theme);
@@ -2028,10 +2026,11 @@ Class ForumModule extends Module {
 			$posts_cnt = $postsModel->getTotal(array('cond' => array('id_theme' => $id_theme)));
 			
 			$from_forum = $this->Model->getById($id_from_forum);
-			$from_forum->setPosts($from_forum->getPosts() - $posts_cnt);
-			$from_forum->setThemes($from_forum->getThemes() - 1);
-			$from_forum->save();
-			
+			if ($from_forum) {
+				$from_forum->setPosts($from_forum->getPosts() - $posts_cnt);
+				$from_forum->setThemes($from_forum->getThemes() - 1);
+				$from_forum->save();
+			}
 			
 			$new_forum->setPosts($new_forum->getPosts() + $posts_cnt);
 			$new_forum->setThemes($new_forum->getThemes() + 1);
@@ -2105,10 +2104,12 @@ Class ForumModule extends Module {
 				}
 				// заодно обновляем таблицу USERS
 				if ($post->getId_author()) {
-					$userModel = $this->Register['ModManager']->getModelInstance('Users');
-					$user = $userModel->getById($post->getId_author());
-					$user->setPosts($user->getPosts() - 1);
-					$user->save();
+					$usersModel = $this->Register['ModManager']->getModelInstance('Users');
+					$user = $usersModel->getById($post->getId_author());
+					if ($user) {
+						$user->setPosts($user->getPosts() - 1);
+						$user->save();
+					}
 				}
 			}
 		}
@@ -2127,8 +2128,6 @@ Class ForumModule extends Module {
 		
 		
 		
-		//we must know id_forum
-		$theme = $themeModel->getById($id_theme);
 		//delete info
 		if ($theme) $theme->delete();
 		$postsModel->deleteByTheme($id_theme);
@@ -2490,8 +2489,10 @@ Class ForumModule extends Module {
 			
 			if ($attaches_exists == 1) {
 				$post = $postsModel->getById($post_id);
-				$post->setAttaches('1');
-				$post->save();
+				if ($post) {
+					$post->setAttaches('1');
+					$post->save();
+				}
 			}
 			
 			
@@ -2820,6 +2821,12 @@ Class ForumModule extends Module {
 		}
 
 		
+		if ($post->getId_author()) {
+			$usersModel = $this->Register['ModManager']->getModelInstance('Users');
+			$user = $usersModel->getById($post->getId_author());
+		}
+		
+		
 		$themesModel = $this->Register['ModManager']->getModelInstance('Themes');
 		$theme = $themesModel->getById($post->getId_theme());
 
@@ -2843,12 +2850,6 @@ Class ForumModule extends Module {
 		$postscnt = $postsModel->getTotal(array('cond' => array('id_theme' => $post->getId_theme())));
 		
 		
-		if ($theme->getId_author()) {
-			$userModel = $this->Register['ModManager']->getModelInstance('Users');
-			$user = $userModel->getById($theme->getId_author());
-		}
-		
-		
 		$deleteTheme = false;
 		if ($postscnt == 0) {
 			if ($user) {
@@ -2857,7 +2858,9 @@ Class ForumModule extends Module {
 				$user->save();
 			}
 			
-			$theme->delete();
+			if ($theme) {
+				$theme->delete();
+			}
 			// Если мы удалили тему, то мы не можем в нее вернуться;
 			// поэтому редирект будет на страницу форума, а не страницу темы
 			$deleteTheme = true;
@@ -2879,13 +2882,15 @@ Class ForumModule extends Module {
 				'limit' => 1, 
 				'order' => 'id DESC'
 			));
-
+			
 			$id_last_author = $lastPost[0]->getId_author();
 			$last_post = $lastPost[0]->getTime();
-			$theme->setId_last_author($id_last_author);
-			$theme->setLast_post($last_post);
-			$theme->setPosts($postscnt - 1);
-			$theme->save();
+			if ($theme) {
+				$theme->setId_last_author($id_last_author);
+				$theme->setLast_post($last_post);
+				$theme->setPosts($postscnt - 1);
+				$theme->save();
+			}
 
 		}
 
@@ -2908,16 +2913,20 @@ Class ForumModule extends Module {
 
 		$forum = $this->Model->getById($theme->getId_forum());
 		if ($deleteTheme) {
-			$forum->setThemes($forum->getThemes() - 1);
-			$forum->setPosts($forum->getPosts() - 1);
-			$forum->setLast_theme_id($lastTheme ? $lastTheme->getId() : '0');
-			$forum->save();
+			if ($forum) {
+				$forum->setThemes($forum->getThemes() - 1);
+				$forum->setPosts($forum->getPosts() - 1);
+				$forum->setLast_theme_id($lastTheme ? $lastTheme->getId() : '0');
+				$forum->save();
+			}
 			return $this->showInfoMessage(__('Operation is successful'), $this->getModuleURL('view_forum/' . $theme->getId_forum()));
 			
 		} else {
-			$forum->setPosts($forum->getPosts() - 1);
-			$forum->setLast_theme_id($lastTheme ? $lastTheme->getId() : '0');
-			$forum->save();
+			if ($forum) {
+				$forum->setPosts($forum->getPosts() - 1);
+				$forum->setLast_theme_id($lastTheme ? $lastTheme->getId() : '0');
+				$forum->save();
+			}
 			return $this->showInfoMessage(__('Operation is successful'), getReferer());
 		}
 	}
@@ -3219,7 +3228,7 @@ Class ForumModule extends Module {
 		$theme = $themesModel->getById($id_theme);
 	
 		// delete colision ( this is paranoia )
-		$themes = $this->Model->deleteThemesPostsCollisions();
+		$this->Model->deleteThemesPostsCollisions();
 
 
 		// Сперва мы должны удалить все сообщения (посты) темы;
@@ -3262,7 +3271,7 @@ Class ForumModule extends Module {
 		}
 		
 		
-		if (count($theme) && is_array($theme)) {
+		if ($theme) {
 			// Обновляем таблицу TABLE_USERS - надо обновить поле themes
 			$themes_cnt = $themesModel->getTotal(array('cond' => array('id_author' => $theme->getId_author())));
 			$posts_cnt = $postsModel->getTotal(array('cond' => array('id_author' => $theme->getId_author())));
@@ -3528,7 +3537,7 @@ Class ForumModule extends Module {
 		$postsModel = $this->Register['ModManager']->getModelInstance('Posts');
 		$first_post = $postsModel->getById(min($posts_select));
 		if (!$first_post) return $this->showInfoMessage(__('Some error occurred'), $this->getModuleURL('view_theme/' . $id_theme));
-		$last_post = $postsModel->getById(min($posts_select));
+		$last_post = $postsModel->getById(max($posts_select));
 		if (!$last_post) return $this->showInfoMessage(__('Some error occurred'), $this->getModuleURL('view_theme/' . $id_theme));
 
 		
@@ -3576,8 +3585,10 @@ Class ForumModule extends Module {
 		
 		if ($id_from_forum != $id_forum) {
 			$from_forum = $this->Model->getById($id_from_forum);
-			$from_forum->setPosts($from_forum->getPosts() > count($posts_select) ? $from_forum->getPosts() - count($posts_select) : 0);
-			$from_forum->save();
+			if ($from_forum) {
+				$from_forum->setPosts($from_forum->getPosts() > count($posts_select) ? $from_forum->getPosts() - count($posts_select) : 0);
+				$from_forum->save();
+			}
 			
 			$new_forum->setPosts($new_forum->getPosts() + count($posts_select));
 			$new_forum->setThemes($new_forum->getThemes() + 1);
@@ -3786,7 +3797,7 @@ Class ForumModule extends Module {
 		$postsModel = $this->Register['ModManager']->getModelInstance('Posts');
 		$first_post = $postsModel->getById(min($posts_select));
 		if (!$first_post) return $this->showInfoMessage(__('Some error occurred'),  $this->getModuleURL('view_theme/' . $id_theme));
-		$last_post = $postsModel->getById(min($posts_select));
+		$last_post = $postsModel->getById(max($posts_select));
 		if (!$last_post) return $this->showInfoMessage(__('Some error occurred'),  $this->getModuleURL('view_theme/' . $id_theme));
 
 		
@@ -3817,8 +3828,10 @@ Class ForumModule extends Module {
 		
 		if ($id_from_forum != $id_forum) {
 			$from_forum = $this->Model->getById($id_from_forum);
-			$from_forum->setPosts($from_forum->getPosts() > count($posts_select) ? $from_forum->getPosts() - count($posts_select) : 0);
-			$from_forum->save();
+			if ($from_forum) {
+				$from_forum->setPosts($from_forum->getPosts() > count($posts_select) ? $from_forum->getPosts() - count($posts_select) : 0);
+				$from_forum->save();
+			}
 			
 			$new_forum->setPosts($new_forum->getPosts() + count($posts_select));
 			$new_forum->save();
@@ -3987,8 +4000,10 @@ Class ForumModule extends Module {
 			$from_forum->save();
 			
 			$new_forum = $this->Model->getById($id_forum);
-			$new_forum->setPosts($new_forum->getPosts() + count($posts_select));
-			$new_forum->save();
+			if ($new_forum) {
+				$new_forum->setPosts($new_forum->getPosts() + count($posts_select));
+				$new_forum->save();
+			}
 		} else {
 			$from_forum->setThemes($from_forum->getThemes() - 1);
 			$from_forum->save();
