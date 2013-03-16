@@ -782,8 +782,10 @@ Class FotoModule extends Module {
 	public function upper($id) {
 		$this->ACL->turn(array($this->module, 'up_materials'));
 		$entity = $this->Model->getById($id);
-		$entity->setDate(date("Y-m-d H:i:s"));
-		$entity->save();
+		if ($entity) {
+			$entity->setDate(date("Y-m-d H:i:s"));
+			$entity->save();
+		}
 		return $this->showInfoMessage(__('Operation is successful'), $this->getModuleURL());
 	}
 	

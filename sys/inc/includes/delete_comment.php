@@ -13,8 +13,10 @@ if ($comment) {
 	$comment->delete();
 	
 	$entity = $this->Model->getById($entityID);
-	$entity->setComments($entity->getComments() - 1);
-	$entity->save();
+	if ($entity) {
+		$entity->setComments($entity->getComments() - 1);
+		$entity->save();
+	}
 }
 
 

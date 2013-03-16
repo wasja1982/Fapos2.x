@@ -103,8 +103,10 @@ $entityComm = new $className($data);
 $entityComm->save();
 
 $entity = $this->Model->getById($id);
-$entity->setComments($entity->getComments() + 1);
-$entity->save();
+if ($entity) {
+	$entity->setComments($entity->getComments() + 1);
+	$entity->save();
+}
 
 
 

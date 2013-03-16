@@ -146,8 +146,7 @@ Class PagesModule extends Module {
 
 
                     $uids = '(' . implode(', ', $uids) . ')';
-                    $uModelClassName = $this->Register['ModManager']->getModelNameFromModule('users');
-                    $uModel = new $uModelClassName;
+                    $uModel = $this->Register['ModManager']->getModelInstance('users');
                     $authors = $uModel->getCollection(array('`id` IN ' . $uids));
 
 

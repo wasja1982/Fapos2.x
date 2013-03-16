@@ -13,7 +13,7 @@ if (!$comment) return $this->showInfoMessage(__('Comment not found'), $this->mod
 
 // Categories tree
 $entity = $this->Model->getById($comment->getEntity_id());
-if ($entity->getCategory_id()) {
+if ($entity && $entity->getCategory_id()) {
 	$this->categories = $this->_getCatsTree($entity->getCategory_id());
 } else {
 	$this->categories = $this->_getCatsTree();

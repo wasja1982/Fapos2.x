@@ -702,7 +702,7 @@ Class StatModule extends Module {
 		// $this->Model->bindModel('category');
 		$entity = $this->Model->getById($id);
 		
-		if (count($entity) == 0) redirect($this->getModuleURL());
+		if (!$entity) redirect($this->getModuleURL());
 		
 		
 		if (is_object($this->AddFields) && count($entity) > 0) {
