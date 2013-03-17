@@ -668,7 +668,8 @@ Class ForumModule extends Module {
 			$total = $postsModel->getTotal(array('cond' => array('id_theme' => $id_theme)));
 			
 			if ($total === 0) {
-				$this->__delete_theme($id_theme);
+				$this->__delete_theme($theme);
+				if ($this->Log) $this->Log->write('delete theme (because error uccured)', 'theme id(' . $id_theme . ')');
 				return $this->showInfoMessage(__('Topic not found'), $this->getModuleURL('view_forum/' . $id_forum));
 			}
             list($pages, $page) = pagination($total, $this->Register['Config']->read('posts_per_page', $this->module), $this->getModuleURL('view_theme/' . $id_theme));
@@ -1108,8 +1109,8 @@ Class ForumModule extends Module {
 		if ($ansver_id < 1) die('ERROR: empty ANSVER_ID');
 		
 	
-		$pollModel = new PollsModel;
-		$poll = $pollModel->getById($id);
+		$pollsModel = new PollsModel;
+		$poll = $pollsModel->getById($id);
 		
 		if (empty($poll)) die('ERROR: poll not found');
 		
@@ -2056,10 +2057,8 @@ Class ForumModule extends Module {
 		if (empty($id_theme) || $id_theme < 1) redirect($this->getModuleURL());
 		
 
-		
-		// if theme moved into another forum 
-		$themeModel = $this->Register['ModManager']->getModelInstance('Themes');
-		$theme = $themeModel->getById($id_theme);
+		$themesModel = $this->Register['ModManager']->getModelInstance('Themes');
+		$theme = $themesModel->getById($id_theme);
 		if (!$theme) return $this->showInfoMessage(__('Topic not found'), $this->getModuleURL());
 		
 		
@@ -2071,81 +2070,7 @@ Class ForumModule extends Module {
 		}
 
 		
-		// delete colision ( this is paranoia )
-		$this->Model->deleteCollisions();
-
-		
-		
-		// Сперва мы должны удалить все сообщения (посты) темы;
-		// начнем с того, что удалим файлы вложений
-		$attachModel = $this->Register['ModManager']->getModelInstance('ForumAttaches');
-		$postsModel = $this->Register['ModManager']->getModelInstance('Posts');
-		$posts = $postsModel->getCollection(array(
-			'id_theme' => $id_theme,
-		));
-		if (is_array($posts)) {
-			foreach ($posts as $post) {
-				// Удаляем файл, если он есть
-				$attach_files = $attachModel->getCollection(array('post_id' => $post->getId()));
-				if (count($attach_files) && is_array($attach_files)) {
-					foreach ($attach_files as $attach_file) {
-						if (file_exists(ROOT . $this->getFilesPath($attach_file->getFilename()))) {
-							if (@unlink(ROOT . $this->getFilesPath($attach_file->getFilename()))) {
-								$attach_file->delete();
-							}
-						}
-					}
-				}
-				// заодно обновляем таблицу USERS
-				if ($post->getId_author()) {
-					$usersModel = $this->Register['ModManager']->getModelInstance('Users');
-					$user = $usersModel->getById($post->getId_author());
-					if ($user) {
-						$user->setPosts($user->getPosts() - 1);
-						$user->save();
-					}
-				}
-			}
-		}
-		
-		
-		$attach_files = $attachModel->getCollection(array('theme_id' => $id_theme));
-		if (is_array($attach_files)) {
-			foreach ($attach_files as $attach_file) {
-				if (file_exists(ROOT . $this->getFilesPath($attach_file->getFilename()))) {
-					if (@unlink(ROOT . $this->getFilesPath($attach_file->getFilename()))) {
-						$attach_file->delete();
-					}
-				}
-			}
-		}
-		
-		
-		
-		//delete info
-		if ($theme) $theme->delete();
-		$postsModel->deleteByTheme($id_theme);
-		
-		
-		// Poll
-		$PollModel = $this->Register['ModManager']->getModelInstance('Polls');
-		$poll = $PollModel->getCollection(array('theme_id' => $id_theme));
-		if (count($poll) && is_array($poll)) {
-			foreach ($poll as $p) {
-				$p->delete();
-			}
-		}
-		
-		
-		//update info
-		if ($theme) {
-			$this->Model->upThemesPostsCounters($theme);
-		}
-		
-		//clean cache
-		$this->Cache->clean(CACHE_MATCHING_ANY_TAG, array('theme_id_' . $id_theme,));
-		$this->Cache->clean(CACHE_MATCHING_TAG, array('module_forum', 'action_index'));
-		$this->Register['DB']->cleanSqlCache();
+		$this->__delete_theme($theme);
 		if ($this->Log) $this->Log->write('delete theme', 'theme id(' . $id_theme . ')');
 		return $this->showInfoMessage(__('Theme is deleted'), $this->getModuleURL('view_forum/' . $theme->getId_forum()));
 	}
@@ -3211,48 +3136,11 @@ Class ForumModule extends Module {
 
 
 	//delete theme
-	private function __delete_theme($id_theme) {
-		$usersModel = $this->Register['ModManager']->getModelInstance('Users');
-		$themesModel = $this->Register['ModManager']->getModelInstance('Themes');
-		$postsModel = $this->Register['ModManager']->getModelInstance('Posts');
+	private function __delete_theme($theme) {
+		$id_theme = $theme->getId();
+
+		// Step 1: Deleting attached files
 		$attachesModel = $this->Register['ModManager']->getModelInstance('ForumAttaches');
-		
-		
-		//we must know id_forum
-		$theme = $themesModel->getById($id_theme);
-	
-		// delete colision ( this is paranoia )
-		$this->Model->deleteThemesPostsCollisions();
-
-
-		// Сперва мы должны удалить все сообщения (посты) темы;
-		// начнем с того, что удалим файлы вложений
-		$posts = $postsModel->getCollection(array('id_theme' => $id_theme));
-		if (count($posts) && is_array(posts)) {
-			foreach ($posts as $file) {
-				// Удаляем файл, если он есть
-				$attach_files = $attachesModel->getCollection(array('post_id' => $file->getId()));
-				if (count($attach_files) && is_array($attach_files)) {
-					foreach ($attach_files as $attach_file) {
-						if (file_exists(ROOT . $this->getFilesPath($attach_file->getFilename()))) {
-							if (@unlink(ROOT . $this->getFilesPath($attach_file->getFilename()))) {
-								$attach_file->delete();
-							}
-						}
-					}
-				}
-				// заодно обновляем таблицу USERS
-				if ($file->getId_author()) {
-					$user = $usersModel->getById($file->getId_author());
-					if ($user) {
-						$user->setPosts($user->getPosts() - 1);
-						$user->save();
-					}
-				}
-			}
-		}
-		
-		
 		$attach_files = $attachesModel->getCollection(array('theme_id' => $id_theme));
 		if (count($attach_files) && is_array($attach_files)) {
 			foreach ($attach_files as $attach_file) {
@@ -3264,27 +3152,37 @@ Class ForumModule extends Module {
 			}
 		}
 		
+		// Step 2: Selecting authors and deleting posts
+		$postsModel = $this->Register['ModManager']->getModelInstance('Posts');
+		$users = $postsModel->getCollection(array('id_theme' => $id_theme), array('fields' => array('DISTINCT id_author')));
+		$postsModel->deleteByTheme($id_theme);
 		
-		if ($theme) {
-			// Обновляем таблицу TABLE_USERS - надо обновить поле themes
-			$themes_cnt = $themesModel->getTotal(array('cond' => array('id_author' => $theme->getId_author())));
-			$posts_cnt = $postsModel->getTotal(array('cond' => array('id_author' => $theme->getId_author())));
-			$user = $usersModel->getById($theme->getId_author());
-			if ($user) {
-				$user->setThemes($themes_cnt);
-				$user->setPosts($posts_cnt);
-				$user->save();
-			}
+		// Step 3: Deleting poll
+		$pollsModel = $this->Register['ModManager']->getModelInstance('Polls');
+		$pollsModel->deleteByTheme($id_theme);
 
-			
-			//update forum info
-			$this->Model->updateForumCounters($theme->getId_forum());
+		// Step 4: Deleting theme
+		$theme->delete();
+		
+		// Step 5: Deleting collision
+		$this->Model->deleteCollisions();
+		
+		// Step 6: Updating counters for forum
+		$this->Model->updateForumCounters($theme->getId_forum());
+
+		// Step 7: Updating counters for users
+		if ($users && is_array($users)) {
+			foreach ($users as $user) {
+				if ($user) {
+					$this->Model->updateUserCounters($user->getId_author());
+				}
+			}
 		}
-		//clean cache
+		
+		// Step 8: Cleaning cache
 		$this->Cache->clean(CACHE_MATCHING_ANY_TAG, array('theme_id_' . $id_theme,));
 		$this->Cache->clean(CACHE_MATCHING_TAG, array('module_forum', 'action_index'));
 		$this->Register['DB']->cleanSqlCache();
-		if ($this->Log) $this->Log->write('delete theme(because error uccured)', 'theme id(' . $id_theme . ')');
 	}
 	
 	
