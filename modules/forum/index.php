@@ -3421,7 +3421,7 @@ Class ForumModule extends Module {
 			$_SESSION['editThemeForm']['gr_access'] = $gr_access;			
 			$_SESSION['editThemeForm']['posts_select'] = $posts_select;			
 			$_SESSION['editThemeForm']['first_top'] = $first_top;			
-			redirect($this->getModuleURL('split_theme_form/' . $id_theme . '?page=' . $_GET['page']));
+			redirect($this->getModuleURL('split_theme_form/' . $id_theme . isset($_GET['page']) ? '?page=' . $_GET['page'] : ''));
 		}
 		
 		
@@ -3679,7 +3679,7 @@ Class ForumModule extends Module {
 			. '</p>' . "\n" . '<ul class="errorMsg">'."\n".$error.'</ul>'."\n";
 			$_SESSION['editThemeForm']['theme'] = $id_new_theme;
 			$_SESSION['editThemeForm']['posts_select'] = $posts_select;			
-			redirect($this->getModuleURL('move_posts_form/' . $id_theme . '?page=' . $_GET['page']));
+			redirect($this->getModuleURL('move_posts_form/' . $id_theme . isset($_GET['page']) ? '?page=' . $_GET['page'] : ''));
 		}
 		
 		
@@ -3862,7 +3862,7 @@ Class ForumModule extends Module {
 			$_SESSION['editThemeForm']['error'] = '<p class="errorMsg">' . __('Some error in form') 
 			. '</p>' . "\n" . '<ul class="errorMsg">'."\n".$error.'</ul>'."\n";
 			$_SESSION['editThemeForm']['theme'] = $id_new_theme;
-			redirect($this->getModuleURL('unite_themes_form/' . $id_theme . '?page=' . $_GET['page']));
+			redirect($this->getModuleURL('unite_themes_form/' . $id_theme . isset($_GET['page']) ? '?page=' . $_GET['page'] : ''));
 		}
 		
 		
