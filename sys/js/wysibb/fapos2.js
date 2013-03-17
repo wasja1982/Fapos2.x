@@ -53,31 +53,6 @@ WBBPRESET = {
 				'<img src="{SRC}" />':"[imgl]{SRC}[/imgl]",
 				'<img style="float:left;" src="{SRC}" />':"[img]{SRC}[/img]"
 			}
-		},
-		fs_verysmall: {
-			transform: {
-				'<span style="font-size:50%;">{SELTEXT}</span>':'[size=50]{SELTEXT}[/size]'
-			}
-		},
-		fs_small: {
-			transform: {
-				'<span style="font-size:85%;">{SELTEXT}</span>':'[size=85]{SELTEXT}[/size]'
-			}
-		},
-		fs_normal: {
-			transform: {
-				'<span style="font-size:100%;">{SELTEXT}</span>':'[size=100]{SELTEXT}[/size]'
-			}
-		},
-		fs_big: {
-			transform: {
-				'<span style="font-size:150%;">{SELTEXT}</span>':'[size=150]{SELTEXT}[/size]'
-			}
-		},
-		fs_verybig: {
-			transform: {
-				'<span style="font-size:200%;">{SELTEXT}</span>':'[size=200]{SELTEXT}[/size]'
-			}
 		}
 	}
 }
