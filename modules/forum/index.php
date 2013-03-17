@@ -3835,6 +3835,7 @@ Class ForumModule extends Module {
 		
 		
 		$themeModel = $this->Register['ModManager']->getModelInstance('Themes');
+		$themeModel->bindModel('poll');
 		$theme = $themeModel->getById($id_theme);
 		if (empty($theme)) return $this->showInfoMessage(__('Topic not found'), $this->getModuleURL());
 		$id_forum = $theme->getId_forum();
@@ -3873,11 +3874,37 @@ Class ForumModule extends Module {
 		$postsModel = $this->Register['ModManager']->getModelInstance('Posts');
 		$posts = $postsModel->getCollection(array('id_theme' => $id_theme), array('fields' => array('id')));
 		$posts_select = array();
-		foreach ($posts as $post) {
-			$posts_select[] = intval($post->getId());
+		if ($posts && is_array($posts)) {
+			foreach ($posts as $post) {
+				$posts_select[] = intval($post->getId());
+			}
 		}
 		
 		$postsModel->moveToTheme($id_new_theme, $posts_select);
+		
+		$polls = $theme->getPoll();
+		if ($polls) {
+			if ($new_theme->getPoll()) {
+				if (is_array($polls)) {
+					foreach ($polls as $poll) {
+						$poll->delete();
+					}
+				}
+			} else {
+				if (is_array($polls)) {
+					$first = true;
+					foreach ($polls as $poll) {
+						if ($first) {
+							$poll->setTheme_id($id_new_theme);
+							$poll->save();
+							$first = false;
+						} else {
+							$poll->delete();
+						}
+					}
+				}
+			}
+		}
 		
 		$theme->delete();
 
