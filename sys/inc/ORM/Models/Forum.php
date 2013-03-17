@@ -80,9 +80,9 @@ class ForumModel extends FpsModel
 			(SELECT COUNT(b.`id`) FROM `" . $this->getDbDriver()->getFullTableName('themes') . "` a 
 			LEFT JOIN `" . $this->getDbDriver()->getFullTableName('posts') . "` b ON a.`id`=b.`id_theme`
 			WHERE a.`id_forum` = '" . $id_forum . "'),
-			`last_theme_id`=(SELECT `id` FROM `" . $this->getDbDriver()->getFullTableName('themes') . "` 
+			`last_theme_id`=IFNULL((SELECT `id` FROM `" . $this->getDbDriver()->getFullTableName('themes') . "` 
 			WHERE `id_forum`='" . $id_forum . "'
-			ORDER BY `last_post` DESC  LIMIT 1) WHERE `id` = '" . $id_forum . "'" );
+			ORDER BY `last_post` DESC  LIMIT 1), 0) WHERE `id` = '" . $id_forum . "'" );
 	}
 	
 	
