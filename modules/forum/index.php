@@ -136,13 +136,9 @@ Class ForumModule extends Module {
 			if ($forums && !empty($forums)) {
 				foreach ($forums as $forum) {
 					if ($forum) {
-						$subforums = $forum->getSubforums();
-						//forming forums
 						$forum = $this->_parseForumTable($forum);
 					}
 				}
-			} else {
-				$info = __('Subforum is empty');
 			}
 		}
 		
@@ -180,27 +176,39 @@ Class ForumModule extends Module {
 		
 		
 		//выводим название темы в которой было добавлено последнее сообщение и дату его добавления
-		if (!$forum->getLast_theme()/* ||  !$forum->getLast_author()*/) {
+		if ($forum->getLast_theme_id() < 1) {
 			$last_post = __('No posts');
-			
 		} else {
-			$last_post_title = (mb_strlen($forum->getLast_theme()->getTitle()) > 30) 
-			? mb_substr($forum->getLast_theme()->getTitle(), 0, 30) . '...' : $forum->getLast_theme()->getTitle();
-			
-			
-			$last_theme_author = __('Guest');
-			if ($forum->getLast_author()) {
-				$last_theme_author = get_link(h($forum->getLast_author()->getName()), 
-				getProfileUrl($forum->getLast_author()->getId()), array('title' => __('To profile')));
+			if (!$forum->getLast_theme() || !$forum->getLast_author()) {
+				$themesClass = $this->Register['ModManager']->getModelInstance('Themes');
+				$themesClass->bindModel('last_author');
+				$theme = $themesClass->getById($forum->getLast_theme_id());
+				if ($theme) {
+					$forum->setLast_theme($theme);
+					$forum->setLast_author($theme->getLast_author());
+				}
 			}
-			
-			
-			$id_last_post = $forum->getLast_theme()->getId_last_post();
-			$last_post = $forum->getLast_theme()->getLast_post() . '<br>' . get_link(h($last_post_title), 
-				$this->getModuleURL($id_last_post ? 'view_post/' . $id_last_post :
-				'view_theme/' . $forum->getLast_theme()->getId() . '?page=999'), 
-				array('title' => __('To last post')))
-			    . __('Post author') . $last_theme_author;
+			if (!$forum->getLast_theme() || !$forum->getLast_author()) {
+				$last_post = __('No posts');
+			} else {
+				$last_post_title = (mb_strlen($forum->getLast_theme()->getTitle()) > 30) 
+				? mb_substr($forum->getLast_theme()->getTitle(), 0, 30) . '...' : $forum->getLast_theme()->getTitle();
+
+
+				$last_theme_author = __('Guest');
+				if ($forum->getLast_author()) {
+					$last_theme_author = get_link(h($forum->getLast_author()->getName()), 
+					getProfileUrl($forum->getLast_author()->getId()), array('title' => __('To profile')));
+				}
+
+
+				$id_last_post = $forum->getLast_theme()->getId_last_post();
+				$last_post = $forum->getLast_theme()->getLast_post() . '<br>' . get_link(h($last_post_title), 
+					$this->getModuleURL($id_last_post ? 'view_post/' . $id_last_post :
+					'view_theme/' . $forum->getLast_theme()->getId() . '?page=999'), 
+					array('title' => __('To last post')))
+					. __('Post author') . $last_theme_author;
+			}
 		}
 		$forum->setLast_post($last_post);
 		
