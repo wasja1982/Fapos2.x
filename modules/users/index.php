@@ -1800,22 +1800,22 @@ Class UsersModule extends Module {
 		// Проверяем, есть ли такой пользователь
 		if (!empty($toUser)) {
 			$to = preg_replace( "#[^- _0-9a-zА-Яа-я]#iu", '', $toUser );
-			$res = $this->Model->getFirst(
+			$user = $this->Model->getFirst(
 				array(
 					'name' => $toUser
 				)
 			);
 
 
-			if (!$res)
+			if (!$user)
 				$error = $error.'<li>' . sprintf(__('Not user with this name'), $to) . '</li>'."\n";
-			elseif ($res->getId() == $_SESSION['user']['id'])
+			elseif ($user->getId() == $_SESSION['user']['id'])
 				$error = $error.'<li>' . __('You can not send message to you') . '</li>'."\n";
 
 
 			//chek max count messages
-			if ($res && $res->getId()) {
-				$id_to = (int)$res->getId();
+			if ($user && $user->getId()) {
+				$id_to = (int)$user->getId();
 				$id_from = (int)$_SESSION['user']['id'];
 
 
@@ -1855,7 +1855,7 @@ Class UsersModule extends Module {
 		}
 
 		// Все поля заполнены правильно - "посылаем" сообщение
-		$to = $res->getId();
+		$to = $user->getId();
 		$from = $_SESSION['user']['id'];
 
 
@@ -1868,11 +1868,37 @@ Class UsersModule extends Module {
 			'id_rmv' => 0,
 			'viewed' => 0,
 		);
-		$message = new MessagesEntity($data);
-		$message->save();
+		$msg = new MessagesEntity($data);
+		if ($msg) {
+			$id_msg = $msg->save();
+			if ($this->Register['Config']->read('new_pm_mail', $this->module) == 1) {
+				// формируем заголовки письма
+				$headers = "From: " . $_SERVER['SERVER_NAME'] . " <" . $this->Register['Config']->read('admin_email') . ">\n";
+				$headers = $headers."Content-type: text/html; charset=\"utf-8\"\n";
+				$headers = $headers."Return-path: <" . $this->Register['Config']->read('admin_email') . ">\n";
+				$link = 'http://'.$_SERVER['SERVER_NAME'] . $this->getModuleURL('get_message/' . $id_msg);
+
+				$mail = array(
+					'name' => $user->getName(),
+					'email' => $user->getEmail(),
+					'link' => $link,
+					'subject' => htmlspecialchars($subject),
+				);
+				$from = array (
+					'name' => $_SESSION['user']['name'],
+					'email' => $_SESSION['user']['email'],
+				);
+				$context = $this->render('newpm.msg', array('from' => $from, 'mail' => $mail));
+				$body = $this->render('main.msg', array('from' => $from, 'mail' => $mail, 'context' => $context));
 
 				/* clean DB cache */
 				$this->Register['DB']->cleanSqlCache();
+				mail($user->getEmail(), __('New PM on forum'), $body, $headers);
+			}
+		}
+
+		/* clean DB cache */
+		$this->Register['DB']->cleanSqlCache();
 		if ($this->Log) $this->Log->write('adding pm message', 'message id(' . mysql_insert_id() . ')');
 		return $this->showInfoMessage(__('Message successfuly send'), $this->getModuleURL('out_msg_box/'));
 	}
@@ -2252,7 +2278,7 @@ Class UsersModule extends Module {
 		
 		// формируем заголовки письма
 		$headers = "From: ".$_SERVER['SERVER_NAME']." <" . $this->Register['Config']->read('admin_email') . ">\n";
-		$headers = $headers."Content-type: text/plain; charset=\"utf-8\"\n";
+		$headers = $headers."Content-type: text/html; charset=\"utf-8\"\n";
 		$headers = $headers."Return-path: <" . $_SESSION['user']['email'] . ">\n";
 		
 		$mail = array(
