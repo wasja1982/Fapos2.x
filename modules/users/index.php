@@ -1871,8 +1871,8 @@ Class UsersModule extends Module {
 		$message = new MessagesEntity($data);
 		$message->save();
 
-		/* clean DB cache */
-		$this->Register['DB']->cleanSqlCache();
+				/* clean DB cache */
+				$this->Register['DB']->cleanSqlCache();
 		if ($this->Log) $this->Log->write('adding pm message', 'message id(' . mysql_insert_id() . ')');
 		return $this->showInfoMessage(__('Message successfuly send'), $this->getModuleURL('out_msg_box/'));
 	}
@@ -2259,13 +2259,13 @@ Class UsersModule extends Module {
 			'name' => $user->getName(),
 			'email' => $user->getEmail(),
 			'message' => htmlspecialchars($message),
-			'subject' => $subject,
+			'subject' => htmlspecialchars($subject),
 		);
 		$from = array (
 			'name' => $_SESSION['user']['name'],
 			'email' => $_SESSION['user']['email'],
 		);
-		$context = $this->render('activation.msg', array('from' => $from, 'mail' => $mail));
+		$context = $this->render('sendmail.msg', array('from' => $from, 'mail' => $mail));
 		$body = $this->render('main.msg', array('from' => $from, 'mail' => $mail, 'context' => $context));
 
 		/* clean DB cache */
