@@ -510,24 +510,23 @@ Class UsersModule extends Module {
 			$headers = "From: ".$_SERVER['SERVER_NAME']." <" . $this->Register['Config']->read('admin_email') . ">\n";
 			$headers = $headers."Content-type: text/html; charset=\"utf-8\"\n";
 			$headers = $headers."Return-path: <" . $this->Register['Config']->read('admin_email') . ">\n";
-			$message = '<p>Добро пожаловать на форум '.$_SERVER['SERVER_NAME'].'!</p>'."\n";
-			$message = $message.'<p>Пожалуйста сохраните это сообщение. Параметры вашей учётной записи таковы:</p>'."\n";
-			$message = $message.'<p>Логин: '.$name.'<br/>Пароль: '.$password.'</p>'."\n";
-			$message = $message.'<p>Для активации вашей учетной записи перейдите по ссылке:</p>'."\n";
 			$link = 'http://'.$_SERVER['SERVER_NAME'] . $this->getModuleURL('activate/' . $code);
-			$message = $message.'<p><a href="'.$link.'">Активировать учетную запись</a></p>'."\n";
-			$message = $message.'<p>Не забывайте свой пароль: он хранится в нашей базе в зашифрованном
-					 виде, и мы не сможем вам его выслать. Если вы всё же забудете пароль, то сможете
-					 запросить новый, который придётся активировать таким же образом, как и вашу
-					 учётную запись.</p>'."\n";
-			$message = $message.'<p>Спасибо за то, что зарегистрировались на нашем форуме.</p>'."\n";
-			$subject = 'Регистрация на форуме '.$_SERVER['SERVER_NAME'];
-			mail( $email, $subject, $message, $headers );
+			$subject = sprintf(__('Registration to forum'), $_SERVER['SERVER_NAME']);
+			
+			$mail = array(
+				'name' => $name,
+				'email' => $email,
+				'password' => $password,
+				'link' => $link,
+				'subject' => $subject,
+			);
+			$context = $this->render('activation.msg', array('mail' => $mail));
+			$body = $this->render('main.msg', array('mail' => $mail, 'context' => $context));
+
+			mail($email, $subject, $body, $headers);
 			
 			if ($this->Log) $this->Log->write('adding user', 'user id(' . $id . ')');
-			$msg = 'На Ваш e-mail выслано письмо с просьбой подтвердить регистрацию.
-				  Чтобы завершить регистрацию и активировать учетную запись, зайдите
-				  по адресу, указанному в письме.';
+			$msg = __('End of registration to forum');
 			
 		} else { // Activate without Email
 			$msg = __('Registeration complete');
@@ -680,22 +679,20 @@ Class UsersModule extends Module {
 				$headers = "From: " . $_SERVER['SERVER_NAME'] . " <" . $this->Register['Config']->read('admin_email') . ">\n";
 				$headers = $headers."Content-type: text/html; charset=\"utf-8\"\n";
 				$headers = $headers."Return-path: <" . $this->Register['Config']->read('admin_email') . ">\n";
-				$message = '<p>Добрый день, '.$name.'!</p>'."\n";
-				$message = $message.'<p>Вы получили это письмо потому, что вы (либо кто-то, выдающий себя
-						 за вас) попросили выслать новый пароль к вашей учётной записи на форуме '.
-						 $_SERVER['SERVER_NAME'].'. Если вы не просили выслать пароль, то не обращайте
-						 внимания на это письмо, если же подобные письма будут продолжать приходить,
-						 обратитесь к администратору форума</p>'."\n";
-				$message = $message.'<p>Прежде чем использовать новый пароль, вы должны его активировать.
-						 Для этого перейдите по ссылке:</p>'."\n";
 				$link = 'http://'.$_SERVER['SERVER_NAME'] . $this->getModuleURL('activate_password/' . $filename);
-				$message = $message.'<p><a href="'.$link.'">Активировать пароль</a></p>'."\n";
-				$message = $message.'<p>В случае успешной активации вы сможете входить в систему, используя
-						 следующий пароль: '.$newPassword.'</p>'."\n";
-				$message = $message.'<p>Вы сможете сменить этот пароль на странице редактирования профиля.
-						 Если у вас возникнут какие-то трудности, обратитесь к администратору форума.</p>'."\n";
-				$subject = 'Активация пароля на форуме '.$_SERVER['SERVER_NAME'];
-				mail( $email, $subject, $message, $headers );
+				$subject = sprintf(__('Password restore'), $_SERVER['SERVER_NAME']);
+				
+				$mail = array(
+					'name' => $name,
+					'email' => $email,
+					'password' => $newPassword,
+					'link' => $link,
+					'subject' => $subject,
+				);
+				$context = $this->render('restore.msg', array('mail' => $mail));
+				$body = $this->render('main.msg', array('mail' => $mail, 'context' => $context));
+
+				mail($email, $subject, $body, $headers);
 
 				$msg = __('We send mail to your e-mail');
 				$source = $this->render('infomessage.html', array('info_message' => $msg));
@@ -2253,20 +2250,27 @@ Class UsersModule extends Module {
 			redirect($this->getModuleURL('send_mail_form/' . $user->getId()));
 		}
 		
-		$toUser = $user;
-		$fromUser = $_SESSION['user']['name'];
-
-		
-		$message = 'ОТ: '.$fromUser."\n".'ТЕМА: '.$subject."\n\n".$message;
-		
-		/* clean DB cache */
-		$this->Register['DB']->cleanSqlCache();
 		// формируем заголовки письма
 		$headers = "From: ".$_SERVER['SERVER_NAME']." <" . $this->Register['Config']->read('admin_email') . ">\n";
 		$headers = $headers."Content-type: text/plain; charset=\"utf-8\"\n";
-		$headers = $headers."Return-path: <" . $this->Register['Config']->read('admin_email') . ">\n";
-		$subject = 'Письмо с форума '.$_SERVER['SERVER_NAME'].' от '.$fromUser;
-		if (mail($toUser->getEmail(), $subject, $message, $headers))
+		$headers = $headers."Return-path: <" . $_SESSION['user']['email'] . ">\n";
+		
+		$mail = array(
+			'name' => $user->getName(),
+			'email' => $user->getEmail(),
+			'message' => htmlspecialchars($message),
+			'subject' => $subject,
+		);
+		$from = array (
+			'name' => $_SESSION['user']['name'],
+			'email' => $_SESSION['user']['email'],
+		);
+		$context = $this->render('activation.msg', array('from' => $from, 'mail' => $mail));
+		$body = $this->render('main.msg', array('from' => $from, 'mail' => $mail, 'context' => $context));
+
+		/* clean DB cache */
+		$this->Register['DB']->cleanSqlCache();
+		if (mail($user->getEmail(), $subject, $body, $headers))
 			return $this->showInfoMessage(__('Operation is successful'), '/');
 		else
 			return $this->showInfoMessage(__('Some error occurred'), '/');
