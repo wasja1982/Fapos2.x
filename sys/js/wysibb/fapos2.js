@@ -56,3 +56,36 @@ WBBPRESET = {
 		}
 	}
 }
+
+function catchSelection()
+{
+	if (window.getSelection)
+	{
+		selection = window.getSelection().toString();
+	}
+	else if (document.getSelection)
+	{
+		selection = document.getSelection();
+	}
+	else if (document.selection)
+	{
+		selection = document.selection.createRange().text;
+	}
+}
+
+l_no_text_selected = "Выделите текст на странице и попробуйте еще раз";
+
+function quoteSelection(name)
+{
+	if (selection)
+	{
+		$('#editor').execCommand('quote',{author:name,seltext:selection});
+		selection = '';
+		return; 
+	}
+	else
+	{ 
+		alert(l_no_text_selected);
+		return; 
+	} 
+}
