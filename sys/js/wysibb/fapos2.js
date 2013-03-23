@@ -1,5 +1,5 @@
 WBBPRESET = {
-	buttons: 'bold,italic,underline,strike,|,justifyleft,justifycenter,justifyright,|,smilebox,|,code,quote,spoiler,hide,bullist,numlist,|,link,img,|,fontcolor,fontsize,removeFormat',
+	buttons: 'bold,italic,underline,strike,|,justifyleft,justifycenter,justifyright,|,smilebox,|,code,quote,spoiler,hide,bullist,numlist,|,link,img,video,|,fontcolor,fontsize,removeFormat',
 	traceTextarea: true,
 	imgupload: false,
 	allButtons: {
@@ -52,6 +52,11 @@ WBBPRESET = {
 			transform : {
 				'<img src="{SRC}" />':"[imgl]{SRC}[/imgl]",
 				'<img style="float:left;" src="{SRC}" />':"[img]{SRC}[/img]"
+			}
+		},
+		video: {
+			transform: {
+				'<iframe src="http://www.youtube.com/embed/{SRC}" width="640" height="480" frameborder="0"></iframe>':'[video]http://www.youtube.com/watch?v={SRC}[/video]'
 			}
 		}
 	}
