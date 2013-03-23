@@ -1,3 +1,4 @@
+{{ editor_body }}
 <script language="JavaScript" type="text/javascript">
 l_empty_message = "Вы должны ввести текст сообщения";
 l_no_text_selected = "Выделите текст на странице и попробуйте еще раз";
@@ -11,18 +12,6 @@ function pollForm(element) {
 		$('#poll_ansvers').show();
 	}
 }
-
-$(document).ready(function() {
-	var wbbOpt = {
-		smileList: [
-		{% for smile in smiles_list %}
-			{title:"{{ smile.from }}", img: '<img src="{{ www_root }}/sys/img/smiles/{{ smiles_set }}/{{ smile.to }}" class="sm">', bbcode:"{{ smile.from }}"},
-		{% endfor %}
-		]
-	}
-	$("#editor").wysibb(wbbOpt)
-});
-
 </script>
 <form name="sendForm" id="sendForm" action="{{ context.action }}" method="POST" 
 enctype="multipart/form-data" onsubmit="return checkForm(this)">
@@ -43,7 +32,7 @@ enctype="multipart/form-data" onsubmit="return checkForm(this)">
 				</tr>
 				<tr>
 					<td colspan="2">
-						<textarea id="editor" class="text-area" name="mainText" onselect="storeCaret(this);" onclick="storeCaret(this);" onkeyup="storeCaret(this);">{{ context.main_text }}</textarea>
+						<textarea {{ editor_text }} class="text-area" name="mainText">{{ context.main_text }}</textarea>
 					</td>
 				</tr>
 				<tr>

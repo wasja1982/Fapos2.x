@@ -1,17 +1,4 @@
-<script language="JavaScript" type="text/javascript">
-
-$(document).ready(function() {
-	var wbbOpt = {
-		smileList: [
-		{% for smile in smiles_list %}
-			{title:"{{ smile.from }}", img: '<img src="{{ www_root }}/sys/img/smiles/{{ smiles_set }}/{{ smile.to }}" class="sm">', bbcode:"{{ smile.from }}"},
-		{% endfor %}
-		]
-	}
-	$("#editor").wysibb(wbbOpt)
-});
-
-</script>
+{{ editor_body }}
 <form name="sendForm" id="sendForm" action="{{ data.action }}" method="POST" 
 enctype="multipart/form-data">
 <table border="0"  class="add-form small" cellspacing="1" cellpadding="0">
@@ -25,7 +12,7 @@ enctype="multipart/form-data">
 	</tr>
 	<tr>
 		<td colspan="2">
-			<textarea id="editor" class="text-area" name="mainText" onselect="storeCaret(this);" onclick="storeCaret(this);" onkeyup="storeCaret(this);">{{ data.main_text }}</textarea>
+			<textarea {{ editor_text }} class="text-area" name="mainText">{{ data.main_text }}</textarea>
 		</td>
 	</tr>
 	<tr>
