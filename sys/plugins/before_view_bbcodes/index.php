@@ -18,16 +18,16 @@ class BBCodesEditor {
 		include 'config.php';
 		
 		if ($editor_set && is_array($editor_set) && count($editor_set)) {
+			$number = 0;
 			foreach ($editor_set as $index => $editor) {
-				$number = 0;
 				if (isset($editor['default']) && $editor['default']) {
 					$number = $index;
 					break;
 				}
-				$editor = $editor_set[$number];
-				foreach ($markers as $marker => $value) {
-					$markers[$marker] = !empty($editor[$marker]) ? $editor[$marker] : null;
-				}
+			}
+			$editor = $editor_set[$number];
+			foreach ($markers as $marker => $value) {
+				$markers[$marker] = !empty($editor[$marker]) ? $editor[$marker] : null;
 			}
 		}
 		
