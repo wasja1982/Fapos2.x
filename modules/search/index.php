@@ -107,7 +107,6 @@ class SearchModule extends Module {
 			}
 
 			$results = $this->__search($str, $modules);
-			print(count($results));
 			if (count($results) && is_array($results)) {
 				foreach ($results as $result) {
 					if (preg_match('#(.{0,100}' . $str . '.{0,100})#miu', $result->getIndex(), $match)) {
@@ -133,7 +132,6 @@ class SearchModule extends Module {
 			}
 		} else {
 			$_SESSION['search_query'] = '';
-			print('count($results)');
 		}
 	
 		
@@ -148,7 +146,6 @@ class SearchModule extends Module {
 		if (!empty($_POST['search'])) $this->page_title .= ' - ' . h($_POST['search']);
 		
 		
-		print_r ($_SESSION['m']);
 		$this->returnForm = false;
 		$form = $this->form();
 		$source = $this->render('search_list.html', array('context' => array(
