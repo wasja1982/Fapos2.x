@@ -52,7 +52,7 @@ if (ADM_REFER_PROTECTED == 1) {
 
 
 ///if (empty($_SESSION['user'])) redirect('/');
-if (!isset($_SESSION['adm_panel_authorize']) || $_SESSION['adm_panel_authorize'] < time()) {
+if (!isset($_SESSION['adm_panel_authorize']) || $_SESSION['adm_panel_authorize'] < time() || empty($_SESSION['user'])) {
 	if (isset($_POST['send']) && isset($_POST['login']) && isset($_POST['passwd'])) {
 		$errors = '';
 		$login = strtolower(trim($_POST['login']));
@@ -67,21 +67,16 @@ if (!isset($_SESSION['adm_panel_authorize']) || $_SESSION['adm_panel_authorize']
 			if ($login != strtolower($_SESSION['user']['name']) || md5($pass) != $_SESSION['user']['passw']) 
 				$errors .= '<li>Не верный Пароль или Логин</li>';
 			*/
-			$users = $FpsDB->select('users', DB_FIRST, array('cond' => array('name' => $login)));
-			
-			$check_password = false;
-			if (count($users) > 0 && !empty($users[0])) {
-				$check_password = checkPassword($users[0]['passw'], $pass);
-			}
-			
-			if (count($users) < 1 || !$check_password) {
+			$user = $FpsDB->select('users', DB_FIRST, array('cond' => array('name' => $login, 'passw' => md5($pass))));
+			if (!count($user)) {
 				$errors .= '<li>Не верный Пароль или Логин</li>';
 			} else {
 				//turn access
-				$ACL->turn(array('panel', 'entry'), true, $users[0]['status']);
+				$ACL->turn(array('panel', 'entry'), true, $user[0]['status']);
 			}
 			
 			if (empty($errors)) {
+				$_SESSION['user'] = $user[0];
 				$_SESSION['adm_panel_authorize'] = (time() + Config::read('session_time', 'secure'));
 				redirect('/admin/');
 			}
@@ -91,50 +86,55 @@ if (!isset($_SESSION['adm_panel_authorize']) || $_SESSION['adm_panel_authorize']
 
     $pageTitle = 'Авторизация в панели Администрирования';
     $pageNav = '';
-    $pageNavl = '';
-    include_once ROOT . '/admin/template/header.php';
+    $pageNavr = '';
+    //include_once ROOT . '/admin/template/header.php';
 ?>
-	<div class="all-wrap"></div>
+
+
+
+<!DOCTYPE html>
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<title>Fapos Admin Panel Authorization</title>
+	<meta name="description" content="" />
+	<meta name="keywords" content="" />
+	<meta content="text/html; charset=UTF-8" http-equiv="Content-Type" />
+	<link rel="StyleSheet" type="text/css" href="template/css/style.css" />
+	<script language="JavaScript" type="text/javascript" src="../sys/js/jquery.js"></script>
 	<script type="text/javascript">
-	// background gemor
-	document.body.style.height = '100%';
-	document.body.style.overflow = 'hidden';
 	</script>
-	
-	
-	<div class="fps-win authorize" id="helpBox">
-		<div class="title">Вход в панель Администрирования</div>
-		<a href="../"><div class="close"></div></a>
-		<div style="clear:both;"></div>
-		<form method="POST" action="" >
-			
-			<div class="auth-form-img"><img src="/admin/template/img/protected_key.png" style="float:left; margin-right:10px;" /></div>
-			<div class="auth-form">
-				<?php 
-				if (!empty($errors)) {
-					echo '<ul class="error">' . $errors . '</ul>';
-					unset($errors);
-				}
-				?>
-				<div class="form-item">
-					Логин:&nbsp;<input name="login" style="float:right;" type="text" value="" />
-					<div style="clear:both;"></div>
+</head>
+<body>
+	<div id="login-wrapper">
+		<div class="shadow-mask"></div>
+		<div class="form">
+			<div class="title">Авторизация</div>
+			<form method="POST" action="" >
+				<div class="items">
+					<?php 
+					if (!empty($errors)) {
+						echo '<ul class="error">' . $errors . '</ul>';
+						unset($errors);
+					}
+					?>
+					<div class="item"><span>Логин</span><input name="login" type="text" /></div>
+					<div class="item"><span>Пароль</span><input name="passwd" type="password" /></div>
 				</div>
-				<div class="form-item">
-					Пароль:&nbsp;<input name="passwd" style="float:right;" type="password" value="" />
-					<div style="clear:both;"></div>
-				</div>
-				<div class="form-item center" style="text-align:center;">
-					<input type="submit" name="send" value="Авторизация" />
-					<div style="clear:both;"></div>
-				</div>
-			</div>
-			<div style="clear:both;"></div>
-		</form>
+				<div class="submit"><input type="submit" name="send" value="" /></div>
+			</form>
+		</div>
 	</div>
+</body>
+</html>
+
+
+
+
+
 
 <?php	
-	include_once 'template/footer.php';
+	//include_once 'template/footer.php';
 	die();
 
 	
@@ -159,18 +159,6 @@ if (!empty($_GET['install'])) {
 
 
 
-function cmpAnkor($a, $b) {
-	if (is_array($a) && is_array($b) && isset($a['ankor']) && isset($b['ankor'])) {
-		if ($a['ankor'] == $b['ankor']) {
-			return 0;
-		}
-		return ($a['ankor'] < $b['ankor']) ? -1 : 1;
-	} else {
-		return 0;
-	}
-}
-
-
 
 
 function getAdmFrontMenuParams()
@@ -188,7 +176,6 @@ function getAdmFrontMenuParams()
             }
         }
     }
-	uasort($out, 'cmpAnkor');
     return $out;
 }
 ?>
