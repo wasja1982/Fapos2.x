@@ -254,15 +254,17 @@ function buildCatsList($catsTree, $catsList, $indent = '') {
 						</div>
 						<div class="right"><table class="checkbox-collection"><tr>';
 						$n = 0;
-						foreach ($acl_groups as $id => $group) {
-							if (($n % 3) == 0) $out .= '</tr><tr>';
-							$checked = (in_array($id, $no_access)) ? '' : ' checked="checked"';
-							
-							$id = md5(rand(0, 99999) . $n);
-							
-							$out .= '<td><input id="' . $id . '" type="checkbox" name="access[' . $id . ']" value="' . $id 
-							. '"' . $checked . '  /><label for="' . $id . '"></label>&nbsp;' . h($group['title']) . '</td>';
-							$n++;
+						if ($acl_groups && is_array($acl_groups)) {
+							foreach ($acl_groups as $id => $group) {
+								if (($n % 3) == 0) $out .= '</tr><tr>';
+								$checked = (in_array($id, $no_access)) ? '' : ' checked="checked"';
+
+								$id = md5(rand(0, 99999) . $n);
+
+								$out .= '<td><input id="' . $id . '" type="checkbox" name="access[' . $id . ']" value="' . $id 
+								. '"' . $checked . '  /><label for="' . $id . '"></label>&nbsp;' . h($group['title']) . '</td>';
+								$n++;
+							}
 						}
 						$out .= '</tr></table></div>
 						<div class="clear"></div>
@@ -367,11 +369,13 @@ function index(&$page_title) {
 						<table class="checkbox-collection"><tr>';
 						$n = 0;
 						$id = md5(rand(0, 99999) . $n);
-						foreach ($acl_groups as $id => $group) {
-							if (($n % 3) == 0) $html .= '</tr><tr>';
-							$html .= '<td><input type="checkbox" name="access[' . $id . ']" value="' . $id 
-							. '"  checked="checked" /><label for="' . $id . '"></label>&nbsp;' . h($group['title']) . '</td>';
-							$n++;
+						if ($acl_groups && is_array($acl_groups)) {
+							foreach ($acl_groups as $id => $group) {
+								if (($n % 3) == 0) $html .= '</tr><tr>';
+								$html .= '<td><input type="checkbox" name="access[' . $id . ']" value="' . $id 
+								. '"  checked="checked" /><label for="' . $id . '"></label>&nbsp;' . h($group['title']) . '</td>';
+								$n++;
+							}
 						}
 						$html .= '</tr></table>
 					</div>
@@ -460,9 +464,11 @@ function edit() {
 	
 	
 	$no_access = array();
-	foreach ($acl_groups as $gid => $group) {
-		if (!array_key_exists($gid, $_POST['access'])) {
-			$no_access[] = $gid;
+	if ($acl_groups && is_array($acl_groups)) {
+		foreach ($acl_groups as $gid => $group) {
+			if (!array_key_exists($gid, $_POST['access'])) {
+				$no_access[] = $gid;
+			}
 		}
 	}
 	$no_access = (count($no_access)) ? implode(',', $no_access) : '';
@@ -502,9 +508,11 @@ function add() {
 	if (empty($title)) $error .= '<li>' . __('Empty field "title"') . '</li>';
 	
 	$no_access = array();
-	foreach ($acl_groups as $id => $group) {
-		if (!array_key_exists($id, $_POST['access'])) {
-			$no_access[] = $id;
+	if ($acl_groups && is_array($acl_groups)) {
+		foreach ($acl_groups as $id => $group) {
+			if (!array_key_exists($id, $_POST['access'])) {
+				$no_access[] = $id;
+			}
 		}
 	}
 	$no_access = (count($no_access)) ? implode(',', $no_access) : '';

@@ -481,7 +481,7 @@ function saveAnk() {
 		'locked'	=> $locked,
 		'status' 	=> $status,
 	);
-	if (!empty($passw)) $data['passw'] = md5($passw);
+	if (!empty($passw)) $data['passw'] = md5crypt($passw);
 	if (isset($_POST['activation'])) $data['activation'] = '';
 	$FpsDB->save('users', $data);
 			

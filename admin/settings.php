@@ -33,7 +33,7 @@ $config = $Register['Config']->read('all');
 
 
 
-// Prepare templates selct list
+// Prepare templates select list
 $sourse = glob(ROOT . '/template/*', GLOB_ONLYDIR);
 if (!empty($sourse) && is_array($sourse)) {
 	$templates = array();
@@ -49,6 +49,46 @@ if (!empty($templates)) {
 	foreach ($templates as $value) {
 		$templateSelect[$value] = ucfirst($value);
 	}
+}
+
+
+
+// Prepare fonts select list
+$fonts = glob(ROOT . '/sys/fonts/*.ttf');
+sort($fonts);
+$fontSelect = array();
+if (!empty($fonts)) {
+	foreach ($fonts as $value) {
+		$pos = strrpos($value, "/");
+		if ($pos >= 0) {
+			$value = substr($value, $pos + 1);
+		}
+		$fontSelect[$value] = $value;
+	}
+}
+
+
+
+// Prepare smiles select list
+$smiles = glob(ROOT . '/sys/img/smiles/*/info.php');
+sort($smiles);
+$smilesSelect = array();
+if (!empty($smiles)) {
+	foreach ($smiles as $value) {
+		if (is_file($value)) {
+			include_once $value;
+			$path = dirname($value);
+			$pos = strrpos($path, "/");
+			if ($pos >= 0) {
+				$value = substr($path, $pos + 1);
+			}
+			if (isset($smilesInfo) && isset($smilesInfo['name'])) {
+				$smilesSelect[$value] = $smilesInfo['name'];
+			};
+		}
+	}
+} else {
+	$smilesSelect['fapos'] = 'Fapos';
 }
 
 
@@ -69,7 +109,6 @@ function getImgPath($template) {
 
 
 
-
 // properties for system settings and settings that not linked to module
 include_once ROOT . '/sys/settings/conf_properties.php';
 
@@ -81,9 +120,32 @@ if (empty($_GET['m']) || !is_string($_GET['m'])) $_GET['m'] = 'sys';
 $module = trim($_GET['m']);
 if (in_array($module, $sysMods)) {
 	$settingsInfo = $settingsInfo[$module];
+	switch($module) {
+		case 'common':
+			$pageTitle = __('RSS settings');
+			break;
+		case 'hlu':
+			$pageTitle = __('SEO settings');
+			break;
+		case 'sitemap':
+			$pageTitle = __('Sitemap settings');
+			break;
+		case 'secure':
+			$pageTitle = __('Security settings');
+			break;
+		case 'watermark':
+			$pageTitle = __('Watermark settings');
+			break;
+	}
 } else {
 	$pathToModInfo = ROOT . '/modules/' . $module . '/info.php';
+	if (file_exists($pathToModInfo)) {
 	include ($pathToModInfo);
+		$pageTitle = (isset($menuInfo['ankor']) ? $menuInfo['ankor'] . ' - Настройки' : $pageTitle);
+	} else {
+		$module = 'sys';
+		$settingsInfo = $settingsInfo[$module];
+}
 }
 
 
@@ -119,14 +181,8 @@ if (isset($_POST['send'])) {
 		
 		
 		if (isset($_POST[$fname]) || isset($_FILES[$fname])) {
-			if ('file' == $params['type']) {
-				if (!empty($params['onsave']['func'])
-				&& function_exists((string)$params['onsave']['func'])) {
-					call_user_func((string)$params['onsave']['func'], &$tmpSet);
-				}
-				continue;
-			}
 			$value = trim((string)$_POST[$fname]);
+				}
 		
 		
 		
@@ -134,9 +190,19 @@ if (isset($_POST['send'])) {
 				if (!empty($params['onsave']['multiply'])) {
 					$value = round($value * $params['onsave']['multiply']);
 				}
+			if (!empty($params['onsave']['func'])
+				&& function_exists((string)$params['onsave']['func'])) {
+				if ($params['type'] == 'file' && (isset($_POST[$fname]) || isset($_FILES[$fname]))) {
+					call_user_func((string)$params['onsave']['func'], $tmpSet);
+					continue;
+				} else {
+					$tmpSet[$fname] = $value;
+					call_user_func((string)$params['onsave']['func'], $tmpSet);
 			}
 		}	
+		}
 			
+
 		if (empty($value)) $value = '';
 		if ('checkbox' === $params['type']) {
 			$tmpSet[$fname] = (!empty($value)) ? 1 : 0;
