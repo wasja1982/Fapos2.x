@@ -144,7 +144,7 @@ if ($_GET['ac'] == 'index'):
 					<?php echo __('Required field') ?>:
 				</div>
 				<div class="right">
-					<input type="checkbox" name="required" value="1" />
+					<input id="required" type="checkbox" name="required" value="1" /><label for="required"></label>
 				</div>
 				<div class="clear"></div>
 			</div>
@@ -230,7 +230,7 @@ if ($_GET['ac'] == 'index'):
 					<?php echo __('Required field') ?>:
 				</div>
 				<div class="right">
-					<input type="checkbox" name="required" value="1"<?php if(!empty($params['required'])) echo ' checked="checked"' ?>/>
+					<input id="required" type="checkbox" name="required" value="1"<?php if(!empty($params['required'])) echo ' checked="checked"' ?>/><label for="required"></label>
 				</div>
 				<div class="clear"></div>
 			</div>
