@@ -123,16 +123,14 @@ function index(&$page_title) {
 			<td><span style=\"color:#\">{$hook}</span></td>
 			<td>{$dir}</td>
 			<td colspan=\"2\">
-				<a class=\"edit\" href='plugins.php?ac=edit&dir={$dir}'><img title=\"Edit\" src=\"template/img/edit_16x16.png\" /></a>&nbsp;";
-			
+				<a class=\"edit\" href='plugins.php?ac=edit&dir={$dir}'></a>&nbsp;";
 			if (!empty($params['active'])) {
-				$content .= "<a class=\"off\" href='plugins.php?ac=off&dir={$dir}'><img title=\"Unactive\" src=\"template/img/er.png\" /></a>
-				</td>";
+				$content .= "<a class=\"off\" href='plugins.php?ac=off&dir={$dir}'></a>";
 			} else {
-				$content .= "<a class=\"on\" href='plugins.php?ac=on&dir={$dir}'><img title=\"Activate\" src=\"template/img/ok.png\" /></a>
-				</td>";
+				$content .= "<a class=\"on\" href='plugins.php?ac=on&dir={$dir}'>";
 
 			}
+			$content .= '</td>';
 	}
 	$content .= '</table></div>';
 
