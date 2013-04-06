@@ -68,7 +68,7 @@ function save(prefix) {
 	}
 }
 function _confirm() {
-	return confirm('Вы уверенны?');
+	return confirm('Вы уверены?');
 }
 
 
