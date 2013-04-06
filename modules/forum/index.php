@@ -74,7 +74,7 @@ Class ForumModule extends Module {
 
 		$conditions = array();
 		if (!empty($cat_id) && is_numeric($cat_id)) {
-			$cat_id = (int)$cat_id;
+			$cat_id = intval($cat_id);
 			if ($cat_id > 0) {
 				$conditions['id'] = $cat_id;
 			}
@@ -250,7 +250,7 @@ Class ForumModule extends Module {
 		//turn access
 		$this->ACL->turn(array($this->module, 'view_forums'));
 		$id_forum = intval($id_forum);
-		if (empty($id_forum) || $id_forum < 1) redirect($this->getModuleURL());
+		if ($id_forum < 1) return $this->showInfoMessage(__('Can not find forum'), $this->getModuleURL());
 
 		
 		
@@ -619,7 +619,7 @@ Class ForumModule extends Module {
 		//turn access
 		$this->ACL->turn(array($this->module, 'view_themes'));
 		$id_theme = intval($id_theme);
-		if (empty($id_theme) || $id_theme < 1) redirect($this->getModuleURL());
+		if ($id_theme < 1) return $this->showInfoMessage(__('Topic not found'), $this->getModuleURL());
 
 		
 		
@@ -627,7 +627,7 @@ Class ForumModule extends Module {
 		$themeModel->bindModel('forum');
 		$themeModel->bindModel('poll');
 		$theme = $themeModel->getById($id_theme);
-		if (!$theme || !$theme->getForum())  return $this->showInfoMessage(__('Can not find forum'), $this->getModuleURL() );
+		if (!$theme || !$theme->getForum()) return $this->showInfoMessage(__('Topic not found'), $this->getModuleURL());
 
 		
 		//turn access
@@ -648,7 +648,7 @@ Class ForumModule extends Module {
 		
 			
 			// Если запрошенной темы не существует - возвращаемся на форум
-			if (empty($theme)) return $this->showInfoMessage(__('Topic not found'), $this->getModuleURL() );
+			if (empty($theme)) return $this->showInfoMessage(__('Topic not found'), $this->getModuleURL());
 
 
 			// Заголовок страницы (содержимое тега title)
@@ -1028,14 +1028,14 @@ Class ForumModule extends Module {
 		//turn access
 		$this->ACL->turn(array($this->module, 'view_themes'));
 		$user_id = intval($user_id);
-		if (empty($user_id) || $user_id < 1) redirect($this->getModuleURL());
+		if ($user_id < 1) return $this->showInfoMessage(__('Can not find user'), $this->getModuleURL());
 		
 		if ($this->cached && $this->Cache->check($this->cacheKey)) {
 			$source = $this->Cache->read($this->cacheKey);
 		} else {
 			$usersModel = $this->Register['ModManager']->getModelInstance('Users');
 			$user = $usersModel->getById($user_id);
-			if (!$user) return $this->showInfoMessage(__('Some error occurred'), $this->getModuleURL());
+			if (!$user) return $this->showInfoMessage(__('Can not find user'), $this->getModuleURL());
 			
 
 			// Заголовок страницы (содержимое тега title)
@@ -1193,11 +1193,11 @@ Class ForumModule extends Module {
 	{	
 		if (empty($_SESSION['user'])) die('ERROR: permission denied');
 	
-		$id = (int)$id;
+		$id = intval($id);
 		if ($id < 1) die('ERROR: empty ID');
 		
 		
-		$ansver_id = (!empty($_GET['ansver'])) ? (int)$_GET['ansver'] : 0;
+		$ansver_id = (!empty($_GET['ansver'])) ? intval($_GET['ansver']) : 0;
 		if ($ansver_id < 1) die('ERROR: empty ANSVER_ID');
 		
 	
@@ -1366,9 +1366,9 @@ Class ForumModule extends Module {
 	public function edit_forum_form($id_forum = null) {
 		//check access
 		$this->ACL->turn(array($this->module, 'edit_forums'));
-		if (!isset($_SESSION['user'])) redirect($this->getModuleURL());
+		if (!isset($_SESSION['user'])) return $this->showInfoMessage(__('Some error occurred'), $this->getModuleURL());
 		$id_forum = intval($id_forum);
-		if (empty($id_forum) || $id_forum < 1) redirect($this->getModuleURL());
+		if ($id_forum < 1) return $this->showInfoMessage(__('Can not find forum'), $this->getModuleURL());
 
 		
 		
@@ -1428,9 +1428,9 @@ Class ForumModule extends Module {
 	public function update_forum($id_forum = null) {
 		//check access
 		$this->ACL->turn(array($this->module, 'edit_forums'));
-		if (!isset($_SESSION['user']))  redirect($this->getModuleURL());
+		if (!isset($_SESSION['user'])) return $this->showInfoMessage(__('Some error occurred'), $this->getModuleURL());
 		$id_forum = intval($id_forum);
-		if (empty($id_forum) || $id_forum < 1) redirect($this->getModuleURL());
+		if ($id_forum < 1) return $this->showInfoMessage(__('Can not find forum'), $this->getModuleURL());
 
 		
 		$forum = $this->Model->getById($id_forum);
@@ -1471,7 +1471,7 @@ Class ForumModule extends Module {
 		$this->Cache->clean(CACHE_MATCHING_TAG, array('forum_id_' . $id_forum));
 		$this->DB->cleanSqlCache();
 		if ($this->Log) $this->Log->write('editing forum', 'forum id(' . $id_forum . ')');
-		return $this->showInfoMessage(__('Forum update is successful'), $this->getModuleURL() );
+		return $this->showInfoMessage(__('Forum update is successful'), $this->getModuleURL());
 	}
 
 
@@ -1487,9 +1487,9 @@ Class ForumModule extends Module {
 	public function forum_up($id_forum = null) {
 		//check access
 		$this->ACL->turn(array($this->module, 'replace_forums'));
-		if (!isset($_SESSION['user']))  redirect($this->getModuleURL());
+		if (!isset($_SESSION['user'])) return $this->showInfoMessage(__('Some error occurred'), $this->getModuleURL());
 		$id_forum = intval($id_forum);
-		if (empty($id_forum) || $id_forum < 1) redirect($this->getModuleURL());
+		if ($id_forum < 1) return $this->showInfoMessage(__('Can not find forum'), $this->getModuleURL());
 		
 
 		
@@ -1509,7 +1509,7 @@ Class ForumModule extends Module {
 		), array(
 			'order' => 'pos DESC',
 		));
-		if (!$dforum) return $this->showInfoMessage(__('Forum is above all'), $this->getModuleURL() );
+		if (!$dforum) return $this->showInfoMessage(__('Forum is above all'), $this->getModuleURL());
 		
 	
 		// Порядок следования и ID форума, который находится выше и будет "опущен" вниз
@@ -1530,9 +1530,9 @@ Class ForumModule extends Module {
 		
 		if ($this->Log) $this->Log->write('uping forum', 'forum id(' . $id_forum . ')');
 		if ($res1 && $res2)
-			return $this->showInfoMessage(__('Operation is successful'), $this->getModuleURL() );
+			return $this->showInfoMessage(__('Operation is successful'), $this->getModuleURL());
 		else
-			return $this->showInfoMessage(__('Some error occurred'), $this->getModuleURL() );
+			return $this->showInfoMessage(__('Some error occurred'), $this->getModuleURL());
 	}
 
 
@@ -1547,9 +1547,9 @@ Class ForumModule extends Module {
 	public function forum_down($id_forum = null) {
 		//check access
 		$this->ACL->turn(array($this->module, 'replace_forums'));
-		if (!isset($_SESSION['user']))  redirect($this->getModuleURL());
+		if (!isset($_SESSION['user'])) return $this->showInfoMessage(__('Some error occurred'), $this->getModuleURL());
 		$id_forum = intval($id_forum);
-		if (!isset($id_forum)) redirect($this->getModuleURL());
+		if ($id_forum < 1) return $this->showInfoMessage(__('Can not find forum'), $this->getModuleURL());
 	
 	
 		
@@ -1568,7 +1568,7 @@ Class ForumModule extends Module {
 		), array(
 			'order' => 'pos ASC',
 		));
-		if (!$dforum) return $this->showInfoMessage(__('Some error occurred'), $this->getModuleURL() );
+		if (!$dforum) return $this->showInfoMessage(__('Some error occurred'), $this->getModuleURL());
 		
 	
 		// Порядок следования и ID форума, который находится ниже и будет "поднят" вверх
@@ -1589,9 +1589,9 @@ Class ForumModule extends Module {
 		
 		if ($this->Log) $this->Log->write('down forum', 'forum id(' . $id_forum . ')');
 		if ($res1 && $res2)
-			return $this->showInfoMessage(__('Operation is successful'), $this->getModuleURL() );
+			return $this->showInfoMessage(__('Operation is successful'), $this->getModuleURL());
 		else
-			return $this->showInfoMessage(__('Some error occurred'), $this->getModuleURL() );
+			return $this->showInfoMessage(__('Some error occurred'), $this->getModuleURL());
 	}
 
 
@@ -1606,8 +1606,8 @@ Class ForumModule extends Module {
 	public function delete_forum($id_forum = null) {
 		//check access
 		$this->ACL->turn(array($this->module, 'delete_forums'));
-		$id_forum = (int)$id_forum;
-		if (empty($id_forum) || $id_forum < 1) redirect($this->getModuleURL());
+		$id_forum = intval($id_forum);
+		if ($id_forum < 1) return $this->showInfoMessage(__('Can not find forum'), $this->getModuleURL());
 		
 	
 		$forum = $this->Model->getById($id_forum);
@@ -1618,7 +1618,7 @@ Class ForumModule extends Module {
 		$themeModel = $this->Register['ModManager']->getModelInstance('Themes');
 		$themes = $themeModel->getTotal(array('cond' => array('id_forum' => $id_forum)));
 		if ($themes > 0) {
-			return $this->showInfoMessage(__('Can not delete forum with themes'), $this->getModuleURL() );
+			return $this->showInfoMessage(__('Can not delete forum with themes'), $this->getModuleURL());
 		} else {
 			$forum->delete();
 		}
@@ -1627,7 +1627,7 @@ Class ForumModule extends Module {
 		$this->Cache->clean(CACHE_MATCHING_TAG, array('forum_id_' . $id_forum));
 		$this->DB->cleanSqlCache();
 		if ($this->Log) $this->Log->write('delete forum', 'forum id(' . $id_forum . ')');
-		return $this->showInfoMessage(__('Operation is successful'), $this->getModuleURL() );
+		return $this->showInfoMessage(__('Operation is successful'), $this->getModuleURL());
 	}
 
 
@@ -1644,13 +1644,13 @@ Class ForumModule extends Module {
 		//check access
 		$this->ACL->turn(array($this->module, 'add_themes', $id_forum));
 		$id_forum = intval($id_forum);
-		if (empty($id_forum) || $id_forum < 1) redirect($this->getModuleURL());
+		if ($id_forum < 1) return $this->showInfoMessage(__('Can not find forum'), $this->getModuleURL());
 		$writer_status = (!empty($_SESSION['user']['status'])) ? $_SESSION['user']['status'] : 0;
 
 		
 		
 		$forum = $this->Model->getById($id_forum);
-		if (!$forum) redirect($this->getModuleURL());
+		if (!$forum) return $this->showInfoMessage(__('Can not find forum'), $this->getModuleURL());
 
 		
 		
@@ -1731,14 +1731,15 @@ Class ForumModule extends Module {
 	{
 		//check access
 		$this->ACL->turn(array($this->module, 'add_themes', $id_forum));
-		if (!isset($id_forum) || !isset($_POST['theme']) || !isset($_POST['mainText'])) redirect($this->getModuleURL());
+		if (!isset($id_forum) || !isset($_POST['theme']) || !isset($_POST['mainText']))
+			return $this->showInfoMessage(__('Some error occurred'), $this->getModuleURL());
 		$id_forum = intval($id_forum);
-		if (empty($id_forum) || $id_forum < 1) redirect($this->getModuleURL());
+		if ($id_forum < 1) return $this->showInfoMessage(__('Can not find forum'), $this->getModuleURL());
 		
 
 
 		$forum = $this->Model->getById($id_forum);
-		if (!$forum) redirect($this->getModuleURL());
+		if (!$forum) return $this->showInfoMessage(__('Can not find forum'), $this->getModuleURL());
 
 		
 		
@@ -1943,14 +1944,14 @@ Class ForumModule extends Module {
 	public function edit_theme_form($id_theme = null) 
 	{
 		$id_theme = intval($id_theme);
-		if (empty($id_theme) || $id_theme < 1) redirect($this->getModuleURL());
+		if ($id_theme < 1) return $this->showInfoMessage(__('Topic not found'), $this->getModuleURL());
 
 
 		// Получаем из БД информацию о редактируемой теме
 		$themeModel = $this->Register['ModManager']->getModelInstance('Themes');
 		$themeModel->bindModel('author');
 		$theme = $themeModel->getById($id_theme);
-		if (!$theme) redirect($this->getModuleURL());
+		if (!$theme) return $this->showInfoMessage(__('Topic not found'), $this->getModuleURL());
 		
 		
 		$id_forum = $theme->getId_forum();
@@ -1988,7 +1989,7 @@ Class ForumModule extends Module {
 		
 		// Формируем список форумов, чтобы можно было переместить тему в другой форум
 		$forums = $this->Model->getCollection(array(), array('order' => 'pos'));
-		if (!$forums) redirect($this->getModuleURL());
+		if (!$forums) return $this->showInfoMessage(__('Some error occurred'), $this->getModuleURL());
 
 
 		$options = '';
@@ -2038,17 +2039,16 @@ Class ForumModule extends Module {
 	public function update_theme($id_theme = null) {
 		
 		// Если не переданы данные формы - функция вызвана по ошибке
-		if (!isset($id_theme) || !isset($_POST['id_forum']) || !isset($_POST['theme'])) {
-			redirect($this->getModuleURL());
-		}
+		if (!isset($id_theme) || !isset($_POST['id_forum']) || !isset($_POST['theme']))
+			return $this->showInfoMessage(__('Some error occurred'), $this->getModuleURL());
 		$id_theme = intval($id_theme);
 		$id_forum = intval($_POST['id_forum']);
-		if ($id_theme < 1 || $id_forum < 1) redirect($this->getModuleURL());
+		if ($id_theme < 1 || $id_forum < 1) return $this->showInfoMessage(__('Topic not found'), $this->getModuleURL());
 		
 		
 		$themeModel = $this->Register['ModManager']->getModelInstance('Themes');
 		$theme = $themeModel->getById($id_theme);
-		if (!$theme) return $this->showInfoMessage(__('Theme does not exists'), $this->getModuleURL() );
+		if (!$theme) return $this->showInfoMessage(__('Theme does not exists'), $this->getModuleURL());
 
 		
 		// Обрезаем переменные до длины, указанной в параметре maxlength тега input
@@ -2146,7 +2146,7 @@ Class ForumModule extends Module {
 	 */
 	public function delete_theme($id_theme = null) {
 		$id_theme = intval($id_theme);
-		if (empty($id_theme) || $id_theme < 1) redirect($this->getModuleURL());
+		if ($id_theme < 1) return $this->showInfoMessage(__('Topic not found'), $this->getModuleURL());
 		
 
 		$themesModel = $this->Register['ModManager']->getModelInstance('Themes');
@@ -2176,13 +2176,13 @@ Class ForumModule extends Module {
 	public function lock_theme($id_theme = null) {
 		$this->ACL->turn(array($this->module, 'close_themes'));
 		$id_theme = intval($id_theme);
-		if ($id_theme < 1) redirect($this->getModuleURL());
+		if ($id_theme < 1) return $this->showInfoMessage(__('Topic not found'), $this->getModuleURL());
 		
 		
 		$postsModel = $this->Register['ModManager']->getModelInstance('Posts');
 		$themesModel = $this->Register['ModManager']->getModelInstance('Themes');
 		$theme = $themesModel->getById($id_theme);
-		if (!$theme) return $this->showInfoMessage(__('Topic not found'), $this->getModuleURL() );
+		if (!$theme) return $this->showInfoMessage(__('Topic not found'), $this->getModuleURL());
 		
 		
 		// Сначала заблокируем сообщения (посты) темы
@@ -2216,13 +2216,13 @@ Class ForumModule extends Module {
 	public function unlock_theme($id_theme = null) {
 		$this->ACL->turn(array($this->module, 'close_themes'));
 		$id_theme = intval($id_theme);
-		if ($id_theme < 1) redirect($this->getModuleURL());
+		if ($id_theme < 1) return $this->showInfoMessage(__('Topic not found'), $this->getModuleURL());
 		
 
 		$postsModel = $this->Register['ModManager']->getModelInstance('Posts');
 		$themesModel = $this->Register['ModManager']->getModelInstance('Themes');
 		$theme = $themesModel->getById($id_theme);
-		if (!$theme) return $this->showInfoMessage(__('Topic not found'), $this->getModuleURL() );
+		if (!$theme) return $this->showInfoMessage(__('Topic not found'), $this->getModuleURL());
 		
 		
 		// Сначала заблокируем сообщения (посты) темы
@@ -2258,7 +2258,7 @@ Class ForumModule extends Module {
 	 */ 
 	private function add_post_form($theme = null) {
 		if (empty($theme)) return null;
-		$id_theme = (int)$theme->getId();
+		$id_theme = intval($theme->getId());
 		if ($id_theme < 1) return null;
 		$writer_status = (!empty($_SESSION['user']['status'])) ? $_SESSION['user']['status'] : 0;
 
@@ -2327,16 +2327,16 @@ Class ForumModule extends Module {
 	 */
 	public function add_post($id_theme = null) {
 		$this->ACL->turn(array($this->module, 'add_posts'));
-		if (empty($id_theme) || !isset($_POST['mainText'])) redirect($this->getModuleURL());
+		if (empty($id_theme) || !isset($_POST['mainText'])) return $this->showInfoMessage(__('Some error occurred'), $this->getModuleURL());
 		$id_theme = intval($id_theme);
-		if ($id_theme < 1) redirect($this->getModuleURL());
+		if ($id_theme < 1) return $this->showInfoMessage(__('Topic not found'), $this->getModuleURL());
 		
 
 		
 		// Проверяем, не заблокирована ли тема?
 		$themesModel = $this->Register['ModManager']->getModelInstance('Themes');
 		$theme = $themesModel->getById($id_theme);
-		if (!$theme) redirect($this->getModuleURL());
+		if (!$theme) return $this->showInfoMessage(__('Topic not found'), $this->getModuleURL());
 		
 		$this->ACL->turn(array($this->module, 'add_posts', $theme->getId_forum()));
 
@@ -2347,7 +2347,7 @@ Class ForumModule extends Module {
 		
 		// Check access to this forum. May be locked by pass or posts count
 		$forum = $this->Model->getById($theme->getId_forum());
-		if (!$forum)  return $this->showInfoMessage(__('Can not find forum'), $this->getModuleURL() );
+		if (!$forum) return $this->showInfoMessage(__('Can not find forum'), $this->getModuleURL());
 		$this->__checkForumAccess($forum);
 		
 
@@ -2422,7 +2422,7 @@ Class ForumModule extends Module {
 		
 		if ($gluing === true) {
 			$message = $prev_post->getMessage() . "\n\n" . '[color=939494]' 
-			. __('Added') . " " . date("Y.m.d  H-i") . "[/color]\n\n" . $message;
+			. __('Added') . " " . date("Y.m.d H:i") . "[/color]\n\n" . $message;
 
 			$prev_post->setMessage($message);
 			$prev_post->setTime(new Expr('NOW()'));
@@ -2566,15 +2566,15 @@ Class ForumModule extends Module {
 	 * @param int $id Post ID
 	 */
 	public function edit_post_form($id = null) {
-		$id = (int)$id;
-		if ($id < 1) redirect($this->getModuleURL());
+		$id = intval($id);
+		if ($id < 1) return $this->showInfoMessage(__('Material not found'), $this->getModuleURL());
 		$writer_status = (!empty($_SESSION['user']['status'])) ? $_SESSION['user']['status'] : 0;
 
 
 		// Получаем из БД сообщение
 		$postsModel = $this->Register['ModManager']->getModelInstance('Posts');
 		$post = $postsModel->getById($id);
-		if (!$post) return $this->showInfoMessage(__('Some error occurred'),  $this->getModuleURL() );
+		if (!$post) return $this->showInfoMessage(__('Some error occurred'),  $this->getModuleURL());
 		
 		$id_theme = $post->getId_theme();		
 		
@@ -2664,15 +2664,15 @@ Class ForumModule extends Module {
 	 */
 	public function update_post($id = null) {
 		// Если не переданы данные формы - значит функция была вызвана по ошибке
-		if (empty($id) || !isset($_POST['mainText'])) redirect($this->getModuleURL());
-		$id = (int)$id;
-		if ($id < 1) redirect($this->getModuleURL());
+		if (empty($id) || !isset($_POST['mainText'])) return $this->showInfoMessage(__('Some error occurred'), $this->getModuleURL());
+		$id = intval($id);
+		if ($id < 1) return $this->showInfoMessage(__('Material not found'), $this->getModuleURL());
 
 
 		// Проверяем, имеет ли пользователь право редактировать это сообщение (пост)
 		$postsModel = $this->Register['ModManager']->getModelInstance('Posts');
 		$post = $postsModel->getById($id);
-		if (!$post) return $this->showInfoMessage(__('Some error occurred'), $this->getModuleURL() );
+		if (!$post) return $this->showInfoMessage(__('Some error occurred'), $this->getModuleURL());
 		$id_theme = $post->getId_theme();
 		
 		
@@ -2817,14 +2817,14 @@ Class ForumModule extends Module {
 	*/
 	public function delete_post($id = null) {
 		$id = intval($id);
-		if (empty($id) || $id < 1) redirect($this->getModuleURL());
+		if ($id < 1) return $this->showInfoMessage(__('Material not found'), $this->getModuleURL());
 		
 
 		// Получаем из БД информацию об удаляемом сообщении - это нужно,
 		// чтобы узнать, имеет ли право пользователь удалить это сообщение
 		$postsModel = $this->Register['ModManager']->getModelInstance('Posts');
 		$post = $postsModel->getById($id);
-		if (!$post) return $this->showInfoMessage(__('Some error occurred'), $this->getModuleURL() );
+		if (!$post) return $this->showInfoMessage(__('Some error occurred'), $this->getModuleURL());
 
 		
 		//check access
@@ -2953,6 +2953,9 @@ Class ForumModule extends Module {
 	 */
 	public function user_themes($user_id = null) 
 	{
+		$user_id = intval($user_id);
+		if ($user_id < 1) return $this->showInfoMessage(__('Can not find user'), $this->getModuleURL());
+		
 		$this->page_title .= ' - ' . __('User themes');
 		$html = '';
     
@@ -3067,10 +3070,10 @@ Class ForumModule extends Module {
 
 	
 	public function download_file($file = null, $mimetype = 'application/octet-stream') {
-		if (empty($file)) redirect('/');
+		if (empty($file)) return $this->showInfoMessage(__('File not found'), $this->getModuleURL());
 		
 		$path = ROOT . $this->getFilesPath($file);
-		if (!file_exists($path)) die(__('File not found'));
+		if (!file_exists($path)) return $this->showInfoMessage(__('File not found'), $this->getModuleURL());
 		$from = 0;
 		$size = filesize($path);
 		$to = $size;
@@ -3128,8 +3131,8 @@ Class ForumModule extends Module {
 	public function important($id = null) {
 		//turn access
 		$this->ACL->turn(array($this->module, 'important_themes'));
-		$id = (int)$id;
-		if ($id < 1) redirect($this->getModuleURL());
+		$id = intval($id);
+		if ($id < 1) return $this->showInfoMessage(__('Material not found'), $this->getModuleURL());
 		
 		
 		$themesModel = $this->Register['ModManager']->getModelInstance('Themes');
@@ -3149,8 +3152,8 @@ Class ForumModule extends Module {
 	public function unimportant($id = null) {
 		//turn access
 		$this->ACL->turn(array($this->module, 'important_themes'));
-		$id = (int)$id;
-		if ($id < 1) redirect($this->getModuleURL());
+		$id = intval($id);
+		if ($id < 1) return $this->showInfoMessage(__('Material not found'), $this->getModuleURL());
 		
 		
 		$themesModel = $this->Register['ModManager']->getModelInstance('Themes');
@@ -3285,9 +3288,9 @@ Class ForumModule extends Module {
 	}
 	
 	
-	public function view_post($id_post) {
+	public function view_post($id_post = null) {
 		$id_post = intval($id_post);
-		if (empty($id_post) || $id_post < 1) redirect($this->getModuleURL());
+		if ($id_post < 1) return $this->showInfoMessage(__('Material not found'), $this->getModuleURL());
 
 		$postsModel = $this->Register['ModManager']->getModelInstance('Posts');
 		$post = $postsModel->getById($id_post);
@@ -3317,7 +3320,7 @@ Class ForumModule extends Module {
 		$this->ACL->turn(array($this->module, 'add_themes'));
 		$this->ACL->turn(array($this->module, 'edit_themes'));
 		$id_theme = intval($id_theme);
-		if (empty($id_theme) || $id_theme < 1) redirect($this->getModuleURL());
+		if ($id_theme < 1) return $this->showInfoMessage(__('Topic not found'), $this->getModuleURL());
 
 		
 		
@@ -3365,7 +3368,7 @@ Class ForumModule extends Module {
 		
 		// Формируем список форумов, чтобы можно было переместить тему в другой форум
 		$forums = $this->Model->getCollection(array(), array('order' => 'pos'));
-		if (!$forums) redirect($this->getModuleURL());
+		if (!$forums) return $this->showInfoMessage(__('Can not find forum'), $this->getModuleURL());
 
 
 		$options = '';
@@ -3458,12 +3461,11 @@ Class ForumModule extends Module {
 	public function split_theme($id_theme = null) 
 	{
 		// Если не переданы данные формы - функция вызвана по ошибке
-		if (!isset($id_theme) || !isset($_POST['id_forum']) || !isset($_POST['theme'])) {
-			redirect($this->getModuleURL());
-		}
+		if (!isset($id_theme) || !isset($_POST['id_forum']) || !isset($_POST['theme']))
+			return $this->showInfoMessage(__('Some error occurred'), $this->getModuleURL());
 		$id_theme = intval($id_theme);
 		$id_forum = intval($_POST['id_forum']);
-		if ($id_theme < 1 || $id_forum < 1) redirect($this->getModuleURL());
+		if ($id_theme < 1 || $id_forum < 1) return $this->showInfoMessage(__('Can not find forum'), $this->getModuleURL());
 		
 		
 		$themeModel = $this->Register['ModManager']->getModelInstance('Themes');
@@ -3603,14 +3605,14 @@ Class ForumModule extends Module {
 		//turn access
 		$this->ACL->turn(array($this->module, 'edit_themes'));
 		$id_theme = intval($id_theme);
-		if (empty($id_theme) || $id_theme < 1) redirect($this->getModuleURL());
+		if ($id_theme < 1) return $this->showInfoMessage(__('Topic not found'), $this->getModuleURL());
 
 		
 		
 		$themeModel = $this->Register['ModManager']->getModelInstance('Themes');
 		$themeModel->bindModel('forum');
 		$theme = $themeModel->getById($id_theme);
-		if (empty($theme) || !$theme->getForum())  return $this->showInfoMessage(__('Topic not found'), $this->getModuleURL());
+		if (empty($theme) || !$theme->getForum()) return $this->showInfoMessage(__('Topic not found'), $this->getModuleURL());
 
 		
 		//turn access
@@ -3644,7 +3646,7 @@ Class ForumModule extends Module {
 		
 		// Формируем список форумов, чтобы можно было переместить тему в другой форум
 		$forums = $this->Model->getCollection(array(), array('order' => 'pos'));
-		if (!$forums) redirect($this->getModuleURL());
+		if (!$forums) return $this->showInfoMessage(__('Can not find forum'), $this->getModuleURL());
 
 
 		// Заголовок страницы (содержимое тега title)
@@ -3724,10 +3726,10 @@ Class ForumModule extends Module {
 	public function move_posts($id_theme = null) 
 	{
 		// Если не переданы данные формы - функция вызвана по ошибке
-		if (!isset($id_theme) || !isset($_POST['theme'])) {
-			redirect($this->getModuleURL());
-		}
+		if (!isset($id_theme) || !isset($_POST['theme']))
+			return $this->showInfoMessage(__('Some error occurred'), $this->getModuleURL());
 		$id_theme = intval($id_theme);
+		if ($id_theme < 1) return $this->showInfoMessage(__('Topic not found'), $this->getModuleURL());
 		
 		
 		$themeModel = $this->Register['ModManager']->getModelInstance('Themes');
@@ -3839,14 +3841,14 @@ Class ForumModule extends Module {
 		//turn access
 		$this->ACL->turn(array($this->module, 'edit_themes'));
 		$id_theme = intval($id_theme);
-		if (empty($id_theme) || $id_theme < 1) redirect($this->getModuleURL());
+		if ($id_theme < 1) return $this->showInfoMessage(__('Topic not found'), $this->getModuleURL());
 
 		
 		
 		$themeModel = $this->Register['ModManager']->getModelInstance('Themes');
 		$themeModel->bindModel('forum');
 		$theme = $themeModel->getById($id_theme);
-		if (empty($theme) || !$theme->getForum())  return $this->showInfoMessage(__('Topic not found'), $this->getModuleURL());
+		if (empty($theme) || !$theme->getForum()) return $this->showInfoMessage(__('Topic not found'), $this->getModuleURL());
 
 		
 		//turn access
@@ -3878,7 +3880,7 @@ Class ForumModule extends Module {
 		
 		// Формируем список форумов, чтобы можно было переместить тему в другой форум
 		$forums = $this->Model->getCollection(array(), array('order' => 'pos'));
-		if (!$forums) redirect($this->getModuleURL());
+		if (!$forums) return $this->showInfoMessage(__('Some error occurred'), $this->getModuleURL());
 
 
 		// Заголовок страницы (содержимое тега title)
@@ -3919,10 +3921,10 @@ Class ForumModule extends Module {
 	public function unite_themes($id_theme = null) 
 	{
 		// Если не переданы данные формы - функция вызвана по ошибке
-		if (!isset($id_theme) || !isset($_POST['theme'])) {
-			redirect($this->getModuleURL());
-		}
+		if (!isset($id_theme) || !isset($_POST['theme']))
+			return $this->showInfoMessage(__('Some error occurred'), $this->getModuleURL());
 		$id_theme = intval($id_theme);
+		if ($id_theme < 1) return $this->showInfoMessage(__('Topic not found'), $this->getModuleURL());
 		
 		
 		$themeModel = $this->Register['ModManager']->getModelInstance('Themes');
