@@ -46,7 +46,7 @@ if (isset($_GET['a']) && $_GET['a'] == 'ed') {
 if (isset($_GET['a']) && $_GET['a'] == 'ed') {
 
 	$id = (!empty($_GET['id'])) ? intval($_GET['id']) : '';
-	if(isset($_POST['save']) && isset($_POST['text_edit'])) {
+	if($id > 0 && isset($_POST['save']) && isset($_POST['text_edit'])) {
 		$sql = $FpsDB->save('snippets', array(
 			'body' => $_POST['text_edit'],
 			'id' => $id,
@@ -146,7 +146,7 @@ if (isset($_GET['a']) && $_GET['a'] == 'ed') {
 					<div class="left">
 					</div>
 					<div class="right">
-						<input class="save-button" type="submit" name="send" value="Сохранить" />
+						<input class="save-button" type="submit" name="save" value="Сохранить" />
 					</div>
 					<div class="clear"></div>
 				</div>
