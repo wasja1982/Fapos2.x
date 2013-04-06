@@ -47,21 +47,18 @@ Class PagesModule extends Module {
 		//if isset ID - we need load page with this ID
 		if (!empty($id)) {
 			if (is_numeric($id)) {
-				$id = (int)$id;
+				$id = intval($id);
 				if ($id < 2) return $this->showInfoMessage(__('Can not find this page'), $this->getModuleURL());
+				
+				$page = $this->Model->getById($id);
+				if (!$page) return $this->showInfoMessage(__('Can not find this page'), '/');
 			} else {
 				if (!preg_match('#^[\da-z_\-]+$#i', $id)) return $this->showInfoMessage(__('Can not find this page'), $this->getModuleURL());
 			
-				$record = $this->Model->getByUrl($id);
-				if (empty($record)) return $this->showInfoMessage(__('Can not find this page'), $this->getModuleURL());
-				
-				$id = $record->getId();
+				$page = $this->Model->getByUrl($id);
+				if (!$page) return $this->showInfoMessage(__('Can not find this page'), $this->getModuleURL());
+				$id = $page->getId();
 			}
-		
-		
-			$page = $this->Model->getById($id);
-			if (!$page) return $this->showInfoMessage(__('Can not find this page'), '/');
-			
 			
 			$this->page_title = $page->getName();
 			$this->page_meta_keywords = $page->getMeta_keywords();
