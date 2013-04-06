@@ -46,14 +46,14 @@ Class PagesModule extends Module {
 	function index($id = null, $s =null, $x = null) {
 		//if isset ID - we need load page with this ID
 		if (!empty($id)) {
-			if (is_int($id)) {
+			if (is_numeric($id)) {
 				$id = (int)$id;
-				if ($id < 2)  redirect($this->getModuleURL());
+				if ($id < 2) return $this->showInfoMessage(__('Can not find this page'), $this->getModuleURL());
 			} else {
-				if (!preg_match('#^[\da-z_\-]+$#i', $id))  redirect($this->getModuleURL());
+				if (!preg_match('#^[\da-z_\-]+$#i', $id)) return $this->showInfoMessage(__('Can not find this page'), $this->getModuleURL());
 			
 				$record = $this->Model->getByUrl($id);
-				if (empty($record)) return $this->showInfoMessage(__('Can not find this page'), '/');
+				if (empty($record)) return $this->showInfoMessage(__('Can not find this page'), $this->getModuleURL());
 				
 				$id = $record->getId();
 			}
@@ -262,7 +262,7 @@ Class PagesModule extends Module {
 				if (empty($html)) $html = __('Materials not found');
 				return $this->_view($html);
 			}
-			return $this->_view(__('Materials not found'));
+			return $this->showInfoMessage(__('Some error occurred'), $this->getModuleURL());
 		}
 	}
 
