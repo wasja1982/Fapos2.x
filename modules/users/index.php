@@ -1147,7 +1147,7 @@ Class UsersModule extends Module {
 
 		// Получаем данные о пользователе из БД
 		$user = $this->Model->getById($id);
-		if (!$user || count($user) == 0) return $this->showInfoMessage(__('Can not find user'), $this->getModuleURL() );
+		if (!$user || count($user) == 0) return $this->showInfoMessage(__('Can not find user'), $this->getModuleURL());
 		if (is_object($this->AddFields) && is_array($user) && count($user) > 0) {
 			$users = $this->AddFields->mergeRecords(array($user), true);
 			$user = $users[0];
@@ -1267,7 +1267,7 @@ Class UsersModule extends Module {
 		$id = (int)$id;
 		// ID зарегистрированного пользователя не может быть меньше
 		// единицы - значит функция вызвана по ошибке
-		if ($id < 1) redirect($this->getModuleURL() );
+		if ($id < 1) redirect($this->getModuleURL());
 		// Если профиль пытается редактировать не зарегистрированный
 		// пользователь - функция вызвана по ошибке
 		if (!isset($_SESSION['user'])) redirect( '/');
@@ -1287,7 +1287,7 @@ Class UsersModule extends Module {
 		
 		// Получаем данные о пользователе из БД
 		$user = $this->Model->getById($id);
-		if (!$user) return $this->showInfoMessage(__('Can not find user'), $this->getModuleURL() );
+		if (!$user) return $this->showInfoMessage(__('Can not find user'), $this->getModuleURL());
 		if (is_object($this->AddFields) && $user) {
 			$users = $this->AddFields->mergeRecords(array($user), true);
 			$user = $users[0];
@@ -1541,7 +1541,7 @@ Class UsersModule extends Module {
 		
 		
 		$user = $this->Model->getById($id);
-		if (!$user || count($user) == 0) return $this->showInfoMessage(__('Can not find user'), $this->getModuleURL() );
+		if (!$user || count($user) == 0) return $this->showInfoMessage(__('Can not find user'), $this->getModuleURL());
 		if (is_object($this->AddFields) && is_array($user) && count($user) > 0) {
 			$users = $this->AddFields->mergeRecords(array($user));
 			$user = $users[0];
@@ -2969,9 +2969,11 @@ Class UsersModule extends Module {
 	public function search_niks()
 	{
 		if (empty($_GET['name'])) return;
-		$sql = "(SELECT * FROM `users` WHERE `name` LIKE '%".htmlspecialchars($_GET['name'])."%' ";
+		$name = mysql_real_escape_string($_GET['name']);
+		$sql = "(SELECT * FROM `users` WHERE `name` LIKE '%" . $name . "%' ";
 		if (isset($_SESSION['user'])) {
-			$sql .= "AND `name` NOT LIKE '".$_SESSION['user']['name']."' ";
+			$user_name = mysql_real_escape_string($_SESSION['user']['name']);
+			$sql .= "AND `name` NOT LIKE '" . $user_name . "' ";
 		}
 		$sql .= "LIMIT 10)";
 

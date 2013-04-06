@@ -42,7 +42,7 @@ Class FotoModule extends Module {
 	public $module = 'foto';
 
 
-	
+
 	/**
 	* default action ( show main page )
 	*/
@@ -50,30 +50,30 @@ Class FotoModule extends Module {
 			{
 		//turn access
 		$this->ACL->turn(array($this->module, 'view_list'));
-		
-		
+
+
 		//формируем блок со списком  разделов
 		$this->_getCatsTree();
-		
-		
+
+
 		if ($this->cached && $this->Cache->check($this->cacheKey)) {
 			$source = $this->Cache->read($this->cacheKey);
 			return $this->_view($source);
 		}
-		
-		$query_params = array('cond' => array());
-		
-		
-		$total = $this->Model->getTotal($query_params);
+
+		$where = array();
+
+
+        $total = $this->Model->getTotal(array('cond' => $where));
 		list ($pages, $page) = pagination($total, $this->Register['Config']->read('per_page', $this->module), $this->getModuleURL());
 		$this->Register['pages'] = $pages;
 		$this->Register['page'] = $page;
 		$this->page_title .= ' (' . $page . ')';
 
-		
-		
+
+
 		$navi = array();
-		$navi['add_link'] = ($this->ACL->turn(array($this->module, 'add_materials'), false)) 
+		$navi['add_link'] = ($this->ACL->turn(array($this->module, 'add_materials'), false))
 			? get_link(__('Add material'), $this->getModuleURL('add_form/')) : '';
 		$navi['navigation'] = $this->_buildBreadCrumbs();
 		$navi['pagination'] = $pages;
@@ -85,35 +85,34 @@ Class FotoModule extends Module {
 			$html = __('Materials not found');
 			return $this->_view($html);
 		}
-		
-		
+
+
 		$params = array(
 			'page' => $page,
 			'limit' => $this->Register['Config']->read('per_page', $this->module),
 			'order' => getOrderParam(__CLASS__),
 		);
-		$where = array();
 
 
 		$this->Model->bindModel('author');
 		$this->Model->bindModel('category');
 		$records = $this->Model->getCollection($where, $params);
-		
-		
+
+
 		// create markers
 		foreach ($records as $entity) {
 			$this->Register['current_vars'] = $entity;
 			$markers = array();
-			
-			
+
+
 			$markers['moder_panel'] = $this->_getAdminBar($entity);
 			$entry_url = get_url(entryUrl($entity, $this->module));
 			$markers['entry_url'] = $entry_url;
 			$markers['preview_foto'] = get_url($this->getFilesPath('preview/' . $entity->getFilename()));
 			$markers['foto_alt'] = h(preg_replace('#[^\w\d ]+#ui', ' ', $entity->getTitle()));
-			
-			
-			
+
+
+
 			$markers['category_url'] = get_url($this->getModuleURL('category/' . $entity->getCategory_id()));
 			$markers['profile_url'] = getProfileUrl($entity->getAuthor_id());
 
@@ -123,25 +122,25 @@ Class FotoModule extends Module {
 				'user_id_' . $entity->getAuthor_id(),
 				'record_id_' . $entity->getId(),
 			));
-		
+
 
 			$entity->setAdd_markers($markers);
 		}
-		
-		
+
+
 		$source = $this->render('list.html', array('entities' => $records));
-		
-		
+
+
 		//write int cache
 		if ($this->cached)
 			$this->Cache->write($source, $this->cacheKey, $this->cacheTags);
-		
-	
+
+
 		return $this->_view($source);
 	}
 
 
-	
+
 	/**
 	 * Show materials in category. Category ID must be integer and not null.
 	 */
@@ -152,47 +151,48 @@ Class FotoModule extends Module {
 		$id = intval($id);
 		if ($id < 1) return $this->showInfoMessage(__('Can not find category'), $this->getModuleURL());
 
-		
+
 		$sectionsModel = $this->Register['ModManager']->getModelInstance($this->module . 'Sections');
 		$category = $sectionsModel->getById($id);
 		if (!$category)
 			return $this->showInfoMessage(__('Can not find category'), $this->getModuleURL());
-		if (!$this->ACL->checkCategoryAccess($category->getNo_access())) 
+		if (!$this->ACL->checkCategoryAccess($category->getNo_access()))
 			return $this->showInfoMessage(__('Permission denied'), $this->getModuleURL());
-		
-		
+
+
 		$this->page_title = h($category->getTitle()) . ' - ' . $this->page_title;
-		
-		
+
+
 		//формируем блок со списком  разделов
 		$this->_getCatsTree($id);
-		
-		
+
+
 		if ($this->cached && $this->Cache->check($this->cacheKey)) {
 			$source = $this->Cache->read($this->cacheKey);
 			return $this->_view($source);
 		}
-	
+
 		// we need to know whether to show hidden
 		$childCats = $sectionsModel->getOneField('id', array('parent_id' => $id));
-		$query_params = array('cond' => array(
-			'`category_id` = ' . $id
-		));
-		if ($childCats && is_array($childCats) && count($childCats) > 0) 
-			$query_params['cond'] .= ' OR `category_id` IN (' . implode(', ', array_unique($childCats)) . ')';
-		
+		$ids = '`category_id` = ' . $id;
+		if ($childCats && is_array($childCats) && count($childCats) > 0)
+			$ids .= ' OR `category_id` IN (' . implode(', ', array_unique($childCats)) . ')';
+		$where = array($ids);
+        if (!$this->ACL->turn(array('other', 'can_see_hidden'), false)) {
+            $where['available'] = 1;
+        }
 
 
-		$total = $this->Model->getTotal($query_params);
+        $total = $this->Model->getTotal(array('cond' => $where));
 		list ($pages, $page) = pagination($total, $this->Register['Config']->read('per_page', $this->module), $this->getModuleURL('category/' . $id));
 		$this->Register['pages'] = $pages;
 		$this->Register['page'] = $page;
 		$this->page_title .= ' (' . $page . ')';
 
 
-		
+
 		$navi = array();
-		$navi['add_link'] = ($this->ACL->turn(array($this->module, 'add_materials'), false)) 
+		$navi['add_link'] = ($this->ACL->turn(array($this->module, 'add_materials'), false))
 			? get_link(__('Add material'), $this->getModuleURL('add_form/')) : '';
 		$navi['navigation'] = $this->_buildBreadCrumbs($id);
 		$navi['pagination'] = $pages;
@@ -205,14 +205,13 @@ Class FotoModule extends Module {
 			$html = __('Materials not found');
 			return $this->_view($html);
 		}
-	  
-	  
+
+
 		$params = array(
 			'page' => $page,
 			'limit' => $this->Register['Config']->read('per_page', $this->module),
 			'order' => getOrderParam(__CLASS__),
 		);
-		$where = $query_params['cond'];
 
 
 		$this->Model->bindModel('author');
@@ -224,16 +223,16 @@ Class FotoModule extends Module {
 		foreach ($records as $entity) {
 			$this->Register['current_vars'] = $entity;
 			$markers = array();
-			
-			
+
+
 			$markers['moder_panel'] = $this->_getAdminBar($entity);
 			$entry_url = get_url(entryUrl($entity, $this->module));
 			$markers['entry_url'] = $entry_url;
-			
+
 			$markers['preview_foto'] = get_url($this->getFilesPath('preview/' . $entity->getFilename()));
 			$markers['foto_alt'] = h(preg_replace('#[^\w\d ]+#ui', ' ', $entity->getTitle()));
-			
-			
+
+
 			$markers['category_url'] = get_url($this->getModuleURL('category/' . $entity->getCategory_id()));
 			$markers['profile_url'] = getProfileUrl($entity->getAuthor_id());
 
@@ -244,25 +243,25 @@ Class FotoModule extends Module {
 				'record_id_' . $entity->getId(),
 				'category_id_' . $id,
 			));
-		
+
 
 			$entity->setAdd_markers($markers);
 		}
-		
-		
+
+
 		$source = $this->render('list.html', array('entities' => $records));
-		
-		
+
+
 		//write int cache
 		if ($this->cached)
 			$this->Cache->write($source, $this->cacheKey, $this->cacheTags);
-		
-	
+
+
 		return $this->_view($source);
 	}
-	  
-	  
-	  
+
+
+
 	/**
      * View entity. Entity ID must be integer and not null.
      */
@@ -273,130 +272,130 @@ Class FotoModule extends Module {
 		$id = intval($id);
 		if ($id < 1) return $this->showInfoMessage(__('Material not found'), $this->getModuleURL());
 
-		
+
 
 		$this->Model->bindModel('author');
 		$this->Model->bindModel('category');
 		$entity = $this->Model->getById($id);
-		
-		
+
+
 		if (!$entity) return $this->showInfoMessage(__('Material not found'), $this->getModuleURL());
-		if (!$this->ACL->checkCategoryAccess($entity->getCategory()->getNo_access())) 
+		if (!$this->ACL->checkCategoryAccess($entity->getCategory()->getNo_access()))
 			return $this->showInfoMessage(__('Permission denied'), $this->getModuleURL());
-		
-		
+
+
 		//category block
 		$this->_getCatsTree($entity->getCategory_id());
 		/* COMMENT BLOCK */
-		if ($this->Register['Config']->read('comment_active', $this->module) == 1 
-		&& $this->ACL->turn(array($this->module, 'view_comments'), false) 
+		if ($this->Register['Config']->read('comment_active', $this->module) == 1
+		&& $this->ACL->turn(array($this->module, 'view_comments'), false)
 		&& $entity->getCommented() == 1) {
-			if ($this->ACL->turn(array($this->module, 'add_comments'), false)) 
+			if ($this->ACL->turn(array($this->module, 'add_comments'), false))
 				$this->comments_form = $this->_add_comment_form($id);
 			$this->comments = $this->_get_comments($entity);
 		}
 		$this->Register['current_vars'] = $entity;
-		
-		
+
+
 		//производим замену соответствующих участков в html шаблоне нужной информацией
 		$this->page_title = h($entity->getTitle()) . ' - ' . $this->page_title;
 
 		$navi = array();
-		$navi['add_link'] = ($this->ACL->turn(array($this->module, 'add_materials'), false)) 
+		$navi['add_link'] = ($this->ACL->turn(array($this->module, 'add_materials'), false))
 			? get_link(__('Add material'), $this->getModuleURL('add_form/')) : '';
 		$navi['module_url'] = get_url($this->getModuleURL());
 		$navi['category_url'] = get_url($this->getModuleURL('category/' . $entity->getCategory_id()));
 		$navi['category_name'] = h($entity->getCategory()->getTitle());
 		$navi['navigation'] = $this->_buildBreadCrumbs($entity->getCategory_id());
 		$this->_globalize($navi);
-		
-		
+
+
 		$markers = array();
 		$markers['moder_panel'] = $this->_getAdminBar($entity);
 		$markers['profile_url'] = getProfileUrl($entity->getAuthor_id());
-		
+
 		$markers['main'] = get_url($this->getFilesPath('full/' . $entity->getFilename()));
 		$markers['foto_alt'] = h(preg_replace('#[^\w\d ]+#ui', ' ', $entity->getTitle()));
 		$markers['description'] = $this->Textarier->print_page($entity->getDescription(), $entity->getAuthor() ? $entity->getAuthor()->geteStatus() : 0);
-		
+
 		$entry_url = get_url(entryUrl($entity, $this->module));
 		$markers['entry_url'] = $entry_url;
 
 		$next_prev = $this->Model->getNextPrev($id);
 		$prev_id = (!empty($next_prev['prev'])) ? $next_prev['prev']->getId() : $id;
 		$next_id = (!empty($next_prev['next'])) ? $next_prev['next']->getId() : $id;
-		
+
 		$markers['previous_url'] = get_url($this->getModuleURL('view/' . $prev_id));
 		$markers['next_url'] = get_url($this->getModuleURL('view/' . $next_id));
 
-		
-		
+
+
 		$entity->setAdd_markers($markers);
-		
-		
+
+
 		$this->setCacheTag(array(
 			'user_id_' . $entity->getAuthor_id(),
 			'record_id_' . $entity->getId(),
 			(!empty($_SESSION['user']['status'])) ? 'user_group_' . $_SESSION['user']['status'] : 'user_group_' . 'guest',
 		));
-		
-		
+
+
 		$source = $this->render('material.html', array('entity' => $entity));
-		
-		
+
+
 		$entity->setViews($entity->getViews() + 1);
 		$entity->save();
 		$this->DB->cleanSqlCache();
-		
+
 		return $this->_view($source);
 	}
 
 
 
 	/**
-	 * return form to add 
+	 * return form to add
 	 */
 	public function add_form ()
     {
 		//turn access
 		$this->ACL->turn(array($this->module, 'add_materials'));
 
-		
+
 		// categories block
 		$this->_getCatsTree();
-		
+
 
 		// Check for preview or errors
 		$data = array('title' => null, 'in_cat' => null, 'description' => null, 'commented' => '1');
 		$data = Validate::getCurrentInputsValues($data);
         $data['main_text'] = $data['description'];
-		
-		
+
+
 		$data['errors'] = $this->Parser->getErrors();
 		if (isset($_SESSION['FpsForm'])) unset($_SESSION['FpsForm']);
 
-		
+
 		$sectionsModel = $this->Register['ModManager']->getModelInstance($this->module . 'Sections');
 		$categories = $sectionsModel->getCollection();
 		$data['cats_selector'] = $this->_buildSelector($categories, ((!empty($data['in_cat'])) ? $data['in_cat'] : false));
-		
+
 
 		//comments and hide
 		$data['commented'] = (!empty($data['commented']) || !isset($_POST['submitForm'])) ? 'checked="checked"' : '';
 		if (!$this->ACL->turn(array($this->module, 'record_comments_management'), false)) $data['commented'] .= ' disabled="disabled"';
-		
-		
+
+
 		$data['action'] = get_url($this->getModuleURL('add/'));
-		
-		
+
+
 		// Navigation panel
 		$navi = array();
-		$navi['add_link'] = ($this->ACL->turn(array($this->module, 'add_materials'), false)) 
+		$navi['add_link'] = ($this->ACL->turn(array($this->module, 'add_materials'), false))
 			? get_link(__('Add material'), $this->getModuleURL('add_form/')) : '';
 		$navi['navigation'] = $this->_buildBreadCrumbs();
 		$this->_globalize($navi);
-		
-		
+
+
 		$source = $this->render('addform.html', array('context' => $data));
 		return $this->_view($source);
 	}
@@ -404,12 +403,12 @@ Class FotoModule extends Module {
 
 
 	/**
-	 * 
-	 * Validate data and create a new record into 
+	 *
+	 * Validate data and create a new record into
 	 * Data Base. If an errors, redirect user to add form
-	 * and show error message where speaks as not to admit 
+	 * and show error message where speaks as not to admit
 	 * errors in the future
-	 * 
+	 *
 	 */
 	public function add()
     {
@@ -417,7 +416,7 @@ Class FotoModule extends Module {
 		$this->ACL->turn(array($this->module, 'add_materials'));
 		// Если не переданы данные формы - функция вызвана по ошибке
 		if (!isset($_FILES['foto'])
-		|| !isset($_POST['title']) 
+		|| !isset($_POST['title'])
 		|| !isset($_POST['cats_selector'])
 		|| !is_numeric($_POST['cats_selector'])) {
 			return $this->showInfoMessage(__('Some error occurred'), $this->getModuleURL());
@@ -435,7 +434,7 @@ Class FotoModule extends Module {
 				$$field = h(trim($_POST[$field]));
 			}
 		}
-		
+
 		// Обрезаем переменные до длины, указанной в параметре maxlength тега input
 		$title = trim(mb_substr($_POST['title'], 0, 128));
 		$description = trim($_POST['mainText']);
@@ -450,31 +449,31 @@ Class FotoModule extends Module {
 			$error .= '<li>' . __('Category not selected') . '</li>' . "\n";
 		if (empty($title))
 			$error .= '<li>' . __('Empty field "title"') . '</li>' . "\n";
-		elseif (!$valobj->cha_val($title, V_TITLE))  
+		elseif (!$valobj->cha_val($title, V_TITLE))
 			$error .= '<li>' . __('Wrong chars in "title"') . '</li>' . "\n";
 		$max_lenght = $this->Register['Config']->read('description_lenght', $this->module);
 		if ($max_lenght <= 0) $max_lenght = 1000;
 		if (mb_strlen($description) > $max_lenght)
 			$error .= '<li>' . sprintf(__('Very big "description"'), $max_lenght) . '</li>' . "\n";
-		
-		
-		
+
+
+
 		/* check file */
 		if (empty($_FILES['foto']['name']))	{
 			$error .= '<li>' . __('No attachment') . '</li>' . "\n";
 		} else {
-			if ($_FILES['foto']['size'] > $this->getMaxSize()) 
+			if ($_FILES['foto']['size'] > $this->getMaxSize())
 				$error .= '<li>'. sprintf(__('Very big file2'), round($this->getMaxSize() / 1024, 2)) . '</li>' . "\n";
 			$ext = strrchr($_FILES['foto']['name'], ".");
-			if (!isImageFile($_FILES['foto']['type'], $ext)) 
+			if (!isImageFile($_FILES['foto']['type'], $ext))
 				$error .= '<li>' . __('Wrong file format') . '</li>' . "\n";
 		}
-		
-		
+
+
 		$sectionsModel = $this->Register['ModManager']->getModelInstance($this->module . 'Sections');
 		$category = $sectionsModel->getById($in_cat);
 		if (empty($category)) $error .= '<li>' . __('Can not find category') . '</li>' . "\n";
-		
+
 
 		// Errors
 		if (!empty($error)) {
@@ -491,14 +490,14 @@ Class FotoModule extends Module {
 		if ( isset( $_SESSION['unix_last_post'] ) and ( time()-$_SESSION['unix_last_post'] < 10 ) ) {
 			return $this->showInfoMessage(__('Your message has been added'), $this->getModuleURL());
 		}
-		
-		
 
-		
+
+
+
 		//remove cache
 		$this->Cache->clean(CACHE_MATCHING_ANY_TAG, array('module_' . $this->module));
 		$this->DB->cleanSqlCache();
-		// Формируем SQL-запрос на добавление темы	
+		// Формируем SQL-запрос на добавление темы
 		$data = array(
 			'title'        => $title,
 			'description'  => mb_substr($description, 0, $max_lenght),
@@ -521,7 +520,7 @@ Class FotoModule extends Module {
 			$save_sempl_path = ROOT . $this->getFilesPath('preview/' . $last_id . $ext);
 
 			if (!move_uploaded_file($_FILES['foto']['tmp_name'], $save_path)) $error_flag = true;
-			elseif (!chmod($save_path, 0644)) $error_flag = true; 
+			elseif (!chmod($save_path, 0644)) $error_flag = true;
 
 			/* if an error when coping */
 			if (!empty($error_flag) && $error_flag) {
@@ -561,7 +560,7 @@ Class FotoModule extends Module {
 
 
 	/**
-	 * 
+	 *
 	 * Create form and fill his data from record which ID
 	 * transfered into function. Show errors if an exists
 	 * after unsuccessful attempt. Also can get data for filling
@@ -574,85 +573,85 @@ Class FotoModule extends Module {
 		$id = intval($id);
 		if ($id < 1) return $this->showInfoMessage(__('Material not found'), $this->getModuleURL());
 
-		
+
 		$this->Model->bindModel('author');
 		// $this->Model->bindModel('category');
 		$entity = $this->Model->getById($id);
-		
+
 		if (!$entity) return $this->showInfoMessage(__('Material not found'), $this->getModuleURL());
-		
-		
-		if (!$this->ACL->turn(array($this->module, 'edit_materials'), false) 
-		&& (!empty($_SESSION['user']['id']) && $entity->getAuthor_id() == $_SESSION['user']['id'] 
+
+
+		if (!$this->ACL->turn(array($this->module, 'edit_materials'), false)
+		&& (!empty($_SESSION['user']['id']) && $entity->getAuthor_id() == $_SESSION['user']['id']
 		&& $this->ACL->turn(array($this->module, 'edit_mine_materials'), false)) === false) {
 			return $this->showInfoMessage(__('Permission denied'), $this->getModuleURL());
 		}
-		
-		
+
+
 		$this->Register['current_vars'] = $entity;
-		
+
 		//forming categories list
 		$this->_getCatsTree($entity->getCategory_id());
-		
-		
+
+
 		$data = array(
-			'title' 		=> '', 
-			'in_cat' 		=> $entity->getCategory_id(), 
-			'description' 	=> '', 
-			'commented' 	=> '', 
+			'title' 		=> '',
+			'in_cat' 		=> $entity->getCategory_id(),
+			'description' 	=> '',
+			'commented' 	=> '',
 		);
 		$markers = Validate::getCurrentInputsValues($entity, $data);
 		$markers->setMain_text($this->Textarier->print_page($markers->getDescription(), $entity->getAuthor() ? $markers->getAuthor()->geteStatus() : 0));
-		
-		
+
+
         $markers->setErrors($this->Parser->getErrors());
         if (isset($_SESSION['FpsForm'])) unset($_SESSION['FpsForm']);
-		
-		
+
+
 		$sectionsModel = $this->Register['ModManager']->getModelInstance($this->module . 'Sections');
 		$categories = $sectionsModel->getCollection();
 		$selectedCatId = ($markers->getIn_cat()) ? $markers->getIn_cat() : $markers->getCategory_id();
 		$cats_change = $this->_buildSelector($categories, $selectedCatId);
-		
-		
+
+
 		//comments and hide
 		$commented = ($markers->getCommented()) ? 'checked="checked"' : '';
 		if (!$this->ACL->turn(array($this->module, 'record_comments_management'), false)) $commented .= ' disabled="disabled"';
 		$markers->setAction(get_url($this->getModuleURL('update/' . $markers->getId())));
 		$markers->setCommented($commented);
-	
-	
-	
-		
+
+
+
+
 		$markers->setCats_selector($cats_change);
-		
+
 
 		// Navigation panel
 		$navi = array();
-		$navi['add_link'] = ($this->ACL->turn(array($this->module, 'add_materials'), false)) 
+		$navi['add_link'] = ($this->ACL->turn(array($this->module, 'add_materials'), false))
 			? get_link(__('Add material'), $this->getModuleURL('add_form/')) : '';
 		$navi['navigation'] = $this->_buildBreadCrumbs($entity->getCategory_id());
 		$this->_globalize($navi);
-		
-		
+
+
 		$source = $this->render('editform.html', array('context' => $markers));
 		return $this->_view($source);
 	}
 
 
 	/**
-	 * 
-	 * Validate data and update record into 
+	 *
+	 * Validate data and update record into
 	 * Data Base. If an errors, redirect user to add form
-	 * and show error message where speaks as not to admit 
+	 * and show error message where speaks as not to admit
 	 * errors in the future
-	 * 
+	 *
 	 */
 	public function update($id = null)
 	{
 		// Если не переданы данные формы - функция вызвана по ошибке
-		if (!isset($id) 
-		|| !isset($_POST['title']) 
+		if (!isset($id)
+		|| !isset($_POST['title'])
 		|| !isset($_POST['cats_selector'])) {
 			return $this->showInfoMessage(__('Some error occurred'), $this->getModuleURL());
 		}
@@ -666,13 +665,13 @@ Class FotoModule extends Module {
 
 
 		//turn access
-		if (!$this->ACL->turn(array($this->module, 'edit_materials'), false) 
-		&& (!empty($_SESSION['user']['id']) && $entity->getAuthor_id() == $_SESSION['user']['id'] 
+		if (!$this->ACL->turn(array($this->module, 'edit_materials'), false)
+		&& (!empty($_SESSION['user']['id']) && $entity->getAuthor_id() == $_SESSION['user']['id']
 		&& $this->ACL->turn(array($this->module, 'edit_mine_materials'), false)) === false) {
 			return $this->showInfoMessage(__('Permission denied'), $this->getModuleURL());
 		}
-		
-		
+
+
 		$valobj = $this->Register['Validate'];
 		$fields = array('description', 'tags', 'sourse', 'sourse_email', 'sourse_site');
 		$fields_settings = $this->Register['Config']->read('fields', $this->module);
@@ -684,7 +683,7 @@ Class FotoModule extends Module {
 				$$field = h(trim($_POST[$field]));
 			}
 		}
-		
+
 		// Обрезаем переменные до длины, указанной в параметре maxlength тега input
 		$title = trim(mb_substr($_POST['title'], 0, 128));
 		$description = trim($_POST['mainText']);
@@ -692,8 +691,8 @@ Class FotoModule extends Module {
 		$in_cat = intval($_POST['cats_selector']);
 		if (empty($in_cat)) $in_cat = $entity['category_id'];
 		if (!$this->ACL->turn(array($this->module, 'record_comments_management'), false)) $commented = 1;
-		
-		
+
+
 		// Проверяем, заполнены ли обязательные поля
 		if (empty($title))
 			$error .= '<li>' . __('Empty field "title"') . '</li>' . "\n";
@@ -703,30 +702,30 @@ Class FotoModule extends Module {
 		if ($max_lenght <= 0) $max_lenght = 1000;
 		if (mb_strlen($description) > $max_lenght)
 			$error .= '<li>' . sprintf(__('Very big "description"'), $max_lenght) . '</li>' . "\n";
-			
-			
-		
+
+
+
 		$sectionsModel = $this->Register['ModManager']->getModelInstance($this->module . 'Sections');
 		$category = $sectionsModel->getById($in_cat);
 		if (!$category) $error .= '<li>' . __('Can not find category') . '</li>' . "\n";
 
-		
+
 		// Errors
 		if (!empty($error)) {
-			$_SESSION['FpsForm'] = array_merge(array('title' => null, 'mainText' => null, 'in_cat' => $in_cat, 
-				'description' => null, 'tags' => null, 'sourse' => null, 'sourse_email' => null, 
+			$_SESSION['FpsForm'] = array_merge(array('title' => null, 'mainText' => null, 'in_cat' => $in_cat,
+				'description' => null, 'tags' => null, 'sourse' => null, 'sourse_email' => null,
 				'sourse_site' => null, 'commented' => null, 'available' => null), $_POST);
 			$_SESSION['FpsForm']['error'] = '<p class="errorMsg">' . __('Some error in form') . '</p>'
 				. "\n" . '<ul class="errorMsg">' . "\n" . $error . '</ul>' . "\n";
 			redirect($this->getModuleURL('edit_form/' . $id));
 		}
-		
+
 
 		//remove cache
 		$this->Cache->clean(CACHE_MATCHING_TAG, array('module_' . $this->module, 'record_id_' . $id));
 		$this->DB->cleanSqlCache();
-		
-		
+
+
 		$data = array(
 			'title' 	   => $title,
 			'category_id'  => $in_cat,
@@ -749,24 +748,24 @@ Class FotoModule extends Module {
 	 * @param int $id
 	 */
 	public function delete($id = null)
-	{		
+	{
 		$this->cached = false;
 		$id = intval($id);
 		if ($id < 1) return $this->showInfoMessage(__('Material not found'), $this->getModuleURL());
-		
-		
+
+
 		$entity = $this->Model->getById($id);
 		if (!$entity) return $this->showInfoMessage(__('Material not found'), $this->getModuleURL());
 
 
 		//turn access
-		if (!$this->ACL->turn(array($this->module, 'delete_materials'), false) 
-		&& (!empty($_SESSION['user']['id']) && $entity->getAuthor_id() == $_SESSION['user']['id'] 
+		if (!$this->ACL->turn(array($this->module, 'delete_materials'), false)
+		&& (!empty($_SESSION['user']['id']) && $entity->getAuthor_id() == $_SESSION['user']['id']
 		&& $this->ACL->turn(array($this->module, 'delete_mine_materials'), false)) === false) {
 			return $this->showInfoMessage(__('Permission denied'), $this->getModuleURL());
 		}
-		
-		
+
+
 		//remove cache
 		$this->Cache->clean(CACHE_MATCHING_TAG, array('module_' . $this->module, 'record_id_' . $id));
 		$this->DB->cleanSqlCache();
@@ -779,7 +778,7 @@ Class FotoModule extends Module {
 	}
 
 
-	
+
 	/**
 	* add comment
 	*
@@ -856,9 +855,9 @@ Class FotoModule extends Module {
 	{
 		include_once(ROOT . '/sys/inc/includes/delete_comment.php');
 	}
-	
-	
-	
+
+
+
 	/**
 	* @param int $id - record ID
 	*
@@ -871,7 +870,7 @@ Class FotoModule extends Module {
 		$id = intval($id);
 		if ($id < 1) return $this->showInfoMessage(__('Material not found'), $this->getModuleURL());
 
-		
+
 		$entity = $this->Model->getById($id);
 		if ($entity) {
 			$entity->setDate(date("Y-m-d H:i:s"));
@@ -880,7 +879,7 @@ Class FotoModule extends Module {
 		}
 		return $this->showInfoMessage(__('Some error occurred'), $this->getModuleURL());
 	}
-	
+
 
 
 	/**
@@ -895,27 +894,27 @@ Class FotoModule extends Module {
 		$id = $record->getId();
 		$author_id = $record->getAuthor_id();
 		if (!$author_id) $author_id = 0;
-		
-		if ($this->ACL->turn(array($this->module, 'edit_materials'), false) 
-		|| (!empty($_SESSION['user']['id']) && $author_id == $_SESSION['user']['id'] 
+
+		if ($this->ACL->turn(array($this->module, 'edit_materials'), false)
+		|| (!empty($_SESSION['user']['id']) && $author_id == $_SESSION['user']['id']
 		&& $this->ACL->turn(array($this->module, 'edit_mine_materials'), false))) {
 			$moder_panel .= get_link(get_img('/sys/img/edit_16x16.png'), $this->getModuleURL('edit_form/' . $id)) . '&nbsp;';
 		}
-		
+
 		if ($this->ACL->turn(array($this->module, 'up_materials'), false)) {
 			$moder_panel .= get_link(get_img('/sys/img/up_arrow_16x16.png'),
 				$this->getModuleURL('upper/' . $id), array('onClick' => "return confirm('" . __('Are you sure') . "')")) . '&nbsp;';
 		}
-		
-		if ($this->ACL->turn(array($this->module, 'delete_materials'), false) 
-		|| (!empty($_SESSION['user']['id']) && $author_id == $_SESSION['user']['id'] 
+
+		if ($this->ACL->turn(array($this->module, 'delete_materials'), false)
+		|| (!empty($_SESSION['user']['id']) && $author_id == $_SESSION['user']['id']
 		&& $this->ACL->turn(array($this->module, 'delete_mine_materials'), false))) {
 			$moder_panel .= get_link(get_img('/sys/img/delete_16x16.png'),
 				$this->getModuleURL('delete/' . $id), array('onClick' => "return confirm('" . __('Are you sure') . "')")) . '&nbsp;';
 		}
 		return $moder_panel;
-	}	
-	
+	}
+
 
 
 
@@ -927,5 +926,5 @@ Class FotoModule extends Module {
 	{
 		include_once ROOT . '/sys/inc/includes/rss.php';
     }
-	
+
 }

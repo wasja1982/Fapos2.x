@@ -61,15 +61,16 @@ Class NewsModule extends Module {
 			return $this->_view($source);
 		}
 	
+        $where = array();
 		// we need to know whether to show hidden
-		$query_params = array('cond' => array());
-		if (!$this->ACL->turn(array('other', 'can_see_hidden'), false)) {
-			$query_params['cond']['available'] = 1;
+        if (!$this->ACL->turn(array('other', 'can_see_hidden'), false)) $where['available'] = 1;
+		if (!empty($tag)) {
+			$tag = mysql_real_escape_string($tag);
+			$where[] = "`tags` LIKE '%{$tag}%'";
 		}
-		if (!empty($tag)) $query_params['cond'][] = "`tags` LIKE '%{$tag}%'";
 		
 
-		$total = $this->Model->getTotal($query_params);
+        $total = $this->Model->getTotal(array('cond' => $where));
 		list ($pages, $page) = pagination($total, $this->Register['Config']->read('per_page', $this->module), $this->getModuleURL());
 		$this->Register['pages'] = $pages;
 		$this->Register['page'] = $page;
@@ -97,9 +98,6 @@ Class NewsModule extends Module {
 			'limit' => $this->Register['Config']->read('per_page', $this->module),
 			'order' => getOrderParam(__CLASS__),
 		);
-		$where = array();
-		if (!$this->ACL->turn(array('other', 'can_see_hidden'), false)) $where['available'] = '1';
-		if (!empty($tag)) $where[] = "`tags` LIKE '%{$tag}%'";
 
 		
 		$this->Model->bindModel('attaches');
@@ -205,18 +203,16 @@ Class NewsModule extends Module {
 	
 		// we need to know whether to show hidden
         $childCats = $sectionsModel->getOneField('id', array('parent_id' => $id));
-		$query_params = array('cond' => array(
-			'`category_id` = ' . $id
-		));
+		$ids = '`category_id` = ' . $id;
 		if ($childCats && is_array($childCats) && count($childCats) > 0) 
-			$query_params['cond'] .= ' OR `category_id` IN (' . implode(', ', array_unique($childCats)) . ')';
-		
+			$ids .= ' OR `category_id` IN (' . implode(', ', array_unique($childCats)) . ')';
+		$where = array($ids);
 		if (!$this->ACL->turn(array('other', 'can_see_hidden'), false)) {
-			$query_params['cond']['available'] = 1;
+            $where['available'] = 1;
 		}
 		
 
-		$total = $this->Model->getTotal($query_params);
+        $total = $this->Model->getTotal(array('cond' => $where));
 		list ($pages, $page) = pagination($total, $this->Register['Config']->read('per_page', $this->module), $this->getModuleURL('category/' . $id));
 		$this->Register['pages'] = $pages;
 		$this->Register['page'] = $page;
@@ -245,8 +241,6 @@ Class NewsModule extends Module {
 			'limit' => $this->Register['Config']->read('per_page', $this->module),
 			'order' => getOrderParam(__CLASS__),
 		);
-		$where = $query_params['cond'];
-		if (!$this->ACL->turn(array('other', 'can_see_hidden'), false)) $where['available'] = '1';
 
 
 		$this->Model->bindModel('attaches');
