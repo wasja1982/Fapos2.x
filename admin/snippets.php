@@ -81,15 +81,16 @@ if (isset($_GET['a']) && $_GET['a'] == 'ed') {
 	После того, как Вы добавите метку в шаблон, она будет заменена на результат выполнения кода сниппета.<br />
 	Тут приведен список, уже созданных, сниппетов. Вы можете их просматривать и редактировать.<br />
 	Для то, что бы создавать и редактировать сниппеты, желательно, обладать, хотя бы, базовыми знаниями PHP
+</div>
 	
 
 	<?php if (isset($_SESSION['mess'])) : ?>
+<div class="warning">
 	<br />
+	<b><?php echo $_SESSION['mess'] ?></b>
 	<br />
-	<br />
-	<tr><td align="center" colspan="2" style="color:green; font-size:11px; font-weight:none; font-family: Tahoma, Arial, serif;"><b><?php echo $_SESSION['mess'] ?></b></td></tr>
-	<?php unset($_SESSION['mess']); endif; ?>
 </div>
+	<?php unset($_SESSION['mess']); endif; ?>
 
 
 <div class="white">
@@ -197,16 +198,17 @@ if (isset($_GET['a']) && $_GET['a'] == 'ed') {
 	После того, как Вы добавите метку в шаблон, она будет заменена на результат выполнения кода сниппета.<br />
 	На странице редактирования приведен список, уже созданных, сниппетов. Вы можете их просматривать и редактировать.<br />
 	Для то, что бы создавать и редактировать сниппеты, желательно, обладать, хотя бы, базовыми знаниями PHP
+</div>
 	
 
 	
 	<?php if (isset($_SESSION['mess'])) : ?>
+<div class="warning">
 	<br />
+	<b><?php echo $_SESSION['mess'] ?></b>
 	<br />
-	<br />
-	<tr><td colspan="2" align="center" style="color:green; font-size:11px; font-weight:none; font-family: Tahoma, Arial, serif;"><b><?php echo $_SESSION['mess'] ?></b></td></tr>
-	<?php unset($_SESSION['mess']); endif; ?>
 </div>
+	<?php unset($_SESSION['mess']); endif; ?>
 
 
 <div class="white">
