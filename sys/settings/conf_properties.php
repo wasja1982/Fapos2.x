@@ -347,6 +347,13 @@ $settingsInfo = array(
              'checked' => '1',
              'value' => '1',
        	),
+        'rss_foto' => array(
+             'type' => 'checkbox',
+             'title' => 'Фотокаталог',
+             'description' => '',
+             'checked' => '1',
+             'value' => '1',
+       	),
     ),
 	
 	/* Sitemap */

@@ -367,6 +367,7 @@ $language = array(
 	'Password restore'              => 'Активация пароля на форуме %s',
 	'New PM on forum'               => 'У вас новое личное сообщение',
 	'User themes'                   => 'Темы пользователя',
+	'Material not found'            => 'Материал не найден',
 	
 	
 	// Templates name

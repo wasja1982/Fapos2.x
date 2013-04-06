@@ -27,20 +27,20 @@ $keystring = (isset($_POST['captcha_keystring'])) ? trim($_POST['captcha_keystri
 
 
 // Check fields
-$error  = '';
+$error = '';
 $valobj = $this->Register['Validate'];
 if (empty($name))                          
-	$error = $error . '<li>' . __('Empty field "login"') . '</li>' . "\n";
+	$error .= '<li>' . __('Empty field "login"') . '</li>' . "\n";
 elseif (!$valobj->cha_val($name, V_TITLE))  
-	$error = $error . '<li>' . __('Wrong chars in field "login"') . '</li>' . "\n";
+	$error .= '<li>' . __('Wrong chars in field "login"') . '</li>' . "\n";
 if (empty($message))                       
-	$error = $error . '<li>' . __('Empty field "text"') . '</li>' . "\n";
+	$error .= '<li>' . __('Empty field "text"') . '</li>' . "\n";
 
 
 // Check captcha if need exists	 
 if (!$this->ACL->turn(array('other', 'no_captcha'), false)) {
 	if (empty($keystring))                      
-		$error = $error . '<li>' . __('Empty field "code"') . '</li>' . "\n";
+		$error .= '<li>' . __('Empty field "code"') . '</li>' . "\n";
 
 	
 	// Проверяем поле "код"
