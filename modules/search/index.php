@@ -88,7 +88,7 @@ class SearchModule extends Module {
 			
 			
 			if (empty($str) || mb_strlen($str) < $this->minInputStr) 
-				$error = $error . '<li>' . sprintf(__('Wery smaal query'), $this->minInputStr) . '</li>';
+				$error = $error . '<li>' . sprintf(__('Very small query'), $this->minInputStr) . '</li>';
 
 		   
 			if ($this->cached) {

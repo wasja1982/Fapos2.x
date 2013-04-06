@@ -36,11 +36,11 @@ $settingsInfo = array(
 		),
 		'autotags_exception' => array(
 			'title' => __('Exceptions'),
-			'description' => __('Throught coma'),
+			'description' => __('Separated by comma'),
 		),
 		'autotags_priority' => array(
 			'title' => __('Priority'),
-			'description' => __('Throught coma'),
+			'description' => __('Separated by comma'),
 		),
 	),
 

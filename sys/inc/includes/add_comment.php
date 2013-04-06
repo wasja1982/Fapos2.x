@@ -7,7 +7,7 @@ if ($id < 1) redirect($this->getModuleURL());
 
 $target_new = $this->Model->getById($id);
 if (!$target_new) redirect($this->getModuleURL());
-if (!$target_new->getCommented()) return $this->showInfoMessage(__('Comments is denied here'), $this->getModuleURL('/view/' . $id));
+if (!$target_new->getCommented()) return $this->showInfoMessage(__('Comments are denied here'), $this->getModuleURL('/view/' . $id));
 
 
 /* cut and trim values */
@@ -106,7 +106,7 @@ if ($entityComm) {
 		$entity->save();
 		
 		if ($this->Log) $this->Log->write('adding comment to ' . $this->module, $this->module . ' id(' . $id . ')');
-		return $this->showInfoMessage(__('Comments is added'), $this->getModuleURL('/view/' . $id));
+		return $this->showInfoMessage(__('Comment is added'), $this->getModuleURL('/view/' . $id));
 	}
 }
 return $this->showInfoMessage(__('Some error occurred'), $this->getModuleURL('/view/' . $id));

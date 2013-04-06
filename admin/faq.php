@@ -28,7 +28,7 @@ include_once '../sys/boot.php';
 include_once ROOT . '/admin/inc/adm_boot.php';
 
 
-$pageTitle = __('F.A.Q.');
+$pageTitle = __('FAQ');
 $pageNav = $pageTitle;
 $pageNavr = '';
 

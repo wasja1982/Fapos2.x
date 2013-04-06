@@ -702,7 +702,7 @@ Class ForumModule extends Module {
 				'title' => __('Answer'))), $this->getModuleURL('view_theme/' . $id_theme . '#sendForm'));
 			} else {
 				$markers['add_link'] = get_img('/sys/img/reply_locked.png', 
-				array('alt' => __('Theme locked'), 'title' => __('Theme locked')));
+				array('alt' => __('Theme is locked'), 'title' => __('Theme is locked')));
 			}
 			if ($this->ACL->turn(array($this->module, 'edit_themes', $id_forum), false)) {
 				$markers['admin_bar'] = '<form name="admin_bar"><span><select id="admin_bar_select" style="width:80%"><option value="">Панель администрирования:</option>';
@@ -1785,7 +1785,7 @@ Class ForumModule extends Module {
 		for ($i = 1; $i < 6; $i++) {
 			if (!empty($_FILES['attach' . $i]['name'])) {
 				if ($_FILES['attach' . $i]['size'] > $this->getMaxSize()) {
-					$error = $error . '<li>' . sprintf(__('Wery big file'), $i, round($this->getMaxSize() / 1024, 2)) . '</li>'."\n";
+					$error = $error . '<li>' . sprintf(__('Very big file'), $i, round($this->getMaxSize() / 1024, 2)) . '</li>'."\n";
 				}
 			}
 		}
@@ -2373,7 +2373,7 @@ Class ForumModule extends Module {
 		for ($i = 1; $i < 6; $i++) {
 			if (!empty($_FILES['attach' . $i]['name'])) {
 				if ($_FILES['attach' . $i]['size'] > $this->getMaxSize()) {
-					$error = $error . '<li>' . sprintf(__('Wery big file'), $i, round($this->getMaxSize() / 1024, 2)) . '</li>'."\n";
+					$error = $error . '<li>' . sprintf(__('Very big file'), $i, round($this->getMaxSize() / 1024, 2)) . '</li>'."\n";
 				}
 				//if exists attach files we do not gluing posts
 				$gluing = false;
@@ -2705,7 +2705,7 @@ Class ForumModule extends Module {
 		for ($i = 1; $i <= 5; $i++) {
 			if (!empty($_FILES['attach' . $i]['name'])) {
 				if ($_FILES['attach' . $i]['size'] > $this->getMaxSize()) {
-					$error = $error . '<li>' . sprintf(__('Wery big file'), $i, round($this->getMaxSize() / 1024, 2)) . '</li>'."\n";
+					$error = $error . '<li>' . sprintf(__('Very big file'), $i, round($this->getMaxSize() / 1024, 2)) . '</li>'."\n";
 				}
 			}
 		}

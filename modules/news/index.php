@@ -570,7 +570,7 @@ Class NewsModule extends Module {
 		if (empty($main_text))
 			$error = $error . '<li>' . __('Empty field "material"') . '</li>' . "\n";
 		elseif (mb_strlen($main_text) > $max_lenght)
-			$error = $error . '<li>' . sprintf(__('Wery big "material"'), $max_lenght) . '</li>' . "\n";
+			$error = $error . '<li>' . sprintf(__('Very big "material"'), $max_lenght) . '</li>' . "\n";
 		if (!empty($tags) && !$valobj->cha_val($tags, V_TITLE)) 
 			$error = $error . '<li>' . __('Wrong chars in "tags"') . '</li>' . "\n";
 		if (!empty($sourse) && !$valobj->cha_val($sourse, V_TITLE)) 
@@ -593,7 +593,7 @@ Class NewsModule extends Module {
 				$ext = strrchr($_FILES[$attach_name]['name'], ".");
 				
 				if ($_FILES[$attach_name]['size'] > $max_attach_size) {
-					$error .= '<li>' . sprintf(__('Wery big file'), $i, round(($max_attach_size / 1024), 2)) . '</li>' . "\n";
+					$error .= '<li>' . sprintf(__('Very big file'), $i, round(($max_attach_size / 1024), 2)) . '</li>' . "\n";
 				}
                 if (!isImageFile($_FILES[$attach_name]['type'], $ext)) {
 					$error .= '<li>' . __('Wrong file format') . '</li>' . "\n";
@@ -670,7 +670,7 @@ Class NewsModule extends Module {
 			$this->Cache->clean(CACHE_MATCHING_TAG, array('module_' . $this->module));
 			$this->DB->cleanSqlCache();
 			if ($this->Log) $this->Log->write('adding ' . $this->module, $this->module . ' id(' . $last_id . ')');
-			return $this->showInfoMessage(__('Material successful added'), $this->getModuleURL('view/' . $last_id));
+			return $this->showInfoMessage(__('Material successfully added'), $this->getModuleURL('view/' . $last_id));
 		} else {
 			return $this->showInfoMessage(__('Some error occurred'), $this->getModuleURL());
 		}
@@ -869,7 +869,7 @@ Class NewsModule extends Module {
 		if (empty($main_text))
 			$error = $error . '<li>' . __('Empty field "material"') . '</li>' . "\n";
 		elseif (mb_strlen($main_text) > $max_lenght)
-			$error = $error . '<li>' . sprintf(__('Wery big "material"'), $max_lenght) . '</li>' . "\n";
+			$error = $error . '<li>' . sprintf(__('Very big "material"'), $max_lenght) . '</li>' . "\n";
 		if (!empty($tags) && !$valobj->cha_val($tags, V_TITLE)) 
 			$error = $error . '<li>' . __('Wrong chars in "tags"') . '</li>' . "\n";
 		if (!empty($sourse) && !$valobj->cha_val($sourse, V_TITLE)) 
@@ -904,7 +904,7 @@ Class NewsModule extends Module {
                 $ext = strrchr($_FILES[$attach_name]['name'], ".");
 
                 if ($_FILES[$attach_name]['size'] > $max_attach_size) {
-                    $error .= '<li>' . sprintf(__('Wery big file'), $i, round(($max_attach_size / 1024), 2)) . '</li>' . "\n";
+                    $error .= '<li>' . sprintf(__('Very big file'), $i, round(($max_attach_size / 1024), 2)) . '</li>' . "\n";
                 }
                 if (!isImageFile($_FILES[$attach_name]['type'], $ext)) {
                     $error .= '<li>' . __('Wrong file format') . '</li>' . "\n";

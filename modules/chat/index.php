@@ -148,7 +148,7 @@ class ChatModule extends Module {
 			return;
 		}
 		if (!isset($_POST['message'])) {
-			die(__('Needed fields is empty'));
+			die(__('Needed fields are empty'));
 		}
 		
 		/* cut and trim values */
