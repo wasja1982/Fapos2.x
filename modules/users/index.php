@@ -143,7 +143,7 @@ Class UsersModule extends Module {
 	 */
 	public function add_form($key = null)
 	{
-		if (!empty($_SESSION['user']['id'])) redirect('/');
+		if (!empty($_SESSION['user']['id'])) return $this->showInfoMessage(__('Some error occurred'), '/');
 	
 		// Registration denied
 		if (!$this->Register['Config']->read('open_reg')) {
@@ -248,7 +248,7 @@ Class UsersModule extends Module {
 	 */
 	public function add()
 	{
-		if (!empty($_SESSION['user']['id'])) redirect('/');
+		if (!empty($_SESSION['user']['id'])) return $this->showInfoMessage(__('Some error occurred'), '/');
 	
 		// Если не переданы данные формы - значит функция была вызвана по ошибке
 		if ( !isset($_POST['login']) or
@@ -441,7 +441,7 @@ Class UsersModule extends Module {
 			}
 		}
 
-		$timezone = (int)$_POST['timezone'];
+		$timezone = intval($_POST['timezone']);
 		if ( $timezone < -12 or $timezone > 12 ) $timezone = 0;
 
 		// Если были допущены ошибки при заполнении формы - перенаправляем посетителя на страницу регистрации
@@ -543,7 +543,7 @@ Class UsersModule extends Module {
 	{
 		// Если не передан параметр $code - значит функция вызвана по ошибке
 		if (empty($code) || mb_strlen($code) !== 32) {
-			redirect('/');
+			return $this->showInfoMessage(__('Some error occurred'), '/');
 		}
 
 		// Т.к. код зашифрован с помощью md5, то он представляет собой
@@ -610,7 +610,7 @@ Class UsersModule extends Module {
 
 		// Если не переданы методом POST логин и e-mail - перенаправляем пользователя
 		if ( !isset( $_POST['username'] ) and !isset( $_POST['email'])) {
-			redirect('/');
+			return $this->showInfoMessage(__('Some error occurred'), '/');
 		}
 
 		// Обрезаем переменные до длины, указанной в параметре maxlength тега input
@@ -725,20 +725,20 @@ Class UsersModule extends Module {
 	// Активация нового пароля
 	public function activate_password($code = null)
 	{
-		if (!isset($code)) redirect('/');
+		if (!isset($code)) return $this->showInfoMessage(__('Some error occurred'), '/');
 
 		// Т.к. код активации создан с помощью md5, то он
 		// представляет собой 32-значное шестнадцатеричное число
 		$code = mb_substr( $code, 0, 32 );
 		$code = preg_replace( "#[^0-9a-f]#i", '', $code );
 		
-		if (empty($code)) redirect('/');
+		if (empty($code)) return $this->showInfoMessage(__('Some error occurred'), '/');
 		
 		$f_path =  ROOT . '/sys/tmp/activate/' . $code;
 		if (is_file($f_path) and  ((time() - filemtime($f_path)) < 24*60*60)) {
 			$file = file($f_path);
 			unlink($f_path);
-			$id_user = (int)trim($file[0]);
+			$id_user = intval(trim($file[0]));
 			$user = $this->Model->getById($id_user);
 			if ($user) {
 				$user->setPassw(count($file) > 1 ? trim($file[1]) : $code);
@@ -789,7 +789,7 @@ Class UsersModule extends Module {
 		$this->ACL->turn(array($this->module, 'edit_mine'));
 
 
-		$anket = $this->Model->getById((int)$_SESSION['user']['id']);
+		$anket = $this->Model->getById(intval($_SESSION['user']['id']));
 		if (is_object($this->AddFields) && $anket) {
 			$ankets = $this->AddFields->mergeRecords(array($anket), true);
 			$anket = $ankets[0];
@@ -878,7 +878,7 @@ Class UsersModule extends Module {
 	 */
 	public function update()
 	{
-		if ( !isset( $_SESSION['user'] ) ) redirect('/');
+		if (!isset($_SESSION['user'])) return $this->showInfoMessage(__('Some error occurred'), '/');
 
 		//turn access
 		$this->ACL->turn(array($this->module, 'edit_mine'));
@@ -890,7 +890,7 @@ Class UsersModule extends Module {
 			!isset( $_POST['email'] ) or
 			!isset( $_POST['timezone'] )
 		) {
-			redirect('/');
+			return $this->showInfoMessage(__('Some error occurred'), '/');
 		}
 		
 		
@@ -950,7 +950,7 @@ Class UsersModule extends Module {
 		$icq		  = mb_substr($icq, 0, 12);
 		$jabber		  = mb_substr($jabber, 0, 100);
 		$city		  = mb_substr($city, 0, 50);
-		$telephone	= number_format(mb_substr((int)$telephone, 0, 20), 0, '', '');
+		$telephone	= number_format(mb_substr(intval($telephone), 0, 20), 0, '', '');
 		$byear		  = intval(mb_substr($byear, 0, 4));
 		$bmonth		  = intval(mb_substr($bmonth, 0, 2));
 		$bday		  = intval(mb_substr($bday, 0, 2));
@@ -1046,7 +1046,7 @@ Class UsersModule extends Module {
 			}
 		}
 
-		$timezone = (int)$_POST['timezone'];
+		$timezone = intval($_POST['timezone']);
 		if ($timezone < -12 || $timezone > 12) $timezone = 0;
 
 		if (!empty($template) and ($template{0}=='.' or !is_dir(ROOT . '/template/' . $template))) {
@@ -1136,9 +1136,9 @@ Class UsersModule extends Module {
 	{
 		//turn access
 		$this->ACL->turn(array($this->module, 'edit_users'));
-		$id = (int)$id;
-		if ( $id < 1 ) redirect($this->getModuleURL());
-		if (!isset($_SESSION['user'])) redirect('/');
+		$id = intval($id);
+		if ($id < 1) return $this->showInfoMessage(__('Can not find user'), $this->getModuleURL());
+		if (!isset($_SESSION['user'])) return $this->showInfoMessage(__('Some error occurred'), '/');
 
 		$statusArray = $this->Register['ACL']->get_group_info();
 		if (!empty($statusArray)) unset($statusArray[0]);
@@ -1264,13 +1264,13 @@ Class UsersModule extends Module {
 	{
 		//turn access
 		$this->ACL->turn(array($this->module, 'edit_users'));
-		$id = (int)$id;
+		$id = intval($id);
 		// ID зарегистрированного пользователя не может быть меньше
 		// единицы - значит функция вызвана по ошибке
-		if ($id < 1) redirect($this->getModuleURL());
+		if ($id < 1) return $this->showInfoMessage(__('Can not find user'), $this->getModuleURL());
 		// Если профиль пытается редактировать не зарегистрированный
 		// пользователь - функция вызвана по ошибке
-		if (!isset($_SESSION['user'])) redirect( '/');
+		if (!isset($_SESSION['user'])) return $this->showInfoMessage(__('Some error occurred'), '/');
 
 
 		
@@ -1281,7 +1281,7 @@ Class UsersModule extends Module {
 			!isset( $_POST['newpassword'] ) or
 			!isset( $_POST['confirm'] )
 		) {
-			redirect('/');
+			return $this->showInfoMessage(__('Some error occurred'), '/');
 		}
 
 		
@@ -1347,7 +1347,7 @@ Class UsersModule extends Module {
 		$icq		  = mb_substr($icq, 0, 12);
 		$jabber		  = mb_substr($jabber, 0, 100);
 		$city		  = mb_substr($city, 0, 50);
-		$telephone	= number_format(mb_substr((int)$telephone, 0, 20), 0, '', '');
+		$telephone	= number_format(mb_substr(intval($telephone), 0, 20), 0, '', '');
 		$byear		  = intval(mb_substr($byear, 0, 4));
 		$bmonth		  = intval(mb_substr($bmonth, 0, 2));
 		$bday		  = intval(mb_substr($bday, 0, 2));
@@ -1445,8 +1445,8 @@ Class UsersModule extends Module {
 		}
 
 
-		$status = (int)$_POST['status'];
-		$timezone = (int)$_POST['timezone'];
+		$status = intval($_POST['status']);
+		$timezone = intval($_POST['timezone']);
 		if ( $timezone < -12 or $timezone > 12 ) $timezone = 0;
 
 		if (!empty($template) and ($template{0}=='.' or !is_dir(ROOT . '/template/' . $template))) {
@@ -1536,8 +1536,8 @@ Class UsersModule extends Module {
 	{
 		//turn access
 		$this->ACL->turn(array($this->module, 'view_users'));
-		$id = (int)$id;
-		if ( $id < 1 ) redirect($this->getModuleURL());
+		$id = intval($id);
+		if ($id < 1) return $this->showInfoMessage(__('Can not find user'), $this->getModuleURL());
 		
 		
 		$user = $this->Model->getById($id);
@@ -1664,7 +1664,7 @@ Class UsersModule extends Module {
 	public function send_msg_form($id = null)
 	{
 		// Незарегистрированный пользователь не может отправлять личные сообщения
-		if (!isset($_SESSION['user'])) redirect('/');
+		if (!isset($_SESSION['user'])) return $this->showInfoMessage(__('Some error occurred'), '/');
 		$writer_status = (!empty($_SESSION['user']['status'])) ? $_SESSION['user']['status'] : 0;
 
 
@@ -1672,7 +1672,7 @@ Class UsersModule extends Module {
 
 		$toUser = '';
 		if (isset($id)) {
-			$id = (int)$id;
+			$id = intval($id);
 			if ($id > 0) {
 				$res = $this->Model->getById($id);
 				if ($res) {
@@ -1686,7 +1686,7 @@ Class UsersModule extends Module {
 		if (!empty($_SESSION['response_pm'])) {
 			if (preg_match('#^Re(\((\d+)\))?: #i', $_SESSION['response_pm'], $match)) {
 				if (!empty($match[2]) && is_numeric($match[2])) {
-					$subject = h('Re(' . ((int)$match[2] + 1) . '): ' . mb_substr($_SESSION['response_pm'], 6));
+					$subject = h('Re(' . (intval($match[2]) + 1) . '): ' . mb_substr($_SESSION['response_pm'], 6));
 				} else {
 					$subject = h('Re(2): ' . mb_substr($_SESSION['response_pm'], 4));
 				}
@@ -1746,15 +1746,15 @@ Class UsersModule extends Module {
 	public function send_message()
 	{
 		// Незарегистрированный пользователь не может отправлять личные сообщения
-		if ( !isset( $_SESSION['user'] ) ) {
-			redirect('/');
+		if (!isset($_SESSION['user'])) {
+			return $this->showInfoMessage(__('Some error occurred'), '/');
 		}
 		// Если не переданы данные формы - функция вызвана по ошибке
 		if ( !isset( $_POST['toUser'] ) or
 		   !isset( $_POST['subject'] ) or
 		   !isset( $_POST['mainText'] ) )
 		{
-			redirect('/');
+			return $this->showInfoMessage(__('Some error occurred'), '/');
 		}
 
 		$msgLen = mb_strlen($_POST['mainText']);
@@ -1815,8 +1815,8 @@ Class UsersModule extends Module {
 
 			//chek max count messages
 			if ($user && $user->getId()) {
-				$id_to = (int)$user->getId();
-				$id_from = (int)$_SESSION['user']['id'];
+				$id_to = intval($user->getId());
+				$id_from = intval($_SESSION['user']['id']);
 
 
 				$model = $this->Register['ModManager']->getModelInstance('Messages');
@@ -1910,9 +1910,9 @@ Class UsersModule extends Module {
 	// Функция возвращает личное сообщение для просмотра пользователем
 	public function get_message($id_msg = null)
 	{
-		if (!isset($_SESSION['user'])) redirect($this->getModuleURL());
-		$idMsg = (int)$id_msg;
-		if ($idMsg < 1) redirect($this->getModuleURL('in_msg_box/'));
+		if (!isset($_SESSION['user'])) return $this->showInfoMessage(__('Some error occurred'), '/');
+		$idMsg = intval($id_msg);
+		if ($idMsg < 1) return $this->showInfoMessage(__('Some error occurred'), $this->getModuleURL('in_msg_box/'));
 
 		
 		// Navigation Panel
@@ -1928,7 +1928,7 @@ Class UsersModule extends Module {
 		// ID сообщения в адресной строке браузера
 		$message = $this->Model->getMessage($idMsg);
 		if (!$message) {
-			redirect($this->getModuleURL('in_msg_box/'));
+			return $this->showInfoMessage(__('Some error occurred'), $this->getModuleURL('in_msg_box/'));
 		}
 		
 		
@@ -1994,7 +1994,7 @@ Class UsersModule extends Module {
 	// Папка личных сообщений (входящие)
 	public function in_msg_box()
 	{
-		if (!isset($_SESSION['user'])) redirect('/');
+		if (!isset($_SESSION['user'])) return $this->showInfoMessage(__('Some error occurred'), '/');
 
 
 		// Navigation Panel
@@ -2036,7 +2036,7 @@ Class UsersModule extends Module {
 	// Папка личных сообщений (исходящие)
 	public function out_msg_box()
 	{
-		if (!isset($_SESSION['user'])) redirect('/');
+		if (!isset($_SESSION['user'])) return $this->showInfoMessage(__('Some error occurred'), '/');
 
 
 		// Navigation Panel
@@ -2085,7 +2085,7 @@ Class UsersModule extends Module {
 	// Функция удаляет личное сообщение; ID сообщения передается методом GET
 	public function delete_message($id_msg = null)
 	{
-		if (!isset( $_SESSION['user'])) redirect('/');
+		if (!isset( $_SESSION['user'])) return $this->showInfoMessage(__('Some error occurred'), '/');
 		$messagesModel = $this->Register['ModManager']->getModelInstance('Messages');
 		
 		$multi_del = true;
@@ -2093,8 +2093,8 @@ Class UsersModule extends Module {
 		|| !is_array($_POST['ids'])
 		|| count($_POST['ids']) < 1) $multi_del = false;
 
-		$idMsg = (int)$id_msg;
-		if ($idMsg < 1 && $multi_del === false) redirect('/');
+		$idMsg = intval($id_msg);
+		if ($idMsg < 1 && $multi_del === false) return $this->showInfoMessage(__('Some error occurred'), $this->getModuleURL('in_msg_box/'));
 		
 		
 		// We create array with ids for delete
@@ -2108,7 +2108,7 @@ Class UsersModule extends Module {
 				$ids[] = $id;
 			}
 		}
-		if (count($ids) < 1) redirect('/');
+		if (count($ids) < 1) return $this->showInfoMessage(__('Some error occurred'), $this->getModuleURL('in_msg_box/'));
 
 		
 		foreach ($ids as $idMsg) {
@@ -2177,9 +2177,9 @@ Class UsersModule extends Module {
 	 */
 	public function send_mail_form($id = null)
 	{
-		if (!isset($_SESSION['user'])) redirect('/');
+		if (!isset($_SESSION['user'])) return $this->showInfoMessage(__('Some error occurred'), '/');
 		$id = intval($id);
-		if (!$id) redirect('/');
+		if (!$id) return $this->showInfoMessage(__('Can not find user'), $this->getModuleURL());
 		
 		$toUser = null;
 		
@@ -2225,9 +2225,9 @@ Class UsersModule extends Module {
 		   !isset($_POST['subject']) ||
 		   !isset($_POST['message']))
 		{
-			redirect('/');
+			return $this->showInfoMessage(__('Some error occurred'), '/');
 		}
-		if (!isset($_SESSION['user'])) redirect('/');
+		if (!isset($_SESSION['user'])) return $this->showInfoMessage(__('Some error occurred'), '/');
 		
 
 		// Обрезаем переменные до длины, указанной в параметре maxlength тега input
@@ -2366,7 +2366,7 @@ Class UsersModule extends Module {
 	public function login()
 	{
 		// Если не переданы данные формы - значит функция была вызвана по ошибке
-		if (!isset($_POST['username']) or !isset($_POST['password'])) redirect('/');
+		if (!isset($_POST['username']) or !isset($_POST['password'])) return $this->showInfoMessage(__('Some error occurred'), '/');
 		$error = '';
 		
 		
@@ -2480,7 +2480,7 @@ Class UsersModule extends Module {
 		if ( isset( $_COOKIE['autologin'] ) ) setcookie( 'autologin', '', time() - 1, $path );
 		if ( isset( $_COOKIE['userid'] ) ) setcookie( 'userid', '', time() - 1, $path );
 		if ( isset( $_COOKIE['password'] ) ) setcookie( 'password', '', time() - 1, $path );
-		redirect( '/');
+		redirect('/');
 	}
 
 	
@@ -2494,7 +2494,7 @@ Class UsersModule extends Module {
 	{
 		//turn access
 		$this->ACL->turn(array($this->module, 'ban_users'));
-		$id = (int)$id;
+		$id = intval($id);
 		if ($id < 1) {
 			redirect('/');
 		}
@@ -2516,7 +2516,7 @@ Class UsersModule extends Module {
 	{
 		//turn access
 		$this->ACL->turn(array($this->module, 'ban_users'));
-		$id = (int)$id;
+		$id = intval($id);
 		if ($id < 1) {
 			redirect('/');
 		}
@@ -2678,7 +2678,7 @@ Class UsersModule extends Module {
 				$action = $vote->getAction();
 				$vote->delete();
 				if ($user) {
-					$user->setRating($user->getRating() - (int)$action);
+					$user->setRating($user->getRating() - intval($action));
 					$user->save();
 				}
 				die('ok');
@@ -2720,7 +2720,7 @@ Class UsersModule extends Module {
 		
 		// Action and cause
 		$points = (!empty($_POST['points'])) ? intval($_POST['points']) : 1;
-		if ((int)$points != 1 && (int)$points != -1) $points = 1;
+		if (intval($points) != 1 && intval($points) != -1) $points = 1;
 		$cause = (!empty($_POST['cause'])) ? trim($_POST['cause']) : '';
 		
 		// Interval
