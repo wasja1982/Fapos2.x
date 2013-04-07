@@ -4,12 +4,12 @@
 | @Author:       Andrey Brykin (Drunya)        |
 | @Email:        drunyacoder@gmail.com         |
 | @Site:         http://fapos.net              |
-| @Version:      1.7.8                         |
+| @Version:      1.8.0                         |
 | @Project:      CMS                           |
 | @Package       CMS Fapos                     |
-| @Subpackege    Stats Module                  |
+| @Subpackege    News Module                   |
 | @Copyright     ©Andrey Brykin 2010-2013      |
-| @Last mod      2013/02/22                    |
+| @Last mod      2013/03/31                    |
 |----------------------------------------------|
 |											   |
 | any partial or not partial extension         |
@@ -143,7 +143,7 @@ Class StatModule extends Module {
 			
 			$markers['category_url'] = get_url($this->getModuleURL('category/' . $entity->getCategory_id()));
 			$markers['profile_url'] = getProfileUrl($entity->getAuthor_id());
-			$entity->setTags(explode(',', $entity->getTags()));
+			if ($entity->getTags()) $entity->setTags(explode(',', $entity->getTags()));
 
 
 			//set users_id that are on this page
@@ -284,7 +284,7 @@ Class StatModule extends Module {
 			
 			$markers['category_url'] = get_url($this->getModuleURL('category/' . $entity->getCategory_id()));
 			$markers['profile_url'] = getProfileUrl($entity->getAuthor_id());
-			$entity->setTags(explode(',', $entity->getTags()));
+			if ($entity->getTags()) $entity->setTags(explode(',', $entity->getTags()));
 
 
 			//set users_id that are on this page
@@ -401,7 +401,7 @@ Class StatModule extends Module {
 		$markers['mainText'] = $announce;
         $markers['main_text'] = $markers['mainText'];
 		$entity->setAdd_markers($markers);
-		$entity->setTags(explode(',', $entity->getTags()));
+		if ($entity->getTags()) $entity->setTags(explode(',', $entity->getTags()));
 		
 		
 		$this->setCacheTag(array(

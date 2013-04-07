@@ -2,12 +2,12 @@
 /*-----------------------------------------------\
 | 												 |
 |  @Author:       Andrey Brykin (Drunya)         |
-|  @Version:      1.5.2                          |
+|  @Version:      1.5.6                          |
 |  @Project:      CMS                            |
 |  @package       CMS Fapos                      |
 |  @subpackege    Pages Module                   |
-|  @copyright     ©Andrey Brykin 2010-2012       |
-|  @last mod      2012/09/18                     |
+|  @copyright     ©Andrey Brykin 2010-2013       |
+|  @last mod      2013/04/07                     |
 \-----------------------------------------------*/
 
 /*-----------------------------------------------\
@@ -28,15 +28,15 @@ Class PagesModule extends Module {
 	/**
 	* @module_title  title of module
 	*/
-	var $module_title;
+	public $module_title = 'Страницы';
 	/**
 	* @template  layout for module
 	*/
-	//var $template;
+	public $template = 'pages';
 	/**
 	* @module module indentifier
 	*/
-	var $module = 'pages';
+	public $module = 'pages';
 
 
 	
@@ -53,13 +53,13 @@ Class PagesModule extends Module {
 				$page = $this->Model->getById($id);
 				if (!$page) return $this->showInfoMessage(__('Can not find this page'), '/');
 			} else {
-				if (!preg_match('#^[\da-z_\-]+$#i', $id)) return $this->showInfoMessage(__('Can not find this page'), $this->getModuleURL());
+				if (!preg_match('#^[\da-z_\-.]+$#i', $id)) return $this->showInfoMessage(__('Can not find this page'), $this->getModuleURL());
 			
 				$page = $this->Model->getByUrl($id);
 				if (!$page) return $this->showInfoMessage(__('Can not find this page'), $this->getModuleURL());
 				$id = $page->getId();
 			}
-			
+		
 			$this->page_title = $page->getName();
 			$this->page_meta_keywords = $page->getMeta_keywords();
 			$this->page_meta_description = $page->getMeta_description();
@@ -228,7 +228,7 @@ Class PagesModule extends Module {
                             foreach ($matattaches as $attach) {
 								if ($attach->getIs_image() == '1') {
 									$announce = $this->insertImageAttach($announce, $attach->getFilename(), $attach->getAttach_number(), $result->getSkey());
-								}
+                                }
                             }
                         }
 						

@@ -1,26 +1,27 @@
 <?php
-/*---------------------------------------------\
-|											   |
-| @Author:       Andrey Brykin (Drunya)        |
-| @Email:        drunyacoder@gmail.com         |
-| @Site:         http://fapos.net              |
-| @Version:      1.5.3                         |
-| @Project:      CMS                           |
-| @Package       CMS Fapos                     |
-| @Subpackege    Foto Module  			 	   |
-| @Copyright     ©Andrey Brykin 2010-2013      |
-| @Last mod      2013/01/22                    |
-|----------------------------------------------|
-|											   |
-| any partial or not partial extension         |
-| CMS Fapos,without the consent of the         |
-| author, is illegal                           |
-|----------------------------------------------|
-| Любое распространение                        |
-| CMS Fapos или ее частей,                     |
-| без согласия автора, является не законным    |
-\---------------------------------------------*/
+/*-----------------------------------------------\
+| 												 |
+| @Author:       Andrey Brykin (Drunya)          |
+| @Email:        drunyacoder@gmail.com           |
+| @Site:         http://fapos.net                |
+| @Version:      1.5.5                           |
+| @Project:      CMS                             |
+| @package       CMS Fapos                       |
+| @subpackege    Foto Module  			 		 |
+| @copyright     ©Andrey Brykin 2010-2013        |
+| @last  mod     2013/03/31                      |
+\-----------------------------------------------*/
 
+/*-----------------------------------------------\
+| 												 |
+|  any partial or not partial extension          |
+|  CMS Fapos,without the consent of the          |
+|  author, is illegal                            |
+|------------------------------------------------|
+|  Любое распространение                         |
+|  CMS Fapos или ее частей,                      |
+|  без согласия автора, является не законным     |
+\-----------------------------------------------*/
 
 
 /**
