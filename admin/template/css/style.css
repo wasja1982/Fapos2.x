@@ -268,6 +268,7 @@ table.grid ul li div.item {/*background:#aaa;*/ border:1px dashed #aaa; padding:
 /* Footer */
 .footer {color:#a1a1a1; font-size:13px; font-style:italic; text-align:center; padding:10px 0px; position:relative; bottom:0px; z-index:0px; margin-bottom:-70px;}
 
+.plugin_path {word-break: break-all;word-wrap: break-word;}
 
 
 
