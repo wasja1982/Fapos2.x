@@ -4,12 +4,12 @@
 |  @Author:       Andrey Brykin (Drunya)         |
 |  @Email:        drunyacoder@gmail.com          |
 |  @Site:         http://fapos.net			     |
-|  @Version:      1.5.7                          |
+|  @Version:      1.5.8                          |
 |  @Project:      CMS                            |
 |  @Package       CMS Fapos                      |
 |  @Subpackege    Module Class                   |
 |  @Copyright     ©Andrey Brykin 2010-2013       |
-|  @Last mod.     2013/01/17                     |
+|  @Last mod.     2013/02/22                     |
 \-----------------------------------------------*/
 
 /*-----------------------------------------------\
@@ -198,18 +198,18 @@ class Module {
 		$this->ACL = $this->Register['ACL'];
 		$this->beforeRender();
 		
-		if (Config::read('active', $params[0]) == 0) {
+		if ($this->Register['Config']->read('active', $params[0]) == 0) {
 			if ('chat' === $params[0]) die(__('This module disabled'));
 			return $this->showInfoMessage(__('This module disabled'), '/');
 		}
 		
-		$this->page_title = (Config::read('title', $this->module))
-            ? h(Config::read('title', $this->module)) : h($this->module);
+		$this->page_title = ($this->Register['Config']->read('title', $this->module))
+            ? h($this->Register['Config']->read('title', $this->module)) : h($this->module);
 		$this->params = $params;
 		
 		//cache
 		$this->Cache = new Cache;
-		if (Config::read('cache') == 1) {
+		if ($this->Register['Config']->read('cache') == 1) {
 			$this->cached = true;
 			$this->cacheKey = $this->getKeyForCache($params);
 			$this->setCacheTag(array('module_' . $params[0]));
@@ -219,14 +219,14 @@ class Module {
 		}
 		
 		//meta tags
-		$this->page_meta_keywords = h(Config::read('keywords', $this->module));
-		$this->page_meta_description = h(Config::read('description', $this->module));
+		$this->page_meta_keywords = h($this->Register['Config']->read('keywords', $this->module));
+		$this->page_meta_description = h($this->Register['Config']->read('description', $this->module));
 		
 		if (empty($this->page_meta_keywords)) {
-			$this->page_meta_keywords = h(Config::read('meta_keywords'));
+			$this->page_meta_keywords = h($this->Register['Config']->read('meta_keywords'));
 		}
 		if (empty($this->page_meta_description)) {
-			$this->page_meta_description = h(Config::read('meta_description'));
+			$this->page_meta_description = h($this->Register['Config']->read('meta_description'));
 		}
 		
 		
@@ -234,7 +234,8 @@ class Module {
 		//$this->Register['GlobalParams'] = $this->getGlobalMarkers();
 	}
 	
-
+	
+	
 	protected function setModel()
 	{
 		$class = ucfirst($this->module) . 'Model';
@@ -266,7 +267,7 @@ class Module {
 	protected function afterRender()
     {
 		// Cron
-		if (Config::read('auto_sitemap')) {
+		if ($this->Register['Config']->read('auto_sitemap')) {
 			fpsCron('createSitemap', 86400);
 		}
 		
@@ -280,7 +281,7 @@ class Module {
 		
 		if (substr($_SERVER['PHP_SELF'], 1, 5) != 'admin') {
 			include_once ROOT . '/modules/statistics/index.php';
-			if (Config::read('active', 'statistics') == 1) {
+			if ($this->Register['Config']->read('active', 'statistics') == 1) {
 				StatisticsModule::index();
 			} else {
 				StatisticsModule::viewOffCounter();
@@ -301,6 +302,7 @@ class Module {
             Plugins::intercept('before_parse_layout', $this);
 			
 		
+			$this->View->setLayout($this->template);
 			$markers = $this->getGlobalMarkers(file_get_contents($this->View->getTemplateFilePath('main.html')));
             $markers['content'] = $content;
 			
@@ -629,7 +631,7 @@ class Module {
 	// выдает информационное сообщение и делает редирект на нужную страницу с задержкой
 	function showInfoMessage($message, $queryString = null) 
 	{
-		header( 'Refresh: ' . Config::read('redirect_delay') . '; url=http://' . $_SERVER['SERVER_NAME'] . get_url($queryString));
+		header( 'Refresh: ' . $this->Register['Config']->read('redirect_delay') . '; url=http://' . $_SERVER['SERVER_NAME'] . get_url($queryString));
 		$output = $this->render('infomessagegrand.html', array('data' => array('info_message' => $message, 'error_message' => null)));
 		echo $output;
 		die();

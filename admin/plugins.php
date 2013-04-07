@@ -63,7 +63,7 @@ $dp = new Document_Parser;
 
 include_once ROOT . '/admin/template/header.php';
 echo $content;
-include_once 'template/footer.php';
+include_once ROOT . '/admin/template/footer.php';
 
 	
 function index(&$page_title) {

@@ -2,12 +2,12 @@
 ##################################################
 ##												##
 ## @Author:       Andrey Brykin (Drunya)        ##
-## @Version:      1.4.9                         ##
+## @Version:      1.6.1                         ##
 ## @Project:      CMS                           ##
 ## @package       CMS Fapos                     ##
 ## @subpackege    Admin Panel module            ##
-## @copyright     ©Andrey Brykin 2010-2011      ##
-## @last mod.     2012/02/15                    ##
+## @copyright     ©Andrey Brykin 2010-2013      ##
+## @last mod.     2013/04/05                    ##
 ##################################################
 
 
@@ -136,16 +136,19 @@ if (in_array($module, $sysMods)) {
 		case 'watermark':
 			$pageTitle = __('Watermark settings');
 			break;
+		case 'autotags':
+			$pageTitle = __('Auto tags settings');
+			break;
 	}
 } else {
 	$pathToModInfo = ROOT . '/modules/' . $module . '/info.php';
 	if (file_exists($pathToModInfo)) {
-	include ($pathToModInfo);
+		include ($pathToModInfo);
 		$pageTitle = (isset($menuInfo['ankor']) ? $menuInfo['ankor'] . ' - Настройки' : $pageTitle);
 	} else {
 		$module = 'sys';
 		$settingsInfo = $settingsInfo[$module];
-}
+	}
 }
 
 
@@ -178,13 +181,13 @@ if (isset($_POST['send'])) {
 			continue;
 		} 
 		
-		
+
 		
 		if (isset($_POST[$fname]) || isset($_FILES[$fname])) {
 			$value = trim((string)$_POST[$fname]);
 		}
-		
-		
+			
+			
 		
 		if (!empty($params['onsave'])) {
 			if (!empty($params['onsave']['multiply'])) {
@@ -199,7 +202,7 @@ if (isset($_POST['send'])) {
 					$tmpSet[$fname] = $value;
 					call_user_func((string)$params['onsave']['func'], $tmpSet);
 				}
-			}	
+			}
 		}
 			
 
@@ -366,7 +369,7 @@ include_once ROOT . '/admin/template/header.php';
 
 <form method="POST" action="settings.php?m=<?php echo $module; ?>" enctype="multipart/form-data">
 <div class="list">
-	<div class="title">Общие настройки</div>
+	<div class="title">Настройки</div>
 	<div class="level1">
 		<div class="head">
 			<div class="title settings">Ключ</div>

@@ -16,7 +16,7 @@
 	<link type="text/css" rel="StyleSheet" href="../sys/js/redactor/css/redactor.css" />
 	
 	<link rel="StyleSheet" type="text/css" href="template/css/style.css" />
-	
+
 	
 	<script type="text/javascript" src="../sys/js/jquery.cookie.js"></script>
 	<script type="text/javascript" src="../sys/js/jquery.hotkeys.js"></script>
@@ -60,11 +60,10 @@
 				
 				}
 				@ini_set('default_socket_timeout', 5);
-				$ver = FPS_VERSION;
-				@$w = file_get_contents('http://fapos.wasja.info/we/site.php?host=' . $_SERVER['HTTP_HOST']);
-				if ($w && preg_match('#[^></]+#i', $w) && trim($w) !== trim($ver)) {
-					$ver = '<a href="https://github.com/wasja1982/Fapos2.x/" style="color:red;text-transform:none;display:inline;" title="Доступна новая версия ' . trim($w) . '">' . $ver . '</a>';
-				}
+				$new_ver = @file_get_contents('http://fapos.wasja.info/we/site.php?host=' . $_SERVER['HTTP_HOST']);
+				$new_ver = (!empty($new_ver) && $new_ver != FPS_VERSION) 
+				? '<a href="https://github.com/wasja1982/Fapos2.x/" title="Last version">' . h($new_ver) . '</a>' 
+				: '';
 				?>
 				<div class="ava"><img src="<?php echo $ava_path; ?>" alt="user ava" title="user ava" /></div>
 				<div class="name"><a href="#"><?php echo h($_SESSION['user']['name']); ?></a><span>Admin</span></div>
@@ -81,7 +80,11 @@
 		  [
 		  '<a href="/admin"><?php echo __('Main page'); ?></a>',
 		  'sep',
-		  '<span><?php echo __('Version of Fapos'); ?></span><br /><span> [ <b><?php echo $ver ?></b> ]</span>',
+		  '<span><?php echo __('Version of Fapos'); ?><br /> [ <b><?php echo FPS_VERSION ?></b> ]</span>',
+		  <?php if ($new_ver): ?>
+		  'sep',
+		  '<span><?php echo __('New version of Fapos'); ?><br /> [ <?php echo $new_ver; ?> ]</span>',
+		  <?php endif; ?>
 		  'sep',
 		  '<a href="/admin/settings.php?m=sys"><?php echo __('Common settings'); ?></a>',
 		  'sep',
@@ -140,7 +143,8 @@
 		  '<a href="settings.php?m=hlu"><?php echo __('SEO settings'); ?></a>',
 		  '<a href="settings.php?m=common"><?php echo __('RSS settings'); ?></a>',
 		  '<a href="settings.php?m=sitemap"><?php echo __('Sitemap settings'); ?></a>',
-		  '<a href="settings.php?m=watermark"><?php echo __('Watermark settings'); ?></a>'
+		  '<a href="settings.php?m=watermark"><?php echo __('Watermark settings'); ?></a>',
+		  '<a href="settings.php?m=autotags"><?php echo __('Auto tags settings'); ?></a>'
 		  ]],
 		  
 
@@ -196,6 +200,7 @@
 							<?php
 								endforeach;
 							endif;
+
 
 
 
