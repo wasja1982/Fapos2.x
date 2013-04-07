@@ -182,14 +182,14 @@ if (isset($_POST['send'])) {
 		
 		if (isset($_POST[$fname]) || isset($_FILES[$fname])) {
 			$value = trim((string)$_POST[$fname]);
-				}
+		}
 		
 		
 		
-			if (!empty($params['onsave'])) {
-				if (!empty($params['onsave']['multiply'])) {
-					$value = round($value * $params['onsave']['multiply']);
-				}
+		if (!empty($params['onsave'])) {
+			if (!empty($params['onsave']['multiply'])) {
+				$value = round($value * $params['onsave']['multiply']);
+			}
 			if (!empty($params['onsave']['func'])
 				&& function_exists((string)$params['onsave']['func'])) {
 				if ($params['type'] == 'file' && (isset($_POST[$fname]) || isset($_FILES[$fname]))) {
@@ -198,13 +198,13 @@ if (isset($_POST['send'])) {
 				} else {
 					$tmpSet[$fname] = $value;
 					call_user_func((string)$params['onsave']['func'], $tmpSet);
-			}
-		}	
+				}
+			}	
 		}
 			
 
 		if (empty($value)) $value = '';
-		if ('checkbox' === $params['type']) {
+		if (isset($params['type']) && $params['type'] === 'checkbox') {
 			$tmpSet[$fname] = (!empty($value)) ? 1 : 0;
 		} else {
 			$tmpSet[$fname] = $value;
