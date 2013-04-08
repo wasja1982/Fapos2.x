@@ -29,7 +29,7 @@
 			$('#overlay').height($('#wrapper').height());
 		}, 2000);
 		
-		$('div.side-menu').height(($('body').height() - 35));
+		// $('div.side-menu').height(($('body').height() - 35));
 	});
 	</script>
 </head> 
@@ -53,11 +53,8 @@
 			<div class="userbar">
 				<?php
 				if (!empty($_SESSION['user'])) {
-					
-					$ava_path = (file_exists(ROOT . '/sys/avatars/' . $_SESSION['user']['id'] . '.jpg'))
-					? WWW_ROOT . '/sys/avatars/' . $_SESSION['user']['id'] . '.jpg'
-					:  WWW_ROOT . '/sys/img/noavatar.png';
-				
+					$ava_path = getAvatar($_SESSION['user']['id'], $_SESSION['user']['email']);
+					$user_url = get_url('users/info/' . $_SESSION['user']['id']);
 				}
 				@ini_set('default_socket_timeout', 5);
 				$new_ver = @file_get_contents('http://fapos.wasja.info/we/site.php?host=' . $_SERVER['HTTP_HOST']);
@@ -66,7 +63,7 @@
 				: '';
 				?>
 				<div class="ava"><img src="<?php echo $ava_path; ?>" alt="user ava" title="user ava" /></div>
-				<div class="name"><a href="#"><?php echo h($_SESSION['user']['name']); ?></a><span>Admin</span></div>
+				<div class="name"><a href="<?php echo $user_url; ?>" target="_blank"><?php echo h($_SESSION['user']['name']); ?></a><span>Admin</span></div>
 				<a href="exit.php" class="exit"></a>
 			</div>
 			<div class="clear"></div>
@@ -165,7 +162,7 @@
 		
 			<table class="side-separator" cellpadding="0" cellspacing="0" width="100%" height="100%" >
 				<tr>
-					<td width="237" height="100%">
+					<td width="237">
 						<div class="side-menu">
 							<div class="search">
 								<form>
