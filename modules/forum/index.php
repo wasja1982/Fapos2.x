@@ -307,7 +307,7 @@ Class ForumModule extends Module {
 			
 			
 			// reply link
-			$addLink = ($this->Register['ACL']->turn(array($this->module, 'add_themes', $id_forum), false)) 
+			$addLink = ($this->ACL->turn(array($this->module, 'add_themes', $id_forum), false)) 
 			? get_link(get_img('/template/' . getTemplateName().'/img/add_theme_button.png', 
 			array('alt' => __('New topic'))), '/forum/add_theme_form/' . $id_forum) : '';
 			
@@ -719,7 +719,7 @@ Class ForumModule extends Module {
 			
 			
 			//if (!isset($_SESSION['user'])) $markers['add_link'] = '';
-			if (!$this->Register['ACL']->turn(array($this->module, 'add_posts', $theme->getId_forum()), false)) $markers['add_link'] = '';
+			if (!$this->ACL->turn(array($this->module, 'add_posts', $theme->getId_forum()), false)) $markers['add_link'] = '';
 			$markers['meta'] = '';
 			$this->_globalize($markers);
 			
@@ -814,7 +814,7 @@ Class ForumModule extends Module {
 
 
 						// Статус пользователя
-						$status = $this->Register['ACL']->get_group_info();
+						$status = $this->ACL->get_group_info();
 						$user_status = $status[$author_status];
 						$postAuthor->setStatus_title($user_status['title']);
 
@@ -1754,7 +1754,7 @@ Class ForumModule extends Module {
 		$first_top = isset($_POST['first_top']) ? '1' : '0'; 
 		
 		$gr_access = array();
-		$groups = $this->Register['ACL']->getGroups();
+		$groups = $this->ACL->getGroups();
 		foreach ($groups as $grid => $grval) {
 			if (isset($_POST['gr_access_' . $grid])) $gr_access[] = $grid;
 		}
@@ -2058,7 +2058,7 @@ Class ForumModule extends Module {
 		$first_top = isset($_POST['first_top']) ? '1' : '0'; 
 		
 		$gr_access = array();
-		$groups = $this->Register['ACL']->getGroups();
+		$groups = $this->ACL->getGroups();
 		foreach ($groups as $grid => $grval) {
 			if (isset($_POST['gr_access_' . $grid])) $gr_access[] = $grid;
 		}
@@ -3480,7 +3480,7 @@ Class ForumModule extends Module {
 		$first_top = isset($_POST['first_top']) ? '1' : '0'; 
 		
 		$gr_access = array();
-		$groups = $this->Register['ACL']->getGroups();
+		$groups = $this->ACL->getGroups();
 		foreach ($groups as $grid => $grval) {
 			if (isset($_POST['gr_access_' . $grid])) $gr_access[] = $grid;
 		}
