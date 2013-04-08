@@ -146,6 +146,7 @@ if (in_array($module, $sysMods)) {
 		include ($pathToModInfo);
 		$pageTitle = (isset($menuInfo['ankor']) ? $menuInfo['ankor'] . ' - Настройки' : $pageTitle);
 	} else {
+		$_SESSION['mess'] = "Модуль \"{$module}\" не найден!";
 		$module = 'sys';
 		$settingsInfo = $settingsInfo[$module];
 	}
@@ -225,6 +226,7 @@ if (isset($_POST['send'])) {
 
 	//save settings
 	Config::write($tmpSet);
+	$_SESSION['mess'] = "Настойки успешно сохранены!";
 	//clean cache
 	$Cache = new Cache;
 	$Cache->clean(CACHE_MATCHING_ANY_TAG, array('module_' . $module));
@@ -365,11 +367,16 @@ if (count($settingsInfo)) {
 $pageNav = $pageTitle;
 $pageNavr = '';
 include_once ROOT . '/admin/template/header.php';
+
+if (isset($_SESSION['mess'])) {
+	echo '<div class="warning"><br /><b>' . $_SESSION['mess'] . '</b><br /><br /></div>';
+	unset($_SESSION['mess']);
+}
 ?>
 
 <form method="POST" action="settings.php?m=<?php echo $module; ?>" enctype="multipart/form-data">
 <div class="list">
-	<div class="title">Настройки</div>
+	<div class="title"><?php echo $pageTitle; ?></div>
 	<div class="level1">
 		<div class="head">
 			<div class="title settings">Ключ</div>
