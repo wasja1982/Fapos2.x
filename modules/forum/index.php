@@ -909,7 +909,7 @@ Class ForumModule extends Module {
 				$theme = $one_theme;
 				if (!$theme && $post->getTheme())
 					$theme = $post->getTheme();
-				if (!empty($_SESSION['user']) && !$theme && $theme->getId_forum()) {
+				if (!empty($_SESSION['user']) && $theme && $theme->getId_forum()) {
 					if ($this->ACL->turn(array($this->module, 'edit_posts', $theme->getId_forum()), false)
 							|| (!empty($_SESSION['user']['id']) && $post->getId_author() == $_SESSION['user']['id']
 							&& $this->ACL->turn(array($this->module, 'edit_mine_posts', $theme->getId_forum()), false))) {
