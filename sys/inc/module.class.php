@@ -173,7 +173,7 @@ class Module {
 		
 		// Use for templater (layout)
 		$this->template = $this->module;
-     		
+		
 		$this->setModel();
 		
 		
@@ -680,14 +680,14 @@ class Module {
 	{
 		if (!isset($module)) $module = $this->module;
 		$image_link = get_url($this->getFilesPath($filename, $module));
-		$preview_link = (Config::read('use_preview', $module) ? get_url('/image/' . $module . '/' . $filename) : $image_link);
-		$size_x = Config::read('img_size_x', $module);
-		$size_y = Config::read('img_size_y', $module);
+		$preview_link = (Config::read('use_preview', $this->module) ? get_url('/image/' . $module . '/' . $filename) : $image_link);
+		$size_x = Config::read('img_size_x', $this->module);
+		$size_y = Config::read('img_size_y', $this->module);
 		return str_replace(
 			'{IMAGE' . $number . '}', 
-			(Config::read('use_preview', $module) ? '<a class="gallery" href="' . $image_link . '">' : '') .
+			(Config::read('use_preview', $this->module) ? '<a class="gallery" href="' . $image_link . '">' : '') .
 			'<img style="max-width:' . (isset($size_x) ? $size_x : 150) . 'px; max-height:' . (isset($size_y) ? $size_y : 150) . 'px;" src="' . $preview_link . '" />' .
-			(Config::read('use_preview', $module) ? '</a>' : ''), 
+			(Config::read('use_preview', $this->module) ? '</a>' : ''), 
 			$message);
 	}
 }
