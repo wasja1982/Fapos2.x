@@ -1496,7 +1496,7 @@ Class ForumModule extends Module {
 		$order_down = $forum->getPos();
 
 
-		$dforum = $this->Model->getCollection(array(
+		$dforum = $this->Model->getFirst(array(
 			'pos > ' . $order_down,
 			'in_cat' => $forum->getIn_cat(),
 			'parent_forum_id' => $forum->getParent_forum_id(),
