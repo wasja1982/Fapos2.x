@@ -226,7 +226,7 @@ if (isset($_POST['send'])) {
 
 	//save settings
 	Config::write($tmpSet);
-	$_SESSION['mess'] = "Настойки успешно сохранены!";
+	$_SESSION['mess'] = "Настройки успешно сохранены!";
 	//clean cache
 	$Cache = new Cache;
 	$Cache->clean(CACHE_MATCHING_ANY_TAG, array('module_' . $module));
