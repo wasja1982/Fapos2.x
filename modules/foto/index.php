@@ -871,24 +871,24 @@ Class FotoModule extends Module {
 	protected function _getAdminBar($record) {
 		$moder_panel = '';
 		$id = $record->getId();
-		$author_id = $record->getAuthor_id();
-		if (!$author_id)
-			$author_id = 0;
+		$uid = $record->getAuthor_id();
+		if (!$uid)
+			$uid = 0;
 
 		if ($this->ACL->turn(array($this->module, 'edit_materials'), false)
-				|| (!empty($_SESSION['user']['id']) && $author_id == $_SESSION['user']['id']
+				|| (!empty($_SESSION['user']['id']) && $uid == $_SESSION['user']['id']
 				&& $this->ACL->turn(array($this->module, 'edit_mine_materials'), false))) {
-			$moder_panel .= get_link(get_img('/sys/img/edit_16x16.png'), $this->getModuleURL('edit_form/' . $id)) . '&nbsp;';
+			$moder_panel .= get_link('', $this->getModuleURL('edit_form/' . $id), array('class' => 'fps-edit')) . '&nbsp;';
 		}
 
 		if ($this->ACL->turn(array($this->module, 'up_materials'), false)) {
-			$moder_panel .= get_link(get_img('/sys/img/up_arrow_16x16.png'), $this->getModuleURL('upper/' . $id), array('onClick' => "return confirm('" . __('Are you sure') . "')")) . '&nbsp;';
+			$moder_panel .= get_link('', $this->getModuleURL('upper/' . $id), array('class' => 'fps-up', 'onClick' => "return confirm('" . __('Are you sure') . "')")) . '&nbsp;';
 		}
 
 		if ($this->ACL->turn(array($this->module, 'delete_materials'), false)
-				|| (!empty($_SESSION['user']['id']) && $author_id == $_SESSION['user']['id']
+				|| (!empty($_SESSION['user']['id']) && $uid == $_SESSION['user']['id']
 				&& $this->ACL->turn(array($this->module, 'delete_mine_materials'), false))) {
-			$moder_panel .= get_link(get_img('/sys/img/delete_16x16.png'), $this->getModuleURL('delete/' . $id), array('onClick' => "return confirm('" . __('Are you sure') . "')")) . '&nbsp;';
+			$moder_panel .= get_link('', $this->getModuleURL('delete/' . $id), array('class' => 'fps-delete', 'onClick' => "return confirm('" . __('Are you sure') . "')")) . '&nbsp;';
 		}
 		return $moder_panel;
 	}

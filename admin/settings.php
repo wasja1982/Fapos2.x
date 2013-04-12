@@ -55,9 +55,9 @@ if (!empty($templates)) {
 
 // Prepare fonts select list
 $fonts = glob(ROOT . '/sys/fonts/*.ttf');
-sort($fonts);
 $fontSelect = array();
 if (!empty($fonts)) {
+	sort($fonts);
 	foreach ($fonts as $value) {
 		$pos = strrpos($value, "/");
 		if ($pos >= 0) {
@@ -71,9 +71,9 @@ if (!empty($fonts)) {
 
 // Prepare smiles select list
 $smiles = glob(ROOT . '/sys/img/smiles/*/info.php');
-sort($smiles);
 $smilesSelect = array();
 if (!empty($smiles)) {
+	sort($smiles);
 	foreach ($smiles as $value) {
 		if (is_file($value)) {
 			include_once $value;
@@ -226,7 +226,7 @@ if (isset($_POST['send'])) {
 
 	//save settings
 	Config::write($tmpSet);
-	$_SESSION['mess'] = "Настойки успешно сохранены!";
+	$_SESSION['mess'] = "Настройки успешно сохранены!";
 	//clean cache
 	$Cache = new Cache;
 	$Cache->clean(CACHE_MATCHING_ANY_TAG, array('module_' . $module));
