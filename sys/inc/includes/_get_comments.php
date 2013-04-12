@@ -31,14 +31,14 @@ if (empty($html) && $commentsModel) {
 			$moder_panel = '';
 			$adm = false;
 			if ($this->ACL->turn(array($this->module, 'edit_comments'), false)) {
-				$moder_panel .= get_link(get_img('/sys/img/edit_16x16.png'), 
-				$this->getModuleURL('/edit_comment_form/' . $comment->getId())) . '&nbsp;';
+				$moder_panel .= get_link('',
+					$this->getModuleURL('/edit_comment_form/' . $comment->getId()), array('class' => 'fps-edit')) . '&nbsp;';
 				$adm = true;
 			}
-			
+
 			if ($this->ACL->turn(array($this->module, 'delete_comments'), false)) {
-				$moder_panel .= get_link(get_img('/sys/img/delete_16x16.png'), 
-				$this->getModuleURL('/delete_comment/' . $comment->getId(), array('onClick' => "return confirm('" . __('Are you sure') . "')"))) . '&nbsp;';
+				$moder_panel .= get_link('', 
+					$this->getModuleURL('/delete_comment/' . $comment->getId()), array('class' => 'fps-delete', 'onClick' => "return confirm('" . __('Are you sure') . "')")) . '&nbsp;'; 
 				$adm = true;
 			}
 			

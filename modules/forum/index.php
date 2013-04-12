@@ -210,14 +210,14 @@ Class ForumModule extends Module {
 		// Ссылка "Править форум"
 		$admin_bar = '';
 		if ($this->ACL->turn(array($this->module, 'replace_forums'), false)) {
-			$admin_bar .= get_link(get_img('/sys/img/up_arrow_16x16.png'), $this->getModuleURL('forum_up/' . $forum->getId()))
-					. '&nbsp;' . get_link(get_img('/sys/img/down_arrow_16x16.png'), $this->getModuleURL('forum_down/' . $forum->getId())) . '&nbsp;';
+			$admin_bar .= get_link('', $this->getModuleURL('forum_up/' . $forum->getId()), array('class' => 'fps-up'))
+					. '&nbsp;' . get_link('', $this->getModuleURL('forum_down/' . $forum->getId()), array('class' => 'fps-down')) . '&nbsp;';
 		}
 		if ($this->ACL->turn(array($this->module, 'edit_forums'), false)) {
-			$admin_bar .= get_link(get_img('/sys/img/edit_16x16.png'), $this->getModuleURL('edit_forum_form/' . $forum->getId())) . '&nbsp;';
+			$admin_bar .= get_link('', $this->getModuleURL('edit_forum_form/' . $forum->getId()), array('class' => 'fps-edit')) . '&nbsp;';
 		}
 		if ($this->ACL->turn(array($this->module, 'delete_forums'), false)) {
-			$admin_bar .= get_link(get_img('/sys/img/delete_16x16.png'), $this->getModuleURL('delete_forum/' . $forum->getId()), array('onClick' => "return confirm('" . __('Are you sure') . "')")) . '&nbsp;';
+			$admin_bar .= get_link('', $this->getModuleURL('delete_forum/' . $forum->getId()), array('class' => 'fps-delete', 'onClick' => "return confirm('" . __('Are you sure') . "')")) . '&nbsp;';
 		}
 		$forum->setAdmin_bar($admin_bar);
 
@@ -443,22 +443,22 @@ Class ForumModule extends Module {
 		if ($this->ACL->turn(array($this->module, 'edit_themes', $theme->getId_forum()), false)
 				|| (!empty($_SESSION['user']['id']) && $theme->getId_author() == $_SESSION['user']['id']
 				&& $this->ACL->turn(array($this->module, 'edit_mine_themes', $theme->getId_forum()), false))) {
-			$adminbar .= get_link(get_img('/sys/img/edit_16x16.png', array('alt' => __('Edit'), 'title' => __('Edit'))), $this->getModuleURL('edit_theme_form/' . $theme->getId()));
+			$adminbar .= get_link('', $this->getModuleURL('edit_theme_form/' . $theme->getId()), array('class' => 'fps-edit'));
 		}
 		if ($this->ACL->turn(array($this->module, 'close_themes', $theme->getId_forum()), false)) {
 			if ($theme->getLocked() == 0) { // заблокировать тему
-				$adminbar .= get_link(get_img('/sys/img/lock_16x16.png', array('alt' => __('Lock'), 'title' => __('Lock'))), $this->getModuleURL('lock_theme/' . $theme->getId()));
+				$adminbar .= get_link('', $this->getModuleURL('lock_theme/' . $theme->getId()), array('class' => 'fps-close'));
 			} else { // разблокировать тему
-				$adminbar .= get_link(get_img('/sys/img/unlock_16x16.png', array('alt' => __('Unlock'), 'title' => __('Unlock'))), $this->getModuleURL('unlock_theme/' . $theme->getId()));
+				$adminbar .= get_link('', $this->getModuleURL('unlock_theme/' . $theme->getId()), array('class' => 'fps-open'));
 			}
 		}
 
 
 		if ($this->ACL->turn(array($this->module, 'important_themes'), false)) {
 			if ($theme->getImportant() == 1) {
-				$adminbar .= get_link(get_img('/sys/img/unpush.png', array('alt' => __('Important'), 'title' => __('Important'))), $this->getModuleURL('unimportant/' . $theme->getId()));
+				$adminbar .= get_link('', $this->getModuleURL('unimportant/' . $theme->getId()), array('class' => 'fps-unfix'));
 			} else {
-				$adminbar .= get_link(get_img('/sys/img/push.png', array('alt' => __('Not important'), 'title' => __('Not important'))), $this->getModuleURL('important/' . $theme->getId()));
+				$adminbar .= get_link('', $this->getModuleURL('important/' . $theme->getId()), array('class' => 'fps-fix'));
 			}
 		}
 
@@ -466,7 +466,7 @@ Class ForumModule extends Module {
 		if ($this->ACL->turn(array($this->module, 'delete_themes', $theme->getId_forum()), false)
 				|| (!empty($_SESSION['user']['id']) && $theme->getId_author() == $_SESSION['user']['id']
 				&& $this->ACL->turn(array($this->module, 'delete_mine_themes', $theme->getId_forum()), false))) {
-			$adminbar .= get_link(get_img('/sys/img/delete_16x16.png', array('alt' => __('Delete'), 'title' => __('Delete'))), $this->getModuleURL('delete_theme/' . $theme->getId()), array('onClick' => "return confirm('" . __('Are you sure') . "')"));
+			$adminbar .= get_link('', $this->getModuleURL('delete_theme/' . $theme->getId()), array('class' => 'fps-delete', 'onClick' => "return confirm('" . __('Are you sure') . "')"));
 		}
 		$theme->setAdminbar($adminbar);
 
@@ -909,7 +909,7 @@ Class ForumModule extends Module {
 				$theme = $one_theme;
 				if (!$theme && $post->getTheme())
 					$theme = $post->getTheme();
-				if (!empty($_SESSION['user']) && !$theme && $theme->getId_forum()) {
+				if (!empty($_SESSION['user']) && $theme && $theme->getId_forum()) {
 					if ($this->ACL->turn(array($this->module, 'edit_posts', $theme->getId_forum()), false)
 							|| (!empty($_SESSION['user']['id']) && $post->getId_author() == $_SESSION['user']['id']
 							&& $this->ACL->turn(array($this->module, 'edit_mine_posts', $theme->getId_forum()), false))) {
@@ -1496,7 +1496,7 @@ Class ForumModule extends Module {
 		$order_down = $forum->getPos();
 
 
-		$dforum = $this->Model->getCollection(array(
+		$dforum = $this->Model->getFirst(array(
 			'pos > ' . $order_down,
 			'in_cat' => $forum->getIn_cat(),
 			'parent_forum_id' => $forum->getParent_forum_id(),

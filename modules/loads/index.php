@@ -1393,32 +1393,32 @@ Class LoadsModule extends Module {
 	protected function _getAdminBar($record) {
 		$moder_panel = '';
 		$id = $record->getId();
-		$author_id = $record->getAuthor_id();
-		if (!$author_id)
-			$author_id = 0;
+		$uid = $record->getAuthor_id();
+		if (!$uid)
+			$uid = 0;
 
 		if ($this->ACL->turn(array($this->module, 'edit_materials'), false)
-				|| (!empty($_SESSION['user']['id']) && $author_id == $_SESSION['user']['id']
+				|| (!empty($_SESSION['user']['id']) && $uid == $_SESSION['user']['id']
 				&& $this->ACL->turn(array($this->module, 'edit_mine_materials'), false))) {
-			$moder_panel .= get_link(get_img('/sys/img/edit_16x16.png'), $this->getModuleURL('edit_form/' . $id)) . '&nbsp;';
+			$moder_panel .= get_link('', $this->getModuleURL('edit_form/' . $id), array('class' => 'fps-edit')) . '&nbsp;';
 		}
 
 		if ($this->ACL->turn(array($this->module, 'up_materials'), false)) {
-			$moder_panel .= get_link(get_img('/sys/img/star.png'), $this->getModuleURL('fix_on_top/' . $id), array('onClick' => "return confirm('" . __('Are you sure') . "')")) . '&nbsp;';
-			$moder_panel .= get_link(get_img('/sys/img/up_arrow_16x16.png'), $this->getModuleURL('upper/' . $id), array('onClick' => "return confirm('" . __('Are you sure') . "')")) . '&nbsp;';
+			$moder_panel .= get_link('', $this->getModuleURL('fix_on_top/' . $id), array('class' => 'fps-star', 'onClick' => "return confirm('" . __('Are you sure') . "')")) . '&nbsp;';
+			$moder_panel .= get_link('', $this->getModuleURL('upper/' . $id), array('class' => 'fps-up', 'onClick' => "return confirm('" . __('Are you sure') . "')")) . '&nbsp;';
 		}
 		if ($this->ACL->turn(array($this->module, 'on_home'), false)) {
 			if ($record->getView_on_home() == 1) {
-				$moder_panel .= get_link(get_img('/sys/img/round_ok.png', array('alt' => __('On home'), 'title' => __('On home'))), $this->getModuleURL('off_home/' . $id), array('onClick' => "return confirm('" . __('Are you sure') . "')")) . '&nbsp;';
+				$moder_panel .= get_link('', $this->getModuleURL('off_home/' . $id), array('class' => 'fps-on', 'onClick' => "return confirm('" . __('Are you sure') . "')")) . '&nbsp;';
 			} else {
-				$moder_panel .= get_link(get_img('/sys/img/round_not_ok.png', array('alt' => __('On home'), 'title' => __('On home'))), $this->getModuleURL('on_home/' . $id), array('onClick' => "return confirm('" . __('Are you sure') . "')")) . '&nbsp;';
+				$moder_panel .= get_link('', $this->getModuleURL('on_home/' . $id), array('class' => 'fps-off', 'onClick' => "return confirm('" . __('Are you sure') . "')")) . '&nbsp;';
 			}
 		}
 
 		if ($this->ACL->turn(array($this->module, 'delete_materials'), false)
-				|| (!empty($_SESSION['user']['id']) && $author_id == $_SESSION['user']['id']
+				|| (!empty($_SESSION['user']['id']) && $uid == $_SESSION['user']['id']
 				&& $this->ACL->turn(array($this->module, 'delete_mine_materials'), false))) {
-			$moder_panel .= get_link(get_img('/sys/img/delete_16x16.png'), $this->getModuleURL('delete/' . $id), array('onClick' => "return confirm('" . __('Are you sure') . "')")) . '&nbsp;';
+			$moder_panel .= get_link('', $this->getModuleURL('delete/' . $id), array('class' => 'fps-delete', 'onClick' => "return confirm('" . __('Are you sure') . "')")) . '&nbsp;';
 		}
 		return $moder_panel;
 	}
