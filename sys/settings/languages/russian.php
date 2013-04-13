@@ -369,6 +369,7 @@ $language = array(
 	'New PM on forum'               => 'У вас новое личное сообщение',
 	'User themes'                   => 'Темы пользователя',
 	'Material not found'            => 'Материал не найден',
+	'User materials'                => 'Материалы пользователя',
 	
 	
 	// Templates name
