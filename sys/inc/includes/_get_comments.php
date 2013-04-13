@@ -9,7 +9,8 @@ if (empty($html) && $commentsModel) {
 	
 	/* pages nav */
 	$total = $commentsModel->getTotal(array('cond' => array('entity_id' => $id)));
-	$per_page = Config::read('comment_per_page', $this->module);
+	$per_page = intval(Config::read('comment_per_page', $this->module));
+	if ($per_page < 1) $per_page = 10;
     list($pages, $page) = pagination($total, $per_page,  $this->getModuleURL('view/' . $id));
 	$this->_globalize(array('comments_pagination' => $pages));
 	
@@ -57,7 +58,7 @@ if (empty($html) && $commentsModel) {
 			
 			if ($comment->getUser_id()) {
 				$markers['name_a'] = get_link(h($comment->getName()), getProfileUrl((int)$comment->getUser_id()));
-				$markers['user_url'] = get_url('/users/info/' . (int)$comment->getUser_id());
+				$markers['user_url'] = get_url(getProfileUrl((int)$comment->getUser_id()));
 				$markers['avatar'] = get_link($markers['avatar'], $markers['user_url']);
 			} else {
 				$markers['name_a'] = h($comment->getName());
