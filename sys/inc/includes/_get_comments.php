@@ -10,7 +10,7 @@ if (empty($html) && $commentsModel) {
 	/* pages nav */
 	$total = $commentsModel->getTotal(array('cond' => array('entity_id' => $id)));
 	$per_page = Config::read('comment_per_page', $this->module);
-    list($pages, $page) = pagination($total, $per_page,  '/users/user_posts/' . $id);
+    list($pages, $page) = pagination($total, $per_page,  $this->getModuleURL('view/' . $id));
 	$this->_globalize(array('comments_pagination' => $pages));
 	
 	
@@ -31,11 +31,11 @@ if (empty($html) && $commentsModel) {
 			$moder_panel = '';
 			$adm = false;
 			if ($this->ACL->turn(array($this->module, 'edit_comments'), false)) {
-				$moder_panel .= get_link('',
+				$moder_panel .= get_link('', 
 					$this->getModuleURL('/edit_comment_form/' . $comment->getId()), array('class' => 'fps-edit')) . '&nbsp;';
 				$adm = true;
 			}
-
+			
 			if ($this->ACL->turn(array($this->module, 'delete_comments'), false)) {
 				$moder_panel .= get_link('', 
 					$this->getModuleURL('/delete_comment/' . $comment->getId()), array('class' => 'fps-delete', 'onClick' => "return confirm('" . __('Are you sure') . "')")) . '&nbsp;'; 
@@ -57,7 +57,7 @@ if (empty($html) && $commentsModel) {
 			
 			if ($comment->getUser_id()) {
 				$markers['name_a'] = get_link(h($comment->getName()), getProfileUrl((int)$comment->getUser_id()));
-				$markers['user_url'] = get_url(getProfileUrl((int)$comment->getUser_id()));
+				$markers['user_url'] = get_url('/users/info/' . (int)$comment->getUser_id());
 				$markers['avatar'] = get_link($markers['avatar'], $markers['user_url']);
 			} else {
 				$markers['name_a'] = h($comment->getName());
@@ -78,7 +78,7 @@ if (empty($html) && $commentsModel) {
 		}
 	}
 	$html = $this->render('viewcomment.html', array('commentsr' => $comments));
-	
+
 	
 } else {
 	$html = '';
