@@ -256,7 +256,7 @@ Class ForumModule extends Module {
 
 		if (isset($_SESSION['user'])) {
 			if (!isset($who[$_SESSION['user']['id']])) {
-				$who[$_SESSION['user']['id']]['profile_link'] = get_link(h($_SESSION['user']['name']), '/users/info/' . $_SESSION['user']['id']);
+				$who[$_SESSION['user']['id']]['profile_link'] = get_link(h($_SESSION['user']['name']), getProfileUrl($_SESSION['user']['id']));
 				$who[$_SESSION['user']['id']]['expire'] = time() + 1000;
 			}
 		}
@@ -821,7 +821,7 @@ Class ForumModule extends Module {
 
 
 						if ($post->getId_author()) {
-							$user_profile = '&nbsp;' . get_link(get_img('/template/' . getTemplateName() . '/img/icon_profile.png', array('alt' => __('View profile'), 'title' => __('View profile'))), '/users/info/' . $post->getId_author(), $icon_params);
+							$user_profile = '&nbsp;' . get_link(get_img('/template/' . getTemplateName() . '/img/icon_profile.png', array('alt' => __('View profile'), 'title' => __('View profile'))), getProfileUrl($post->getId_author()), $icon_params);
 
 
 							if (isset($_SESSION['user'])) {
@@ -2992,7 +2992,7 @@ Class ForumModule extends Module {
 
 
 		if (!empty($result[0]['last_user_id']) && !empty($result[0]['last_user_name'])) {
-			$markers['new_user'] = get_link(h($result[0]['last_user_name']), '/users/info/' . $result[0]['last_user_id']);
+			$markers['new_user'] = get_link(h($result[0]['last_user_name']), getProfileUrl($result[0]['last_user_id']));
 		}
 		$markers['count_users'] = getAllUsersCount();
 		$markers['count_posts'] = (!empty($result[0]['posts_cnt'])) ? $result[0]['posts_cnt'] : 0;
