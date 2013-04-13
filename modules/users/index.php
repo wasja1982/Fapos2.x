@@ -1995,10 +1995,10 @@ Class UsersModule extends Module {
 		$markers = array('error' => '');
 		$messages = $this->Model->getInputMessages();
 
-		if (count($messages) == 0) {
+		if (!$messages || (is_array($messages) && count($messages) == 0)) {
 			$markers['messages'] = array();
 			$markers['error'] = __('This dir is empty');
-			$source = $this->render('vievinpm.html', array('context' => $markers));
+			$source = $this->render('vievinpm.html', array('messages' => array(), 'context' => $markers));
 			return $this->_view($source);
 		}
 
@@ -2033,10 +2033,10 @@ Class UsersModule extends Module {
 
 		$markers = array('error' => '');
 		$messages = $this->Model->getOutputMessages();
-		if (count($messages) == 0) {
+		if (!$messages || (is_array($messages) && count($messages) == 0)) {
 			$markers['messages'] = array();
 			$markers['error'] = __('This dir is empty');
-			$source = $this->render('vievonpm.html', array('context' => $markers));
+			$source = $this->render('vievonpm.html', array('messages' => array(), 'context' => $markers));
 			return $this->_view($source);
 		}
 
