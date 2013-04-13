@@ -181,25 +181,28 @@ class UsersModel extends FpsModel
 	}
 
 	function getUserStatistic($user_id) {
-		$comments_tables = array('foto_comments', 'loads_comments', 'news_comments', 'stat_comments');
-		$cnt = 0;
-		$error = true;
-		foreach($comments_tables as $table) {
-			$result = $this->getDbDriver()->select($table, DB_FIRST, array('cond' => array('`user_id`' => $user_id), 'fields' => array('COUNT(*) as cnt'), 'limit' => 1));
-			if (is_array($result) && count($result) > 0) {
-				$error = false;
-				$cnt += $result[0]['cnt'];
+		$user_id = intval($user_id);
+		if ($user_id > 0) {
+			$comments_tables = array('foto_comments', 'loads_comments', 'news_comments', 'stat_comments');
+			$cnt = 0;
+			$error = true;
+			foreach($comments_tables as $table) {
+				$result = $this->getDbDriver()->select($table, DB_FIRST, array('cond' => array('`user_id`' => $user_id), 'fields' => array('COUNT(*) as cnt'), 'limit' => 1));
+				if (is_array($result) && count($result) > 0) {
+					$error = false;
+					$cnt += $result[0]['cnt'];
+				}
 			}
-		}
-		if (!$error && $cnt > 0) {
-			$res = array(
-				array(
-					'text' => 'Комментариев',
-					'count' => $cnt,
-					'url' => get_url('/'),
-				),
-			);
-			return $res;
+			if (!$error && $cnt > 0) {
+				$res = array(
+					array(
+						'text' => 'Комментариев',
+						'count' => $cnt,
+						'url' => get_url('/'),
+					),
+				);
+				return $res;
+			}
 		}
 		return false;
 	}
