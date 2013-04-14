@@ -2967,39 +2967,33 @@ Class UsersModule extends Module {
 		$this->_globalize(array('comments_pagination' => $pages));
 
 		$offset = ($page - 1) * $per_page;
-		
+
 		$comments = $this->Model->getComments($id, $offset, $per_page);
 		if ($comments && is_array($comments)) {
 			foreach ($comments as $index => $comment) {
-				
+
 				$module = $comment['type'];
-				
+
 				$className = $this->Register['ModManager']->getEntityName($module . 'Comments');
 				$entity = new $className($comment);
-				
+
 				if ($entity) {
 					$markers = array();
 
-					// COMMENT ADMIN BAR 
+					// COMMENT ADMIN BAR
 					$ip = ($entity->getIp()) ? $entity->getIp() : 'Unknown';
 					$moder_panel = '';
-					$adm = false;
 					if ($this->ACL->turn(array($module, 'edit_comments'), false)) {
-						$moder_panel .= get_link('', 
-							'/' . $module . '/edit_comment_form/' . $entity->getId(), array('class' => 'fps-edit')) . '&nbsp;';
-						$adm = true;
+						$moder_panel .= get_link('', '/' . $module . '/edit_comment_form/' . $entity->getId(), array('class' => 'fps-edit', 'title' => __('Edit')));
 					}
 
 					if ($this->ACL->turn(array($module, 'delete_comments'), false)) {
-						$moder_panel .= get_link('', 
-							'/' . $module . '/delete_comment/' . $entity->getId(), array('class' => 'fps-delete', 'onClick' => "return confirm('" . __('Are you sure') . "')")) . '&nbsp;'; 
-						$adm = true;
+						$moder_panel .= get_link('', '/' . $module . '/delete_comment/' . $entity->getId(), array('class' => 'fps-delete', 'title' => __('Delete'), 'onClick' => "return confirm('" . __('Are you sure') . "')"));
 					}
 
-					if ($adm) {
-						$moder_panel = get_img('/sys/img/ip.png', array('alt' => 'ip', 'title' => h($ip))) . $moder_panel;
+					if (!empty($moder_panel)) {
+						$moder_panel .= '<a target="_blank" href="https://apps.db.ripe.net/search/query.html?searchtext=' . h($ip) . '" class="fps-ip" title="IP: ' . h($ip) . '"></a>';
 					}
-
 
 					$img = array(
 						'alt' => 'User avatar',
@@ -3029,7 +3023,7 @@ Class UsersModule extends Module {
 					}
 
 					$entity->setEntry_url(get_url('/' . $module . '/view/' . $entity->getEntity_id()));
-					
+
 					$entity->setAdd_markers($markers);
 				}
 				$comments[$index] = $entity;
