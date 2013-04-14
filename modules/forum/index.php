@@ -256,7 +256,7 @@ Class ForumModule extends Module {
 
 		if (isset($_SESSION['user'])) {
 			if (!isset($who[$_SESSION['user']['id']])) {
-				$who[$_SESSION['user']['id']]['profile_link'] = get_link(h($_SESSION['user']['name']), '/users/info/' . $_SESSION['user']['id']);
+				$who[$_SESSION['user']['id']]['profile_link'] = get_link(h($_SESSION['user']['name']), getProfileUrl($_SESSION['user']['id']));
 				$who[$_SESSION['user']['id']]['expire'] = time() + 1000;
 			}
 		}
@@ -821,7 +821,7 @@ Class ForumModule extends Module {
 
 
 						if ($post->getId_author()) {
-							$user_profile = '&nbsp;' . get_link(get_img('/template/' . getTemplateName() . '/img/icon_profile.png', array('alt' => __('View profile'), 'title' => __('View profile'))), '/users/info/' . $post->getId_author(), $icon_params);
+							$user_profile = '&nbsp;' . get_link(get_img('/template/' . getTemplateName() . '/img/icon_profile.png', array('alt' => __('View profile'), 'title' => __('View profile'))), getProfileUrl($post->getId_author()), $icon_params);
 
 
 							if (isset($_SESSION['user'])) {
@@ -976,12 +976,12 @@ Class ForumModule extends Module {
 
 
 			// Заголовок страницы (содержимое тега title)
-			$this->page_title .= ' "' . $user->getName() . '"';
+			$this->page_title .= ' "' . h($user->getName()) . '"';
 
 
 			$markers = array();
 			$markers['navigation'] = get_link(__('Home'), '/') . __('Separator')
-					. get_link(__('Forums list'), $this->getModuleURL()) . __('Separator') . __('User messages') . ' "' . $user->getName() . '"';
+					. get_link(__('Forums list'), $this->getModuleURL()) . __('Separator') . __('User messages') . ' "' . h($user->getName()) . '"';
 
 
 			// Page nav
@@ -1021,7 +1021,7 @@ Class ForumModule extends Module {
 
 			$source = $this->render('posts_list.html', array(
 				'posts' => $this->__parsePostsTable($posts, $page),
-				'theme' => array('poll' => null, 'title' => __('User messages') . ' "' . $user->getName() . '"'),
+				'theme' => array('poll' => null, 'title' => __('User messages') . ' "' . h($user->getName()) . '"'),
 					));
 
 
@@ -2904,11 +2904,11 @@ Class ForumModule extends Module {
 		$usersModel = $this->Register['ModManager']->getModelInstance('Users');
 		$user = $usersModel->getById($user_id);
 		if (!$user)
-			return $this->showInfoMessage(__('Some error occurred'), $this->getModuleURL());
+			return $this->showInfoMessage(__('Can not find user'), $this->getModuleURL());
 
 
 		// Заголовок страницы (содержимое тега title)
-		$this->page_title .= ' "' . $user->getName() . '"';
+		$this->page_title .= ' "' . h($user->getName()) . '"';
 
 
 		$themesModel = $this->Register['ModManager']->getModelInstance('Themes');
@@ -2928,7 +2928,7 @@ Class ForumModule extends Module {
 		if ($recOnPage > $total)
 			$recOnPage = $total;
 		$nav['navigation'] = get_link(__('Home'), '/') . __('Separator')
-				. get_link(__('Forums list'), $this->getModuleURL()) . __('Separator') . __('User themes') . ' "' . $user->getName() . '"';
+				. get_link(__('Forums list'), $this->getModuleURL()) . __('Separator') . __('User themes') . ' "' . h($user->getName()) . '"';
 		$nav['meta'] = __('Count all topics') . $total . '. ' . __('Count visible') . $recOnPage;
 		$this->_globalize($nav);
 
@@ -2976,7 +2976,7 @@ Class ForumModule extends Module {
 		//pr($themes); die();
 		$source = $this->render('lastposts_list.html', array(
 			'context' => array(
-				'forum_name' => __('User themes') . ' "' . $user->getName() . '"',
+				'forum_name' => __('User themes') . ' "' . h($user->getName()) . '"',
 			),
 			'themes' => $themes
 				));
@@ -2992,7 +2992,7 @@ Class ForumModule extends Module {
 
 
 		if (!empty($result[0]['last_user_id']) && !empty($result[0]['last_user_name'])) {
-			$markers['new_user'] = get_link(h($result[0]['last_user_name']), '/users/info/' . $result[0]['last_user_id']);
+			$markers['new_user'] = get_link(h($result[0]['last_user_name']), getProfileUrl($result[0]['last_user_id']));
 		}
 		$markers['count_users'] = getAllUsersCount();
 		$markers['count_posts'] = (!empty($result[0]['posts_cnt'])) ? $result[0]['posts_cnt'] : 0;
@@ -3073,7 +3073,7 @@ Class ForumModule extends Module {
 		$themesModel = $this->Register['ModManager']->getModelInstance('Themes');
 		$theme = $themesModel->getById($id);
 		if (!$theme)
-			return $this->showInfoMessage(__('Some error occurred'), $this->getModuleURL());
+			return $this->showInfoMessage(__('Topic not found'), $this->getModuleURL());
 
 		$theme->setImportant('1');
 		$theme->save();
@@ -3096,7 +3096,7 @@ Class ForumModule extends Module {
 		$themesModel = $this->Register['ModManager']->getModelInstance('Themes');
 		$theme = $themesModel->getById($id);
 		if (!$theme)
-			return $this->showInfoMessage(__('Some error occurred'), $this->getModuleURL());
+			return $this->showInfoMessage(__('Topic not found'), $this->getModuleURL());
 
 		$theme->setImportant('0');
 		$theme->save();
