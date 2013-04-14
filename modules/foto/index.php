@@ -528,17 +528,6 @@ Class FotoModule extends Module {
 		$error = '';
 
 
-		$fields = array('description', 'tags', 'sourse', 'sourse_email', 'sourse_site');
-		$fields_settings = $this->Register['Config']->read('fields', $this->module);
-		foreach ($fields as $field) {
-			if (empty($_POST[$field]) && in_array($field, $fields_settings)) {
-				$error .= '<li>' . __('Empty field') . ' "' . $field . '"</li>' . "\n";
-				$$field = null;
-			} else {
-				$$field = h(trim($_POST[$field]));
-			}
-		}
-
 		// Обрезаем переменные до длины, указанной в параметре maxlength тега input
 		$title = trim(mb_substr($_POST['title'], 0, 128));
 		$description = trim($_POST['mainText']);
@@ -784,16 +773,6 @@ Class FotoModule extends Module {
 
 
 		$valobj = $this->Register['Validate'];
-		$fields = array('description', 'tags', 'sourse', 'sourse_email', 'sourse_site');
-		$fields_settings = $this->Register['Config']->read('fields', $this->module);
-		foreach ($fields as $field) {
-			if (empty($_POST[$field]) && in_array($field, $fields_settings)) {
-				$error .= '<li>' . __('Empty field') . ' "' . $field . '"</li>' . "\n";
-				$$field = null;
-			} else {
-				$$field = h(trim($_POST[$field]));
-			}
-		}
 
 		// Обрезаем переменные до длины, указанной в параметре maxlength тега input
 		$title = trim(mb_substr($_POST['title'], 0, 128));
