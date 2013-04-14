@@ -231,7 +231,7 @@ class UsersModel extends FpsModel
 					array(
 						'text' => 'Комментариев',
 						'count' => $cnt,
-						'url' => get_url('/'),
+						'url' => get_url('/users/comments/' . $user_id),
 					),
 				);
 				return $res;
