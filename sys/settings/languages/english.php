@@ -51,8 +51,8 @@ $language = array(
 	'No new posts' 					=> 'Нет новых сообщений',
 	'Topic not found' 				=> 'Запрошенная тема не найдена',
 	'Answer' 						=> 'Ответить',
-	'Online' 						=> '<img src="/sys/img/online.png" title="online" alt="online" />',
-	'Offline' 						=> '<img src="/sys/img/offline.png" title="offline" alt="offline" />',
+	'Online' 						=> '<img src="/template/' . getTemplateName() . '/img/online.png" title="online" alt="online" />',
+	'Offline' 						=> '<img src="/template/' . getTemplateName() . '/img/offline.png" title="offline" alt="offline" />',
 	'Banned' 						=> '[Заблокирован]',
 	'Attachment' 					=> 'Прикрепление',
 	'Open file' 					=> 'Открыть файл',
@@ -207,6 +207,7 @@ $language = array(
 	'Wrong pass for forum' 	    	=> 'Не верный пароль',
 	'News RSS'                      => 'Новости RSS',
 	'Stat RSS'                      => 'Статьи RSS',
+	'Loads RSS'                     => 'Загрузки RSS',
 	'Loads RSS'                     => 'Загрузки RSS',
 	'Needed fields are empty'        => 'Заполните все поля',
 	'Bb-spoiler open'   	        => '<input type="button" value="Нажмите что бы открыть" />',
@@ -372,6 +373,12 @@ $language = array(
 	'User materials'                => 'Материалы пользователя',
 	'User comments'                 => 'Комментарии пользователя',
 	'All comments'                  => 'Комментарии пользователей',
+	'Lock theme'                    => 'Закрыть тему',
+	'Unlock theme'                  => 'Открыть тему',
+	'Important theme'               => 'Закрепить тему',
+	'Unimportant theme'             => 'Открепить тему',
+	'Delete theme'                  => 'Удалить тему',
+	'Theme admin panel'             => 'Панель администрирования',
 	
 	
 	// Templates name

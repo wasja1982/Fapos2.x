@@ -1237,4 +1237,8 @@ background-image: -webkit-gradient(linear,left bottom,right bottom,color-stop(0,
 .fps-ip {background-position:0px -176px;}
 .fps-like {background-position:0px -192px;}
 .fps-unlike {background-position:0px -208px;}
+
+table.admin_bar {width:100%}
+table.admin_bar td+td {width:40px;text-align:right;}
+table.admin_bar input {width:100%;}
 /* ---------- END FAPOS CMS SYSTEM ---- */
