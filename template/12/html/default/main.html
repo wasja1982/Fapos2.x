@@ -106,7 +106,7 @@ $(document).ready(function() {
 			</div>
 			<div class="bottom"></div>
 		</div>
-		<a onMouseOver="$('#documentaciya').slideDown('fast');" onMouseOut="$('#documentaciya').slideUp('fast');" href="/documa"><span class="documentaciya"></span></a>
+		<a onMouseOver="$('#documentaciya').slideDown('fast');" onMouseOut="$('#documentaciya').slideUp('fast');" href="{{ www_root }}/documa"><span class="documentaciya"></span></a>
 		
 		<div class="slide-help" id="modules" style="display:none;margin-left:624px;margin-top:-66px;">
 			<div class="top"></div>
@@ -137,7 +137,7 @@ $(document).ready(function() {
 <div class="menut">
 	<div style="width:470px;float:left;">
 	    <div class="searchbg"> 
-	    <form method="POST" action="/search/"> 
+	    <form method="POST" action="{{ www_root }}/search/"> 
             <input type="hidden" name="subaction" value="search" /> 
             <input name="search" value="поиск по сайту..." onBlur="if(this.value=='') this.value='поиск по сайту...';" onFocus="if(this.value=='поиск по сайту...') this.value='';" type="text" class="search_input" /> 
             <input  class="search_but" value="" type="submit" name="send" /> 
@@ -178,7 +178,7 @@ $(document).ready(function() {
 	<div class="rek">
 	<img src="{{ template_path }}/img/rek.png" alt=""/>
 	</div>
-	<a  class="reklama-top" href="/2"></a>
+	<a  class="reklama-top" href="{{ www_root }}/2"></a>
 </div>
 
 <div class="spedbar">
@@ -417,7 +417,7 @@ $(document).ready(function() {
 	</div>
 </div>
 	
-	<a href="/"><img src="{{ template_path }}/img/kopy.png" alt="" class="kopy"/></a>
+	<a href="{{ www_root }}/"><img src="{{ template_path }}/img/kopy.png" alt="" class="kopy"/></a>
 	
 	<div class="follow2">
 		<noindex><a rel="nofollow" href="http://vkontakte.ru/fapos"><span class="twit2"></span></a></noindex>
