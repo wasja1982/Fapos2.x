@@ -2140,11 +2140,11 @@ Class UsersModule extends Module {
 	// Функция возвращает меню для раздела "Личные сообщения"
 	private function _getMessagesMenu() {
 
-		$html = get_img('/sys/img/msg_inbox.png', array('alt' => __('In box'), 'title' => __('In box')))
+		$html = get_img('/template/' . getTemplateName() . '/img/msg_inbox.png', array('alt' => __('In box'), 'title' => __('In box')))
 				. get_link(__('In box'), $this->getModuleURL('in_msg_box/'));
-		$html .= get_img('/sys/img/msg_outbox.png', array('alt' => __('On box'), 'title' => __('On box')))
+		$html .= get_img('/template/' . getTemplateName() . '/img/msg_outbox.png', array('alt' => __('On box'), 'title' => __('On box')))
 				. get_link(__('On box'), $this->getModuleURL('out_msg_box/'));
-		$html .= get_img('/sys/img/msg_newpost.png', array('alt' => __('Write PM'), 'title' => __('Write PM')))
+		$html .= get_img('/template/' . getTemplateName() . '/img/msg_newpost.png', array('alt' => __('Write PM'), 'title' => __('Write PM')))
 				. get_link(__('Write PM'), $this->getModuleURL('send_msg_form/'));
 
 		return $html;
