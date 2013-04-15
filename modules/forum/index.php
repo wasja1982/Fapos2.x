@@ -665,23 +665,51 @@ Class ForumModule extends Module {
 								. getTemplateName() . '/img/reply.png', array('alt' => __('Answer'),
 							'title' => __('Answer'))), $this->getModuleURL('view_theme/' . $id_theme . '#sendForm'));
 			} else {
-				$markers['add_link'] = get_img('/sys/img/reply_locked.png', array('alt' => __('Theme is locked'), 'title' => __('Theme is locked')));
+				$markers['add_link'] = get_img('/template/'
+								. getTemplateName() . '/img/reply_locked.png', array('alt' => __('Theme is locked'), 'title' => __('Theme is locked')));
 			}
+			$admin_bar = array();
 			if ($this->ACL->turn(array($this->module, 'edit_themes', $id_forum), false)) {
-				$markers['admin_bar'] = '<form name="admin_bar"><span><select id="admin_bar_select" style="width:80%"><option value="">Панель администрирования:</option>';
-				$markers['admin_bar'] .= '<option value="' . get_url($this->getModuleURL('move_posts_form/' . $id_theme)) . '">- ' . __('Move posts') . '</option>';
+				$admin_bar[] = array('url' => get_url($this->getModuleURL('move_posts_form/' . $id_theme)), 'title' => __('Move posts'));
 				if ($this->ACL->turn(array($this->module, 'add_themes', $id_forum), false)) {
-					$markers['admin_bar'] .= '<option value="' . get_url($this->getModuleURL('split_theme_form/' . $id_theme)) . '">- ' . __('Split theme') . '</option>';
+					$admin_bar[] = array('url' => get_url($this->getModuleURL('split_theme_form/' . $id_theme)), 'title' => __('Split theme'));
 				}
-				$markers['admin_bar'] .= '<option value="' . get_url($this->getModuleURL('edit_theme_form/' . $id_theme)) . '">- ' . __('Edit theme') . '</option>';
-				$markers['admin_bar'] .= '<option value="' . get_url($this->getModuleURL('unite_themes_form/' . $id_theme)) . '">- ' . __('Unite themes') . '</option>';
-				$markers['admin_bar'] .= '</select></span>&nbsp;<input type="button" class="button" value="Перейти" onclick="if (document.admin_bar.admin_bar_select.selectedIndex>0)location.href=document.admin_bar.admin_bar_select.value" /></form>';
+				$admin_bar[] = array('url' => get_url($this->getModuleURL('edit_theme_form/' . $id_theme)), 'title' => __('Edit theme'));
+				$admin_bar[] = array('url' => get_url($this->getModuleURL('unite_themes_form/' . $id_theme)), 'title' => __('Unite themes'));
+			}
+			if ($this->ACL->turn(array($this->module, 'close_themes', $theme->getId_forum()), false)) {
+				if ($theme->getLocked() == 0) {
+					$admin_bar[] = array('url' => get_url($this->getModuleURL('lock_theme/' . $theme->getId())), 'title' => __('Lock theme'));
+				} else {
+					$admin_bar[] = array('url' => get_url($this->getModuleURL('unlock_theme/' . $theme->getId())), 'title' => __('Unlock theme'));
+				}
+			}
+			if ($this->ACL->turn(array($this->module, 'important_themes'), false)) {
+				if ($theme->getImportant() == 1) {
+					$admin_bar[] = array('url' => get_url($this->getModuleURL('unimportant/' . $theme->getId())), 'title' => __('Unimportant theme'));
+				} else {
+					$admin_bar[] = array('url' => get_url($this->getModuleURL('important/' . $theme->getId())), 'title' => __('Important theme'));
+				}
+			}
+			/*
+			// Необходимо добавить подтверждение удаления темы
+			if ($this->ACL->turn(array($this->module, 'delete_themes', $theme->getId_forum()), false)
+					|| (!empty($_SESSION['user']['id']) && $theme->getId_author() == $_SESSION['user']['id']
+					&& $this->ACL->turn(array($this->module, 'delete_mine_themes', $theme->getId_forum()), false))) {
+				$admin_bar[] = array('url' => get_url($this->getModuleURL('delete_theme/' . $theme->getId())), 'title' => __('Delete theme'));
+			}
+			 */
+			if ($admin_bar && is_array($admin_bar) && count($admin_bar) > 0) {
+				$markers['admin_bar'] = '<form name="admin_bar"><table class="admin_bar"><tr><td><select id="admin_bar_select"><option value="">' . __('Theme admin panel') . ':</option>';
+				foreach ($admin_bar as $index => $command) {
+					$markers['admin_bar'] .= '<option value="' . $command['url'] . '">- ' . $command['title'] . '</option>';
+				}
+				$markers['admin_bar'] .= '</select></td><td><input type="button" value="OK" onclick="if (document.admin_bar.admin_bar_select.selectedIndex>0)location.href=document.admin_bar.admin_bar_select.value" /></td></tr></table></form>';
 			} else {
 				$markers['admin_bar'] = '';
 			}
 
 
-			//if (!isset($_SESSION['user'])) $markers['add_link'] = '';
 			if (!$this->ACL->turn(array($this->module, 'add_posts', $theme->getId_forum()), false))
 				$markers['add_link'] = '';
 			$markers['meta'] = '';
@@ -787,7 +815,7 @@ Class ForumModule extends Module {
 						$postAuthor->setRank($rank_star['rank']);
 						if ($postAuthor->getState())
 							$postAuthor->setRank($postAuthor->getState());
-						$postAuthor->setUser_rank(get_img('/sys/img/' . $rank_star['img']));
+						$postAuthor->setUser_rank(get_img('/template/' . getTemplateName() . '/img/' . $rank_star['img']));
 
 
 						// Если автор сообщения сейчас "на сайте"
@@ -858,7 +886,7 @@ Class ForumModule extends Module {
 						$step = false;
 						if (file_exists(ROOT . $this->getFilesPath($attach->getFilename()))) {
 							$attachment .= __('Attachment') . ' ' . $attach->getAttach_number()
-									. ': ' . get_img('/sys/img/file.gif', array('alt' => __('Open file'), 'title' => __('Open file')))
+									. ': ' . get_img('/template/' . getTemplateName() . '/img/file.gif', array('alt' => __('Open file'), 'title' => __('Open file')))
 									. '&nbsp;' . get_link(getSimpleFileSize($attach->getSize()), $this->getModuleURL('download_file/'
 													. $attach->getFilename()), array('target' => '_blank')) . '<br />';
 
@@ -1069,13 +1097,13 @@ Class ForumModule extends Module {
 
 	protected function _renderPoll($poll) {
 		if (!$poll) {
-			
+
 		}
 
 
 		$questions = json_decode($poll->getVariants(), true);
 		if (!$questions && !is_array($questions)) {
-			
+
 		}
 
 
@@ -2192,7 +2220,7 @@ Class ForumModule extends Module {
 
 
 		if ($this->ACL->turn(array($this->module, 'add_posts', $theme->getId_forum()), false)) {
-			if ($theme->getLocked() == 1) {
+			if ($theme->getLocked() == 1 && !$this->ACL->turn(array($this->module, 'close_themes', $theme->getId_forum()), false)) {
 				$html = '<div class="not-auth-mess">' . __('Theme is locked') . '</div>';
 			} else {
 
@@ -2264,7 +2292,7 @@ Class ForumModule extends Module {
 
 		$this->ACL->turn(array($this->module, 'add_posts', $theme->getId_forum()));
 
-		if ($theme->getLocked() == 1)
+		if ($theme->getLocked() == 1 && !$this->ACL->turn(array($this->module, 'close_themes', $theme->getId_forum()), false))
 			return $this->showInfoMessage(__('Can not write in a closed theme'), $this->getModuleURL('view_theme/' . $id_theme));
 
 
