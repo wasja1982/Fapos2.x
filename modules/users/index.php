@@ -2013,7 +2013,7 @@ Class UsersModule extends Module {
 		}
 
 
-		$source = $this->render('vievinpm.html', array('messages' => $messages, 'contects' => $markers));
+		$source = $this->render('vievinpm.html', array('messages' => $messages, 'context' => $markers));
 		return $this->_view($source);
 	}
 
@@ -2051,7 +2051,7 @@ Class UsersModule extends Module {
 		}
 
 
-		$source = $this->render('vievonpm.html', array('messages' => $messages, 'contects' => $markers));
+		$source = $this->render('vievonpm.html', array('messages' => $messages, 'context' => $markers));
 		return $this->_view($source);
 	}
 
@@ -2095,6 +2095,7 @@ Class UsersModule extends Module {
 			return $this->showInfoMessage(__('Some error occurred'), $this->getModuleURL('in_msg_box/'));
 
 
+		$redirect = get_url($this->getModuleURL('in_msg_box/'));
 		foreach ($ids as $idMsg) {
 			// Далее мы должны выяснить, удаляется входящее или исходящее
 			// сообщение. Это нужно, чтобы сделать редирект на нужный ящик.
@@ -2105,7 +2106,7 @@ Class UsersModule extends Module {
 				'id' => $idMsg,
 				"(`to_user` = '" . $_SESSION['user']['id'] . "' OR `from_user` = '" . $_SESSION['user']['id'] . "')"
 					));
-			if (count($res) == 0) {
+			if (count($messages) == 0) {
 				continue;
 			}
 
