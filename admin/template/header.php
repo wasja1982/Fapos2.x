@@ -21,7 +21,7 @@
 	
 	<script type="text/javascript" src="../sys/js/jquery.cookie.js"></script>
 	<script type="text/javascript" src="../sys/js/jquery.hotkeys.js"></script>
-	<script type="text/javascript" src="../sys/js/jstree/jstree.min.js"></script>
+	<script type="text/javascript" src="js/jstree.min.js"></script>
 	
 	<script type="text/javascript">
 
