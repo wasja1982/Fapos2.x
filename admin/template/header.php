@@ -13,8 +13,8 @@
 	<script language="JavaScript" type="text/javascript" src="../sys/js/jquery-ui-1.8.14.custom.min.js"></script>
 	<script type="text/javascript" src="js/drunya.lib.js"></script>
 
-	<script type="text/javascript" src="../sys/js/redactor/redactor.js"></script>
-	<link type="text/css" rel="StyleSheet" href="../sys/js/redactor/css/redactor.css" />
+	<script type="text/javascript" src="js/redactor.min.js"></script>
+	<link type="text/css" rel="StyleSheet" href="template/css/redactor.css" />
 	
 	<link rel="StyleSheet" type="text/css" href="template/css/style.css" />
 
