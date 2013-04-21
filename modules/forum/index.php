@@ -223,7 +223,7 @@ Class ForumModule extends Module {
 
 
 		/* forum icon */
-		$forum_icon = get_url('/sys/img/guest.gif');
+		$forum_icon = get_url('/template/' . getTemplateName() . '/img/guest.png');
 		if (file_exists(ROOT . '/sys/img/forum_icon_' . $forum->getId() . '.jpg')) {
 			$forum_icon = get_url('/sys/img/forum_icon_' . $forum->getId() . '.jpg');
 		}
