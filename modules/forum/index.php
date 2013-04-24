@@ -882,12 +882,12 @@ Class ForumModule extends Module {
 				$attach_list = $post->getAttacheslist();
 				if (is_array($attach_list)) {
 					$collizion = true;
+					sort($attach_list);
 					foreach ($attach_list as $attach) {
 						$step = false;
 						if (file_exists(ROOT . $this->getFilesPath($attach->getFilename()))) {
 							$attachment .= __('Attachment') . ' ' . $attach->getAttach_number()
-									. ': ' . get_img('/template/' . getTemplateName() . '/img/file.gif', array('alt' => __('Open file'), 'title' => __('Open file')))
-									. '&nbsp;' . get_link(getSimpleFileSize($attach->getSize()), $this->getModuleURL('download_file/'
+									. ': ' . get_link(getSimpleFileSize($attach->getSize()), $this->getModuleURL('download_file/'
 													. $attach->getFilename()), array('target' => '_blank')) . '<br />';
 
 

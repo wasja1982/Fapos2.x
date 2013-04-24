@@ -1243,4 +1243,5 @@ table.admin_bar td+td {width:40px;text-align:right;}
 table.admin_bar input {width:100%;}
 
 .themeicon {max-width:19px; max-height:19px;}
+.eAttach {margin: 0; padding: 10px 0 0 30px; background: url('../img/file.gif') no-repeat 0px 0px; min-height:22px; vertical-align:middle;}
 /* ---------- END FAPOS CMS SYSTEM ---- */
