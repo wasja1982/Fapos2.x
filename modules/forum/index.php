@@ -538,36 +538,36 @@ Class ForumModule extends Module {
 				if ($theme->getLocked() == 0) // тема открыта
 					if ($theme->getPosts() > $hot_theme_limit)
 						$themeicon = get_img('/template/' . getTemplateName() . '/img/folder_hot_new.gif'
-								, array('width' => '19', 'height' => '18', 'alt' => __('New posts'), 'title' => __('New posts')));
+								, array('class' => 'themeicon', 'alt' => __('New posts'), 'title' => __('New posts')));
 					else
 						$themeicon = get_img('/template/' . getTemplateName() . '/img/folder_new.gif'
-								, array('width' => '19', 'height' => '18', 'alt' => __('New posts'), 'title' => __('New posts')));
+								, array('class' => 'themeicon', 'alt' => __('New posts'), 'title' => __('New posts')));
 				else // тема закрыта
 					$themeicon = get_img('/template/' . getTemplateName() . '/img/folder_lock_new.gif'
-							, array('width' => '19', 'height' => '18', 'alt' => __('New posts'), 'title' => __('New posts')));
+							, array('class' => 'themeicon', 'alt' => __('New posts'), 'title' => __('New posts')));
 			} else {
 				if ($theme->getLocked() == 0) // тема открыта
 					if ($theme->getPosts() > $hot_theme_limit)
 						$themeicon = get_img('/template/' . getTemplateName() . '/img/folder_hot.gif'
-								, array('width' => '19', 'height' => '18', 'alt' => __('No new posts'), 'title' => __('No new posts')));
+								, array('class' => 'themeicon', 'alt' => __('No new posts'), 'title' => __('No new posts')));
 					else
 						$themeicon = get_img('/template/' . getTemplateName() . '/img/folder.gif'
-								, array('width' => '19', 'height' => '18', 'alt' => __('No new posts'), 'title' => __('No new posts')));
+								, array('class' => 'themeicon', 'alt' => __('No new posts'), 'title' => __('No new posts')));
 				else // тема закрыта
 					$themeicon = get_img('/template/' . getTemplateName() . '/img/folder_lock.gif'
-							, array('width' => '19', 'height' => '18', 'alt' => __('No new posts'), 'title' => __('No new posts')));
+							, array('class' => 'themeicon', 'alt' => __('No new posts'), 'title' => __('No new posts')));
 			}
 		} else { // это для не зарегистрированного пользователя
 			if ($theme->getLocked() == 0) // тема открыта
 				if ($theme->getPosts() > $hot_theme_limit)
 					$themeicon = get_img('/template/' . getTemplateName() . '/img/folder_hot.gif'
-							, array('width' => '19', 'height' => '18'));
+							, array('class' => 'themeicon'));
 				else
 					$themeicon = get_img('/template/' . getTemplateName() . '/img/folder.gif'
-							, array('width' => '19', 'height' => '18'));
+							, array('class' => 'themeicon'));
 			else // тема закрыта
 				$themeicon = get_img('/template/' . getTemplateName() . '/img/folder_lock.gif'
-						, array('width' => '19', 'height' => '18'));
+						, array('class' => 'themeicon'));
 		}
 
 		return $themeicon;
