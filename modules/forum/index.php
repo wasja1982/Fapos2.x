@@ -307,7 +307,7 @@ Class ForumModule extends Module {
 
 
 			list($pages, $page) = pagination(
-					$total, $this->Register['Config']->read('themes_per_page', $this->module), $this->getModuleURL('view_forum/' . $id_forum)
+				$total, $this->Register['Config']->read('themes_per_page', $this->module), $this->getModuleURL('view_forum/' . $id_forum)
 			);
 			$this->page_title .= ' (' . $page . ')';
 
@@ -497,14 +497,14 @@ Class ForumModule extends Module {
 				$near_pages .= '&nbsp;(';
 				for ($n = 1; $n < ($cnt_near_pages + 1); $n++) {
 					if ($cnt_near_pages > 5 && $n > 3) {
-						$near_pages .= '...&nbsp;' . get_link(($cnt_near_pages - 1), $this->getModuleURL('view_theme/' . $theme->getId() . '?page='
+						$near_pages .= '&nbsp;...&nbsp;' . get_link(($cnt_near_pages - 1), $this->getModuleURL('view_theme/' . $theme->getId() . '?page='
 												. ($cnt_near_pages - 1))) . '&nbsp;' . get_link($cnt_near_pages, $this->getModuleURL('view_theme/'
-												. $theme->getId() . '?page=' . $cnt_near_pages)) . '&nbsp;';
+												. $theme->getId() . '?page=' . $cnt_near_pages));
 						break;
 					} else {
 						if ($n > 5)
 							break;
-						$near_pages .= get_link($n, $this->getModuleURL('view_theme/' . $theme->getId() . '?page=' . $n)) . '&nbsp;';
+						$near_pages .= ($n > 1 ? '&nbsp;' : '') . get_link($n, $this->getModuleURL('view_theme/' . $theme->getId() . '?page=' . $n));
 					}
 				}
 				$near_pages .= ')';
