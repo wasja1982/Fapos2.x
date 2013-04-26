@@ -1062,9 +1062,13 @@ Class ForumModule extends Module {
 	}
 
 	private function __savePoll($theme) {
-		if (!empty($_POST['poll']) && !empty($_POST['poll_ansvers'])) {
+		$poll = isset($_POST['poll']) ? '1' : '0';
+		$poll_question = isset($_POST['poll_question']) ? h(trim(mb_substr($_POST['poll_question'], 0, 250))) : '';
+		$poll_ansvers = isset($_POST['poll_ansvers']) ? h(trim(mb_substr($_POST['poll_ansvers'], 0, 1000))) : '';
+		
+		if ($poll && $poll_ansvers) {
 
-			$ansvers = explode("\n", trim($_POST['poll_ansvers']));
+			$ansvers = explode("\n", $poll_ansvers);
 
 			$variants = array();
 			if (count($ansvers) && is_array($ansvers)) {
@@ -1076,13 +1080,9 @@ Class ForumModule extends Module {
 				}
 			}
 
-
-			$question = (!empty($_POST['poll_question'])) ? trim((string) $_POST['poll_question']) : '';
-
-
 			$data = array(
 				'variants' => json_encode($variants),
-				'question' => $question,
+				'question' => $poll_question,
 				'theme_id' => $theme->getId(),
 				'voted_users' => '',
 			);
@@ -1636,6 +1636,9 @@ Class ForumModule extends Module {
 			$message = $_SESSION['viewMessage']['message'];
 			$gr_access = $_SESSION['viewMessage']['gr_access'];
 			$first_top = $_SESSION['viewMessage']['first_top'];
+			$poll = $_SESSION['viewMessage']['poll'];
+			$poll_question = h($_SESSION['viewMessage']['poll_question']);
+			$poll_ansvers = h($_SESSION['viewMessage']['poll_ansvers']);
 			unset($_SESSION['viewMessage']);
 		}
 
@@ -1652,6 +1655,9 @@ Class ForumModule extends Module {
 			$message = $_SESSION['addThemeForm']['message'];
 			$gr_access = $_SESSION['addThemeForm']['gr_access'];
 			$first_top = $_SESSION['addThemeForm']['first_top'];
+			$poll = $_SESSION['addThemeForm']['poll'];
+			$poll_question = h($_SESSION['addThemeForm']['poll_question']);
+			$poll_ansvers = h($_SESSION['addThemeForm']['poll_ansvers']);
 			unset($_SESSION['addThemeForm']);
 		}
 
@@ -1663,6 +1669,9 @@ Class ForumModule extends Module {
 			'main_text' => (!empty($message)) ? $message : '',
 			'gr_access' => (!empty($gr_access)) ? $gr_access : array(),
 			'first_top' => (!empty($first_top)) ? $first_top : '0',
+			'poll' => (!empty($poll)) ? $poll : '0',
+			'poll_question' => (!empty($poll_question)) ? $poll_question : '',
+			'poll_ansvers' => (!empty($poll_ansvers)) ? $poll_ansvers : '',
 		);
 
 		// nav block
@@ -1712,6 +1721,9 @@ Class ForumModule extends Module {
 		$description = trim(mb_substr($_POST['description'], 0, 128));
 		$message = trim($_POST['mainText']);
 		$first_top = isset($_POST['first_top']) ? '1' : '0';
+		$poll = isset($_POST['poll']) ? '1' : '0';
+		$poll_question = isset($_POST['poll_question']) ? h(trim(mb_substr($_POST['poll_question'], 0, 250))) : '';
+		$poll_ansvers = isset($_POST['poll_ansvers']) ? h(trim(mb_substr($_POST['poll_ansvers'], 0, 1000))) : '';
 
 		$gr_access = array();
 		$groups = $this->ACL->getGroups();
@@ -1728,6 +1740,9 @@ Class ForumModule extends Module {
 			$_SESSION['viewMessage']['message'] = $message;
 			$_SESSION['viewMessage']['gr_access'] = $gr_access;
 			$_SESSION['viewMessage']['first_top'] = $first_top;
+			$_SESSION['viewMessage']['poll'] = $poll;
+			$_SESSION['viewMessage']['poll_question'] = $poll_question;
+			$_SESSION['viewMessage']['poll_ansvers'] = $poll_ansvers;
 			redirect($this->getModuleURL('add_theme_form/' . $id_forum));
 		}
 
@@ -1743,6 +1758,22 @@ Class ForumModule extends Module {
 		if (mb_strlen($message) > $this->Register['Config']->read('max_post_lenght', $this->module))
 			$error = $error . '<li>' . sprintf(__('Field "message" contains more symbols')
 							, $this->Register['Config']->read('max_post_lenght', $this->module)) . '</li>' . "\n";
+		
+		if ($poll) {
+			if (empty($poll_question))
+				$error = $error . '<li>' . __('Empty field "poll_question"') . '</li>' . "\n";
+			elseif (mb_strlen($poll_question) < 5)
+				$error = $error . '<li>' . __('Very small "poll_question"') . '</li>' . "\n";
+			if (empty($poll_ansvers))
+				$error = $error . '<li>' . __('Empty field "poll_ansvers"') . '</li>' . "\n";
+			else {
+				$answers = explode("\n", $poll_ansvers);
+				if (!$answers || !is_array($answers) || count($answers) < 2)
+					$error = $error . '<li>' . __('Few "poll_question"') . '</li>' . "\n";
+				elseif (count($answers) > 20)
+					$error = $error . '<li>' . __('Many "poll_question"') . '</li>' . "\n";
+			}
+		}
 
 		for ($i = 1; $i < 6; $i++) {
 			if (!empty($_FILES['attach' . $i]['name'])) {
@@ -1761,6 +1792,9 @@ Class ForumModule extends Module {
 			$_SESSION['addThemeForm']['message'] = $message;
 			$_SESSION['addThemeForm']['gr_access'] = $gr_access;
 			$_SESSION['addThemeForm']['first_top'] = $first_top;
+			$_SESSION['addThemeForm']['poll'] = $poll;
+			$_SESSION['addThemeForm']['poll_question'] = $poll_question;
+			$_SESSION['addThemeForm']['poll_ansvers'] = $poll_ansvers;
 			redirect($this->getModuleURL('add_theme_form/' . $id_forum));
 		}
 
