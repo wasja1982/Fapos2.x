@@ -1662,7 +1662,7 @@ Class ForumModule extends Module {
 			'description' => (!empty($description)) ? $description : '',
 			'main_text' => (!empty($message)) ? $message : '',
 			'gr_access' => (!empty($gr_access)) ? $gr_access : array(),
-			'first_top' => (!empty($first_top)) ? first_top : '0',
+			'first_top' => (!empty($first_top)) ? $first_top : '0',
 		);
 
 		// nav block
