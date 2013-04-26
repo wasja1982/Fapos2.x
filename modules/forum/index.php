@@ -2606,7 +2606,7 @@ Class ForumModule extends Module {
 		$navi = array();
 		$navi['navigation'] = get_link(__('Home'), '/') . __('Separator')
 				. get_link(__('Forums list'), $this->getModuleURL()) . __('Separator')
-				. get_link('Просмотр темы', $this->getModuleURL('view_theme/' . $id_theme) . __('Separator') . __('Edit message'));
+				. get_link('Просмотр темы', $this->getModuleURL('view_theme/' . $id_theme)) . __('Separator') . __('Edit message');
 		$this->_globalize($navi);
 
 
