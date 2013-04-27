@@ -305,10 +305,10 @@ Class ForumModule extends Module {
 			$total = $themesClass->getTotal(array('cond' => array('id_forum' => $id_forum)));
 
 
-
-			list($pages, $page) = pagination(
-				$total, $this->Register['Config']->read('themes_per_page', $this->module), $this->getModuleURL('view_forum/' . $id_forum)
-			);
+			$perPage = intval($this->Register['Config']->read('themes_per_page', $this->module));
+			if ($perPage < 1)
+				$perPage = 10;
+			list($pages, $page) = pagination($total, $perPage, $this->getModuleURL('view_forum/' . $id_forum));
 			$this->page_title .= ' (' . $page . ')';
 
 
@@ -317,7 +317,7 @@ Class ForumModule extends Module {
 				'id_forum' => $id_forum
 					), array(
 				'page' => $page,
-				'limit' => $this->Register['Config']->read('themes_per_page', $this->module),
+				'limit' => $perPage,
 				'order' => 'important DESC, last_post DESC, id DESC',
 					)
 			);
@@ -329,13 +329,14 @@ Class ForumModule extends Module {
 					. get_link(__('Forums list'), $this->getModuleURL()) . __('Separator')
 					. get_link(h($forum->getTitle()), $this->getModuleURL('view_forum/' . $id_forum));
 
-			$perPage = $this->Register['Config']->read('themes_per_page', $this->module);
 			$cntPages = ceil($total / $perPage);
 			$recOnPage = ($page == $cntPages) ? ($total % $perPage) : $perPage;
+			$firstOnPage = ($page - 1) * $perPage + 1;
+			$lastOnPage = $firstOnPage + $recOnPage - 1;
 
 			$markers['pagination'] = $pages;
 			$markers['add_link'] = $addLink;
-			$markers['meta'] = __('Count all topics') . ' ' . $total . '. ' . __('Count visible') . ' ' . $recOnPage;
+			$markers['meta'] = __('Count all topics') . ' ' . $total . '. ' . __('Count visible') . ' ' . $firstOnPage . '-' . $lastOnPage;
 			$this->_globalize($markers);
 
 
@@ -666,7 +667,7 @@ Class ForumModule extends Module {
 							'title' => __('Answer'))), $this->getModuleURL('view_theme/' . $id_theme . '#sendForm'));
 			} else {
 				$markers['add_link'] = get_img('/template/'
-								. getTemplateName() . '/img/reply_locked.png', array('alt' => __('Theme is locked'), 'title' => __('Theme is locked')));
+						. getTemplateName() . '/img/reply_locked.png', array('alt' => __('Theme is locked'), 'title' => __('Theme is locked')));
 			}
 			$admin_bar = array();
 			if ($this->ACL->turn(array($this->module, 'edit_themes', $id_forum), false)) {
@@ -692,12 +693,12 @@ Class ForumModule extends Module {
 				}
 			}
 			/*
-			// Необходимо добавить подтверждение удаления темы
-			if ($this->ACL->turn(array($this->module, 'delete_themes', $theme->getId_forum()), false)
-					|| (!empty($_SESSION['user']['id']) && $theme->getId_author() == $_SESSION['user']['id']
-					&& $this->ACL->turn(array($this->module, 'delete_mine_themes', $theme->getId_forum()), false))) {
-				$admin_bar[] = array('url' => get_url($this->getModuleURL('delete_theme/' . $theme->getId())), 'title' => __('Delete theme'));
-			}
+			  // Необходимо добавить подтверждение удаления темы
+			  if ($this->ACL->turn(array($this->module, 'delete_themes', $theme->getId_forum()), false)
+			  || (!empty($_SESSION['user']['id']) && $theme->getId_author() == $_SESSION['user']['id']
+			  && $this->ACL->turn(array($this->module, 'delete_mine_themes', $theme->getId_forum()), false))) {
+			  $admin_bar[] = array('url' => get_url($this->getModuleURL('delete_theme/' . $theme->getId())), 'title' => __('Delete theme'));
+			  }
 			 */
 			if ($admin_bar && is_array($admin_bar) && count($admin_bar) > 0) {
 				$markers['admin_bar'] = '<form name="admin_bar"><table class="admin_bar"><tr><td><select id="admin_bar_select"><option value="">' . __('Theme admin panel') . ':</option>';
@@ -1065,7 +1066,7 @@ Class ForumModule extends Module {
 		$poll = isset($_POST['poll']) ? '1' : '0';
 		$poll_question = isset($_POST['poll_question']) ? h(trim(mb_substr($_POST['poll_question'], 0, 250))) : '';
 		$poll_ansvers = isset($_POST['poll_ansvers']) ? h(trim(mb_substr($_POST['poll_ansvers'], 0, 1000))) : '';
-		
+
 		if ($poll && $poll_ansvers) {
 
 			$ansvers = explode("\n", $poll_ansvers);
@@ -1097,13 +1098,13 @@ Class ForumModule extends Module {
 
 	protected function _renderPoll($poll) {
 		if (!$poll) {
-
+			
 		}
 
 
 		$questions = json_decode($poll->getVariants(), true);
 		if (!$questions && !is_array($questions)) {
-
+			
 		}
 
 
@@ -1262,7 +1263,9 @@ Class ForumModule extends Module {
 		$nav = array();
 		$themesModel = $this->Register['ModManager']->getModelInstance('Themes');
 		$total = $themesModel->getTotal();
-		$perPage = $this->Register['Config']->read('themes_per_page', $this->module);
+		$perPage = intval($this->Register['Config']->read('themes_per_page', $this->module));
+		if ($perPage < 1)
+			$perPage = 10;
 		list($pages, $page) = pagination($total, $perPage, $this->getModuleURL('last_posts/'));
 		$nav['pagination'] = $pages;
 		$this->page_title .= ' (' . $page . ')';
@@ -1270,9 +1273,12 @@ Class ForumModule extends Module {
 
 		$cntPages = ceil($total / $perPage);
 		$recOnPage = ($page == $cntPages) ? ($total % $perPage) : $perPage;
+		$firstOnPage = ($page - 1) * $perPage + 1;
+		$lastOnPage = $firstOnPage + $recOnPage - 1;
+
 		$nav['navigation'] = get_link(__('Home'), '/') . __('Separator')
 				. get_link(__('Forums list'), $this->getModuleURL()) . __('Separator') . __('Last update');
-		$nav['meta'] = __('Count all topics') . $total . '. ' . __('Count visible') . $recOnPage;
+		$nav['meta'] = __('Count all topics') . ' ' . $total . '. ' . __('Count visible') . ' ' . $firstOnPage . '-' . $lastOnPage;
 		$this->_globalize($nav);
 
 		if ($total < 1)
@@ -1287,7 +1293,7 @@ Class ForumModule extends Module {
 		$themes = $themesModel->getCollection(array(), array(
 			'order' => 'last_post DESC',
 			'page' => $page,
-			'limit' => $this->Register['Config']->read('themes_per_page', $this->module),
+			'limit' => $perPage,
 				));
 
 
@@ -1758,7 +1764,7 @@ Class ForumModule extends Module {
 		if (mb_strlen($message) > $this->Register['Config']->read('max_post_lenght', $this->module))
 			$error = $error . '<li>' . sprintf(__('Field "message" contains more symbols')
 							, $this->Register['Config']->read('max_post_lenght', $this->module)) . '</li>' . "\n";
-		
+
 		if ($poll) {
 			if (empty($poll_question))
 				$error = $error . '<li>' . __('Empty field "poll_question"') . '</li>' . "\n";
@@ -2975,7 +2981,9 @@ Class ForumModule extends Module {
 
 		$themesModel = $this->Register['ModManager']->getModelInstance('Themes');
 		$total = $themesModel->getTotal(array('cond' => array('id_author' => $user_id)));
-		$perPage = $this->Register['Config']->read('themes_per_page', $this->module);
+		$perPage = intval($this->Register['Config']->read('themes_per_page', $this->module));
+		if ($perPage < 1)
+			$perPage = 10;
 		list($pages, $page) = pagination($total, $perPage, $this->getModuleURL('user_themes/' . $user_id));
 
 
@@ -2985,13 +2993,14 @@ Class ForumModule extends Module {
 		$this->page_title .= ' (' . $page . ')';
 
 
+		$cntPages = ceil($total / $perPage);
+		$recOnPage = ($page == $cntPages) ? ($total % $perPage) : $perPage;
+		$firstOnPage = ($page - 1) * $perPage + 1;
+		$lastOnPage = $firstOnPage + $recOnPage - 1;
 
-		$recOnPage = ($page == $this->Register['pagecnt']) ? ($total % $perPage) : $perPage;
-		if ($recOnPage > $total)
-			$recOnPage = $total;
 		$nav['navigation'] = get_link(__('Home'), '/') . __('Separator')
 				. get_link(__('Forums list'), $this->getModuleURL()) . __('Separator') . __('User themes') . ' "' . h($user->getName()) . '"';
-		$nav['meta'] = __('Count all topics') . $total . '. ' . __('Count visible') . $recOnPage;
+		$nav['meta'] = __('Count all topics') . ' ' . $total . '. ' . __('Count visible') . ' ' . $firstOnPage . '-' . $lastOnPage;
 		$this->_globalize($nav);
 
 		if ($total < 1)
@@ -3010,7 +3019,7 @@ Class ForumModule extends Module {
 			'order' => 'time DESC',
 			'group' => 'id',
 			'page' => $page,
-			'limit' => $this->Register['Config']->read('themes_per_page', $this->module),
+			'limit' => $perPage,
 				));
 
 
