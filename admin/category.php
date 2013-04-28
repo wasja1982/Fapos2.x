@@ -321,7 +321,7 @@ function index(&$page_title) {
 		'alias' => 'a',
 		'group' => 'a.`id`',
 	));
-	if (!$all_sections || is_array($all_sections)) $all_sections = array();
+	if (!$all_sections || !is_array($all_sections)) $all_sections = array();
 	
 	foreach ($all_sections as $result) {
 		$cat_selector .= '<option value="' . $result['id'] . '">' . h($result['title']) . '</option>';
