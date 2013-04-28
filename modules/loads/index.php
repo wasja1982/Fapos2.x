@@ -431,7 +431,7 @@ Class LoadsModule extends Module {
 		} else {
 			$attach_rem_url = '';
 		}
-		$markers['attachment'] = $attach_serv . ' | ' . $attach_rem_url;
+		$markers['attachment'] = $attach_serv . (!empty($attach_serv) && !empty($attach_rem_url) ? ' | ' : '') . $attach_rem_url;
 
 
 		$announce = $this->Textarier->print_page($entity->getMain(), $entity->getAuthor() ? $entity->getAuthor()->getStatus() : 0, $entity->getTitle());
@@ -720,7 +720,7 @@ Class LoadsModule extends Module {
 				$error .= '<li>' . __('Empty field') . ' "' . $field . '"</li>' . "\n";
 				$$field = null;
 			} else {
-				$$field = h(trim($_POST[$field]));
+				$$field = isset($_POST[$field]) ? h(trim($_POST[$field])) : '';
 			}
 		}
 
@@ -1066,7 +1066,7 @@ Class LoadsModule extends Module {
 				$error .= '<li>' . __('Empty field') . ' "' . $field . '"</li>' . "\n";
 				$$field = null;
 			} else {
-				$$field = h(trim($_POST[$field]));
+				$$field = isset($_POST[$field]) ? h(trim($_POST[$field])) : '';
 			}
 		}
 

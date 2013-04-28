@@ -686,7 +686,7 @@ Class StatModule extends Module {
 				$error .= '<li>' . __('Empty field') . ' "' . $field . '"</li>' . "\n";
 				$$field = null;
 			} else {
-				$$field = h(trim($_POST[$field]));
+				$$field = isset($_POST[$field]) ? h(trim($_POST[$field])) : '';
 			}
 		}
 
@@ -998,7 +998,7 @@ Class StatModule extends Module {
 				$error .= '<li>' . __('Empty field') . ' "' . $field . '"</li>' . "\n";
 				$$field = null;
 			} else {
-				$$field = h(trim($_POST[$field]));
+				$$field = isset($_POST[$field]) ? h(trim($_POST[$field])) : '';
 			}
 		}
 
