@@ -1078,6 +1078,7 @@ Class StatModule extends Module {
 				}
 				if (!isImageFile($_FILES[$attach_name]['type'], $ext)) {
 					$error .= '<li>' . __('Wrong file format') . '</li>' . "\n";
+					unset($_FILES[$attach_name]);
 				}
 			}
 		}
