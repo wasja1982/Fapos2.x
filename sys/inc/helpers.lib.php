@@ -776,3 +776,11 @@ function cmpText($a, $b) {
 		return 0;
 	}
 }
+
+function checkAccess($params = null) {
+	if (isset($params) && is_array($params)) {
+		$Register = Register::getInstance();
+		return $Register['ACL']->turn($params, false);
+	}
+	return false;
+}

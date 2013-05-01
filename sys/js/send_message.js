@@ -518,7 +518,7 @@ function showFpsWin(url, params, title) {
  */
 function createFpsWin(title, data, params) {
         var blid = 'setRating_' + Math.floor((Math.random()*9999));
-        var fpsWin = '<div id="' + blid + '" class="fps-fwin" style="'+params+'"><div class="drag_window"><div class="title" onmousedown="drag_object(event, this.parentNode)">' + title + '</div><div onClick="$(\'#' + blid + '\').hide()" class="close"></div><div class="cont">' + data + '</div></div></div>';
+        var fpsWin = '<div id="' + blid + '" class="fps-fwin" style="'+params+'"><div class="drag_window"><div class="fps-title" onmousedown="drag_object(event, this.parentNode)">' + title + '</div><div onClick="$(\'#' + blid + '\').hide()" class="fps-close"></div><div class="fps-cont">' + data + '</div></div></div>';
         return fpsWin;
 }
 
@@ -627,7 +627,10 @@ function check_pm(uid){
 	if (uid > 0) {
 		$.get('/users/get_count_new_pm/'+uid, {}, function(data){
 			if (typeof data != 'undefined' && parseInt(data) == data && data > 0) {
-				document.body.innerHTML += createFpsWin('Новые сообщения', '<div style="text-align:center;">' + data + ' Новых сообщений!<br><br><a href="/users/in_msg_box/'+uid+'">Прочитать</a></div>', 'top:0px;left:0px;');
+				$('body').append(createFpsWin('Новые сообщения', '<div style="text-align:center;">' + data + ' Новых сообщений!<br><br><a href="/users/in_msg_box/'+uid+'">Прочитать</a></div>'));
+				if(typeof available_new_pm == 'function') {
+					available_new_pm(data);
+				}
 			} else {
 				setTimeout("check_pm("+uid+")", 20000);
 			}
