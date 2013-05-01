@@ -2606,18 +2606,20 @@ Class ForumModule extends Module {
 
 
 		$message = $post->getMessage();
+		$add_editor = '1';
 		$html = '';
 		$markers = array();
 
 		//if user vant preview message
-		if (isset($_SESSION['viewMessage']) and !empty($_SESSION['viewMessage'])) {
+		if (isset($_SESSION['viewMessage']) and !empty($_SESSION['viewMessage']['message'])) {
 			$view = $this->render('previewmessage.html', array(
 				'context' => array(
-					'message' => $this->Textarier->print_page($_SESSION['viewMessage'], $writer_status),
+					'message' => $this->Textarier->print_page($_SESSION['viewMessage']['message'], $writer_status),
 				),
 					));
 			$html = $html . $view . "\n";
-			$message = $_SESSION['viewMessage'];
+			$message = $_SESSION['viewMessage']['message'];
+			$add_editor = !empty($_SESSION['viewMessage']['add_editor']) ? '1' : '0';
 			unset($_SESSION['viewMessage']);
 		}
 
@@ -2630,6 +2632,7 @@ Class ForumModule extends Module {
 					));
 			$html = $info . $html . "\n";
 			$message = $_SESSION['editPostForm']['message'];
+			$add_editor = !empty($_SESSION['editPostForm']['add_editor']) ? '1' : '0';
 			unset($_SESSION['editPostForm']);
 		}
 
@@ -2638,6 +2641,7 @@ Class ForumModule extends Module {
 		$markers = array(
 			'action' => get_url($this->getModuleURL('update_post/' . $id)),
 			'main_text' => h($message),
+			'add_editor' => (!empty($add_editor) ? $add_editor : ''),
 		);
 
 
@@ -2709,10 +2713,12 @@ Class ForumModule extends Module {
 
 		// Обрезаем сообщение до длины $set['forum']['max_post_lenght']
 		$message = trim($_POST['mainText']);
+		$add_editor = isset($_POST['add_editor']) ? '1' : '0';
 
 		// Preview
 		if (isset($_POST['viewMessage'])) {
-			$_SESSION['viewMessage'] = $message;
+			$_SESSION['viewMessage']['message'] = $message;
+			$_SESSION['viewMessage']['add_editor'] = $add_editor;
 			redirect($this->getModuleURL('edit_post_form/' . $id));
 		}
 
@@ -2820,8 +2826,10 @@ Class ForumModule extends Module {
 		$message = mb_substr($message, 0, $this->Register['Config']->read('max_post_lenght', $this->module));
 		$post->setMessage($message);
 		$post->setAttaches($attach_exists);
-		$post->setId_editor($user_id);
-		$post->setEdittime(new Expr('NOW()'));
+		if (!$this->ACL->turn(array($this->module, 'edit_posts', $theme->getId_forum()), false) || $add_editor) {
+			$post->setId_editor($user_id);
+			$post->setEdittime(new Expr('NOW()'));
+		}
 		$post->save();
 
 
