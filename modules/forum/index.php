@@ -336,7 +336,7 @@ Class ForumModule extends Module {
 
 			$markers['pagination'] = $pages;
 			$markers['add_link'] = $addLink;
-			$markers['meta'] = __('Count all topics') . ' ' . $total . '. ' . __('Count visible') . ' ' . $firstOnPage . '-' . $lastOnPage;
+			$markers['meta'] = __('Count all topics') . ' ' . $total . '. ' . ($total > 1 ? __('Count visible') . ' ' . $firstOnPage . '-' . $lastOnPage : '');
 			$this->_globalize($markers);
 
 
@@ -1278,7 +1278,7 @@ Class ForumModule extends Module {
 
 		$nav['navigation'] = get_link(__('Home'), '/') . __('Separator')
 				. get_link(__('Forums list'), $this->getModuleURL()) . __('Separator') . __('Last update');
-		$nav['meta'] = __('Count all topics') . ' ' . $total . '. ' . __('Count visible') . ' ' . $firstOnPage . '-' . $lastOnPage;
+		$nav['meta'] = __('Count all topics') . ' ' . $total . '. ' . ($total > 1 ? __('Count visible') . ' ' . $firstOnPage . '-' . $lastOnPage : '');
 		$this->_globalize($nav);
 
 		if ($total < 1)
@@ -3000,7 +3000,7 @@ Class ForumModule extends Module {
 
 		$nav['navigation'] = get_link(__('Home'), '/') . __('Separator')
 				. get_link(__('Forums list'), $this->getModuleURL()) . __('Separator') . __('User themes') . ' "' . h($user->getName()) . '"';
-		$nav['meta'] = __('Count all topics') . ' ' . $total . '. ' . __('Count visible') . ' ' . $firstOnPage . '-' . $lastOnPage;
+		$nav['meta'] = __('Count all topics') . ' ' . $total . '. ' . ($total > 1 ? __('Count visible') . ' ' . $firstOnPage . '-' . $lastOnPage : '');
 		$this->_globalize($nav);
 
 		if ($total < 1)

@@ -85,7 +85,7 @@ Class FotoModule extends Module {
 		$firstOnPage = ($page - 1) * $perPage + 1;
 		$lastOnPage = $firstOnPage + $recOnPage - 1;
 
-		$navi['meta'] = __('Count all material') . ' ' . $total . '. ' . __('Count visible') . ' ' . $firstOnPage . '-' . $lastOnPage;
+		$navi['meta'] = __('Count all material') . ' ' . $total . '. ' . ($total > 1 ? __('Count visible') . ' ' . $firstOnPage . '-' . $lastOnPage : '');
 		$this->_globalize($navi);
 
 
@@ -210,7 +210,7 @@ Class FotoModule extends Module {
 		$firstOnPage = ($page - 1) * $perPage + 1;
 		$lastOnPage = $firstOnPage + $recOnPage - 1;
 
-		$navi['meta'] = __('Count material in cat') . ' ' . $total . '. ' . __('Count visible') . ' ' . $firstOnPage . '-' . $lastOnPage;
+		$navi['meta'] = __('Count material in cat') . ' ' . $total . '. ' . ($total > 1 ? __('Count visible') . ' ' . $firstOnPage . '-' . $lastOnPage : '');
 		$navi['category_name'] = h($category->getTitle());
 		$this->_globalize($navi);
 
@@ -422,7 +422,7 @@ Class FotoModule extends Module {
 		$firstOnPage = ($page - 1) * $perPage + 1;
 		$lastOnPage = $firstOnPage + $recOnPage - 1;
 
-		$navi['meta'] = __('Count all material') . ' ' . $total . '. ' . __('Count visible') . ' ' . $firstOnPage . '-' . $lastOnPage;
+		$navi['meta'] = __('Count all material') . ' ' . $total . '. ' . ($total > 1 ? __('Count visible') . ' ' . $firstOnPage . '-' . $lastOnPage : '');
 		$navi['category_name'] = __('User materials') . ' "' . h($user->getName()) . '"';
 		$this->_globalize($navi);
 
