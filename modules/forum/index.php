@@ -2671,7 +2671,7 @@ Class ForumModule extends Module {
 		$this->_globalize($navi);
 
 
-		setReferer();
+		// setReferer();
 		$source = $this->render('editpostform.html', array('context' => $markers));
 		$html = $html . $source;
 		return $this->_view($html);
@@ -2838,7 +2838,7 @@ Class ForumModule extends Module {
 		$this->DB->cleanSqlCache();
 		if ($this->Log)
 			$this->Log->write('editing post', 'post id(' . $id . '), theme id(' . $id_theme . ')');
-		return $this->showInfoMessage(__('Operation is successful'), getReferer());
+		return $this->showInfoMessage(__('Operation is successful'), $this->getModuleURL('view_post/' . $id) /*getReferer()*/);
 	}
 
 	/**
@@ -2971,7 +2971,7 @@ Class ForumModule extends Module {
 				$forum->setLast_theme_id($last_theme ? $last_theme->getId() : '0');
 				$forum->save();
 			}
-			return $this->showInfoMessage(__('Operation is successful'), getReferer());
+			return $this->showInfoMessage(__('Operation is successful'), $this->getModuleURL('view_theme/' . $theme->getId()) /*getReferer()*/);
 		}
 	}
 

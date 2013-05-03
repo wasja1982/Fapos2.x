@@ -604,7 +604,7 @@ Class NewsModule extends Module {
 
 
 		// Check for preview or errors
-		$data = array('title' => null, 'mainText' => null, 'in_cat' => null, 'description' => null, 'tags' => null, 'sourse' => null, 'sourse_email' => null, 'sourse_site' => null, 'commented' => null, 'available' => null);
+		$data = array('title' => null, 'mainText' => null, 'in_cat' => null, 'description' => null, 'tags' => null, 'sourse' => null, 'sourse_email' => null, 'sourse_site' => null, 'commented' => 1, 'available' => 1);
 		$data = array_merge($data, $markers);
 		$data = Validate::getCurrentInputsValues($data);
 		$data['main_text'] = $data['mainText'];
@@ -624,10 +624,10 @@ Class NewsModule extends Module {
 
 
 		//comments and hide
-		$data['commented'] = (!empty($data['commented']) || !isset($_POST['submitForm'])) ? 'checked="checked"' : '';
+		$data['commented'] = (!empty($data['commented'])) ? 'checked="checked"' : '';
 		if (!$this->ACL->turn(array($this->module, 'record_comments_management'), false))
 			$data['commented'] .= ' disabled="disabled"';
-		$data['available'] = (!empty($data['available']) || !isset($_POST['submitForm'])) ? 'checked="checked"' : '';
+		$data['available'] = (!empty($data['available'])) ? 'checked="checked"' : '';
 		if (!$this->ACL->turn(array($this->module, 'hide_material'), false))
 			$data['available'] .= ' disabled="disabled"';
 
@@ -705,7 +705,7 @@ Class NewsModule extends Module {
 		if (isset($_POST['viewMessage'])) {
 			$_SESSION['viewMessage'] = array_merge(array('title' => null, 'mainText' => null, 'in_cat' => $in_cat,
 				'description' => null, 'tags' => null, 'sourse' => null, 'sourse_email' => null,
-				'sourse_site' => null, 'commented' => null, 'available' => null), $_POST);
+				'sourse_site' => null, 'commented' => $commented, 'available' => $available), $_POST);
 			redirect($this->getModuleURL('add_form/'));
 		}
 
@@ -767,7 +767,7 @@ Class NewsModule extends Module {
 		if (!empty($error)) {
 			$_SESSION['FpsForm'] = array_merge(array('title' => null, 'mainText' => null, 'in_cat' => $in_cat,
 				'description' => null, 'tags' => null, 'sourse' => null, 'sourse_email' => null,
-				'sourse_site' => null, 'commented' => null, 'available' => null), $_POST);
+				'sourse_site' => null, 'commented' => $commented, 'available' => $available), $_POST);
 			$_SESSION['FpsForm']['error'] = '<p class="errorMsg">' . __('Some error in form') . '</p>'
 					. "\n" . '<ul class="errorMsg">' . "\n" . $error . '</ul>' . "\n";
 			redirect($this->getModuleURL('add_form/'));
@@ -941,7 +941,7 @@ Class NewsModule extends Module {
 		$this->_globalize($navi);
 
 
-		setReferer();
+		// setReferer();
 		$source = $this->render('editform.html', array('context' => $markers));
 		return $this->_view($source);
 	}
@@ -1020,7 +1020,7 @@ Class NewsModule extends Module {
 		if (isset($_POST['viewMessage'])) {
 			$_SESSION['viewMessage'] = array_merge(array('title' => null, 'mainText' => null, 'in_cat' => $in_cat,
 				'description' => null, 'tags' => null, 'sourse' => null, 'sourse_email' => null,
-				'sourse_site' => null, 'commented' => null, 'available' => null), $_POST);
+				'sourse_site' => null, 'commented' => $commented, 'available' => $available), $_POST);
 			redirect($this->getModuleURL('edit_form/' . $id));
 		}
 
@@ -1089,7 +1089,7 @@ Class NewsModule extends Module {
 		if (!empty($error)) {
 			$_SESSION['FpsForm'] = array_merge(array('title' => null, 'mainText' => null, 'in_cat' => $in_cat,
 				'description' => null, 'tags' => null, 'sourse' => null, 'sourse_email' => null,
-				'sourse_site' => null, 'commented' => null, 'available' => null), $_POST);
+				'sourse_site' => null, 'commented' => $commented, 'available' => $available), $_POST);
 			$_SESSION['FpsForm']['error'] = '<p class="errorMsg">' . __('Some error in form') . '</p>'
 					. "\n" . '<ul class="errorMsg">' . "\n" . $error . '</ul>' . "\n";
 			redirect($this->getModuleURL('edit_form/' . $id));
@@ -1132,7 +1132,7 @@ Class NewsModule extends Module {
 
 		if ($this->Log)
 			$this->Log->write('editing ' . $this->module, $this->module . ' id(' . $id . ')');
-		return $this->showInfoMessage(__('Operation is successful'), getReferer());
+		return $this->showInfoMessage(__('Operation is successful'), $this->getModuleURL('view/' . $id) /*getReferer()*/);
 	}
 
 	/**

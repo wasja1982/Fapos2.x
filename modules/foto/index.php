@@ -515,7 +515,7 @@ Class FotoModule extends Module {
 
 
 		//comments and hide
-		$data['commented'] = (!empty($data['commented']) || !isset($_POST['submitForm'])) ? 'checked="checked"' : '';
+		$data['commented'] = (!empty($data['commented'])) ? 'checked="checked"' : '';
 		if (!$this->ACL->turn(array($this->module, 'record_comments_management'), false))
 			$data['commented'] .= ' disabled="disabled"';
 
@@ -601,7 +601,7 @@ Class FotoModule extends Module {
 		// Errors
 		if (!empty($error)) {
 			$_SESSION['FpsForm'] = array_merge(array('title' => null, 'in_cat' => $in_cat,
-				'description' => null, 'commented' => null), $_POST);
+				'description' => null, 'commented' => $commented), $_POST);
 			$_SESSION['FpsForm']['error'] = '<p class="errorMsg">' . __('Some error in form') . '</p>'
 					. "\n" . '<ul class="errorMsg">' . "\n" . $error . '</ul>' . "\n";
 			redirect($this->getModuleURL('add_form/'));
@@ -833,9 +833,8 @@ Class FotoModule extends Module {
 
 		// Errors
 		if (!empty($error)) {
-			$_SESSION['FpsForm'] = array_merge(array('title' => null, 'mainText' => null, 'in_cat' => $in_cat,
-				'description' => null, 'tags' => null, 'sourse' => null, 'sourse_email' => null,
-				'sourse_site' => null, 'commented' => null, 'available' => null), $_POST);
+			$_SESSION['FpsForm'] = array_merge(array('title' => null, 'in_cat' => $in_cat,
+				'description' => null, 'commented' => $commented), $_POST);
 			$_SESSION['FpsForm']['error'] = '<p class="errorMsg">' . __('Some error in form') . '</p>'
 					. "\n" . '<ul class="errorMsg">' . "\n" . $error . '</ul>' . "\n";
 			redirect($this->getModuleURL('edit_form/' . $id));
@@ -858,7 +857,7 @@ Class FotoModule extends Module {
 
 		if ($this->Log)
 			$this->Log->write('editing ' . $this->module, $this->module . ' id(' . $id . ')');
-		return $this->showInfoMessage(__('Operation is successful'), getReferer());
+		return $this->showInfoMessage(__('Operation is successful'), $this->getModuleURL('view/' . $id) /*getReferer()*/);
 	}
 
 	/**
