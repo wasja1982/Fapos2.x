@@ -763,10 +763,8 @@ Class LoadsModule extends Module {
 			$error .= '<li>' . sprintf(__('Very big "material"'), $max_lenght) . '</li>' . "\n";
 		elseif (mb_strlen($main_text) < $min_lenght)
 			$error .= '<li>' . sprintf(__('Very small "material"'), $min_lenght) . '</li>' . "\n";
-		if ($this->Register['Config']->read('require_file', $this->module) == 1) {
-			if (empty($_FILES['attach']['name']))
-				$error .= '<li>' . __('No attachment') . '</li>' . "\n";
-		}
+		if (($this->Register['Config']->read('require_file', $this->module) == 1 || empty($download_url)) && empty($_FILES['attach']['name']))
+			$error .= '<li>' . __('No attachment') . '</li>' . "\n";
 		if (isset($_FILES['attach']['name']) && $_FILES['attach']['size'] > $this->getMaxSize())
 			$error .= '<li>' . sprintf(__('Very big file2'), round($this->getMaxSize() / 1024, 2)) . '</li>' . "\n";
 		if (!empty($tags) && !$valobj->cha_val($tags, V_TITLE))
@@ -777,7 +775,7 @@ Class LoadsModule extends Module {
 			$error .= '<li>' . __('Wrong chars in "email"') . '</li>' . "\n";
 		if (!empty($sourse_site) && !$valobj->cha_val($sourse_site, V_URL))
 			$error .= '<li>' . __('Wrong chars in "sourse site"') . '</li>' . "\n";
-		if (!empty($download_url) && !$valobj->cha_val($download_url, V_TITLE))
+		if (!empty($download_url) && !$valobj->cha_val($download_url, V_URL))
 			$error .= '<li>' . __('Wrong chars in "download_url"') . '</li>' . "\n";
 		if (!empty($download_url_size) && !$valobj->cha_val($download_url_size, V_INT))
 			$error .= '<li>' . __('Wrong chars in "download_url_size"') . '</li>' . "\n";
@@ -1110,10 +1108,8 @@ Class LoadsModule extends Module {
 			$error .= '<li>' . sprintf(__('Very big "material"'), $max_lenght) . '</li>' . "\n";
 		elseif (mb_strlen($main_text) < $min_lenght)
 			$error .= '<li>' . sprintf(__('Very small "material"'), $min_lenght) . '</li>' . "\n";
-		if ($this->Register['Config']->read('require_file', $this->module) == 1) {
-			if (empty($_FILES['attach']['name']))
-				$error .= '<li>' . __('No attachment') . '</li>' . "\n";
-		}
+		if (($this->Register['Config']->read('require_file', $this->module) == 1 || empty($download_url)) && empty($_FILES['attach']['name']) && !empty($_POST['delete_file']))
+			$error .= '<li>' . __('No attachment') . '</li>' . "\n";
 		if (isset($_FILES['attach']['name']) && $_FILES['attach']['size'] > $this->getMaxSize())
 			$error .= '<li>' . sprintf(__('Very big file2'), round($this->getMaxSize() / 1024, 2)) . '</li>' . "\n";
 		if (!empty($tags) && !$valobj->cha_val($tags, V_TITLE))
@@ -1124,7 +1120,7 @@ Class LoadsModule extends Module {
 			$error .= '<li>' . __('Wrong chars in "email"') . '</li>' . "\n";
 		if (!empty($sourse_site) && !$valobj->cha_val($sourse_site, V_URL))
 			$error .= '<li>' . __('Wrong chars in "sourse site"') . '</li>' . "\n";
-		if (!empty($download_url) && !$valobj->cha_val($download_url, V_TITLE))
+		if (!empty($download_url) && !$valobj->cha_val($download_url, V_URL))
 			$error .= '<li>' . __('Wrong chars in "download_url"') . '</li>' . "\n";
 		if (!empty($download_url_size) && !$valobj->cha_val($download_url_size, V_INT))
 			$error .= '<li>' . __('Wrong chars in "download_url_size"') . '</li>' . "\n";
