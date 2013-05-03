@@ -1427,6 +1427,8 @@ Class LoadsModule extends Module {
 	}
 
 	function download_file($id = null, $mimetype = 'application/octet-stream') {
+		//turn access
+		$this->ACL->turn(array($this->module, 'download_files'));
 
 		if (empty($id))
 			return $this->showInfoMessage(__('File not found'), $this->getModuleURL());
@@ -1532,6 +1534,9 @@ Class LoadsModule extends Module {
 	}
 
 	function download_file_url($id = null, $mimetype = 'application/octet-stream') {
+		//turn access
+		$this->ACL->turn(array($this->module, 'download_files'));
+
 		$entity = $this->Model->getById($id);
 		if (!$entity)
 			return $this->showInfoMessage(__('File not found'), $this->getModuleURL());
