@@ -3100,6 +3100,9 @@ Class ForumModule extends Module {
 	}
 
 	public function download_file($file = null, $mimetype = 'application/octet-stream') {
+		//turn access
+		$this->ACL->turn(array($this->module, 'download_files'));
+
 		if (empty($file))
 			return $this->showInfoMessage(__('File not found'), $this->getModuleURL());
 
