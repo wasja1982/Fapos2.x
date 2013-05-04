@@ -638,7 +638,7 @@ Class LoadsModule extends Module {
 
 
 		// Check for preview or errors
-		$data = array('title' => null, 'mainText' => null, 'in_cat' => null, 'description' => null, 'tags' => null, 'sourse' => null, 'sourse_email' => null, 'sourse_site' => null, 'commented' => 1, 'available' => 1, 'download_url' => null, 'download_url_size' => null);
+		$data = array('title' => null, 'mainText' => null, 'in_cat' => null, 'description' => null, 'tags' => null, 'sourse' => null, 'sourse_email' => null, 'sourse_site' => null, 'commented' => 1, 'available' => ($this->ACL->turn(array($this->module, 'need_check_materials'), false) ? 0 : 1), 'download_url' => null, 'download_url_size' => null);
 		$data = array_merge($data, $markers);
 		$data = Validate::getCurrentInputsValues($data);
 		$data['main_text'] = $data['mainText'];
@@ -733,7 +733,7 @@ Class LoadsModule extends Module {
 		if (!$this->ACL->turn(array($this->module, 'record_comments_management'), false))
 			$commented = 1;
 		if (!$this->ACL->turn(array($this->module, 'hide_material'), false))
-			$available = 1;
+			$available = ($this->ACL->turn(array($this->module, 'need_check_materials'), false) ? 0 : 1);
 
 		// Если пользователь хочет посмотреть на сообщение перед отправкой
 		if (isset($_POST['viewMessage'])) {
@@ -1079,7 +1079,7 @@ Class LoadsModule extends Module {
 		if (!$this->ACL->turn(array($this->module, 'record_comments_management'), false))
 			$commented = 1;
 		if (!$this->ACL->turn(array($this->module, 'hide_material'), false))
-			$available = 1;
+			$available = ($this->ACL->turn(array($this->module, 'need_check_materials'), false) ? 0 : 1);
 
 
 		// Если пользователь хочет посмотреть на сообщение перед отправкой
