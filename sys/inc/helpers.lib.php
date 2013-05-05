@@ -784,3 +784,9 @@ function checkAccess($params = null) {
 	}
 	return false;
 }
+
+function checkUserOnline($user_id) {
+	if (!$user_id || !is_numeric($user_id)) return false;
+	$users_on_line = getOnlineUsers();
+	return (isset($users_on_line) && isset($users_on_line[$user_id]));
+}

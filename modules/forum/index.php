@@ -820,8 +820,7 @@ Class ForumModule extends Module {
 
 
 						// Если автор сообщения сейчас "на сайте"
-						$users_on_line = getOnlineUsers();
-						if (isset($users_on_line) && isset($users_on_line[$post->getId_author()])) {
+						if (checkUserOnline($post->getId_author())) {
 							$postAuthor->setStatus_on(__('Online'));
 							$postAuthor->setStatus_line('Online');
 						} else {

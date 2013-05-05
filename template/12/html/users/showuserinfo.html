@@ -17,11 +17,17 @@
 {% endif %}
 
 <tr>
-   <td colspan="2"><br><center><img title="{{ user.name }}" class="userAvatar" border="0" src="{{ user.avatar }}"><br><!--{USER_RANK}--><br>
-   <table>
+   <td colspan="2"><br><center><img title="{{ user.name }}" class="userAvatar" border="0" src="{{ user.avatar }}"><br>
+		{% if checkUserOnline(user.id) %}
+		<img src="{{ template_path }}/img/online.png" title="online" alt="online" />
+		{% else %}
+		<img src="{{ template_path }}/img/offline.png" title="offline" alt="offline" />
+		{% endif %}
+	   <br>
+	   <table>
 		<tr><td style="border: 1px solid #000;">{{ user.privatemessage }}</td></tr>
 		<center>{{ user.edit_profile_link }}</center>
-	</table>
+		</table>
 		</center>
 	</td>
 </tr>
