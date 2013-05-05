@@ -85,4 +85,13 @@ function getUserRatingImg($rating) {
 	return (isset($info['img']) ? $info['img'] : 'star0.gif');
 }
 
+function getUserRatingText($rating) {
+	$Register = Register::getInstance();
+	$settingsModel = $Register['ModManager']->getModelInstance('UsersSettings');
+	$settings = $settingsModel->getFirst(array('type' => 'rating'));
+	$settings = $settings ? $settings->getValues() : '';
+	$info = getUserRating($rating, $settings);
+	return (isset($info['rank']) ? $info['rank'] : '');
+}
+
 ?>
