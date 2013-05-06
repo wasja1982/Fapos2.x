@@ -797,5 +797,5 @@ function getOrderLink($params) {
 	$new_order = strtolower($params[0]);
 	$active = ($order === $new_order);
 	$asc = ($active && isset($_GET['asc']));
-	return '<a href="?order=' . $new_order . ($asc ? '' : '&asc=1') . '">' . $params[1] . ($active ? ' ' . ($asc ? '↑' : '↓') : '') . '</a>';
+	return '<a href="&order=' . $new_order . ($asc ? '' : '&asc=1') . '">' . $params[1] . ($active ? ' ' . ($asc ? '↑' : '↓') : '') . '</a>';
 }
