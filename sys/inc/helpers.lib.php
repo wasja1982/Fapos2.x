@@ -199,12 +199,16 @@ function getOrderParam($class_name) {
 		case 'FotoModule':
 		case 'StatModule':
 		case 'NewsModule':
-			$allowed_keys = array('views', 'date', 'comments');
+			$allowed_keys = array('title', 'views', 'date', 'comments');
 			$default_key = 'date';
 			break;
 		case 'LoadsModule':
-			$allowed_keys = array('views', 'date', 'comments', 'downloads');
+			$allowed_keys = array('title', 'views', 'date', 'comments', 'downloads');
 			$default_key = 'date';
+			break;
+		case 'ForumModule':
+			$allowed_keys = array('title', 'time', 'last_post', 'posts', 'views');
+			$default_key = 'last_post';
 			break;
 		case 'UsersModule':
 			$allowed_keys = array('puttime', 'last_visit', 'name', 'rating', 'posts', 'status', 'warnings', 'city', 'jabber', 'byear', 'pol');
@@ -797,5 +801,5 @@ function getOrderLink($params) {
 	$new_order = strtolower($params[0]);
 	$active = ($order === $new_order);
 	$asc = ($active && isset($_GET['asc']));
-	return '<a href="&order=' . $new_order . ($asc ? '' : '&asc=1') . '">' . $params[1] . ($active ? ' ' . ($asc ? '↑' : '↓') : '') . '</a>';
+	return '<a href="?order=' . $new_order . ($asc ? '' : '&asc=1') . '">' . $params[1] . ($active ? ' ' . ($asc ? '↑' : '↓') : '') . '</a>';
 }
