@@ -1923,7 +1923,7 @@ Class UsersModule extends Module {
 		// пользователь не смог просмотреть чужое сообщение, просто указав
 		// ID сообщения в адресной строке браузера
 		$message = $this->Model->getMessage($idMsg);
-		if (!$message) {
+		if (!$message || !$message->getFromuser() || !$message->getTouser()) {
 			return $this->showInfoMessage(__('Some error occurred'), $this->getModuleURL('in_msg_box/'));
 		}
 
