@@ -683,11 +683,20 @@ class Module {
 		$preview_link = (Config::read('use_preview', $this->module) ? get_url('/image/' . $module . '/' . $filename) : $image_link);
 		$size_x = Config::read('img_size_x', $this->module);
 		$size_y = Config::read('img_size_y', $this->module);
-		return str_replace(
-			'{IMAGE' . $number . '}', 
+		$str = 
 			(Config::read('use_preview', $this->module) ? '<a class="gallery" href="' . $image_link . '">' : '') .
-			'<img style="max-width:' . (!empty($size_x) ? $size_x : 150) . 'px; max-height:' . (!empty($size_y) ? $size_y : 150) . 'px;" src="' . $preview_link . '" />' .
-			(Config::read('use_preview', $this->module) ? '</a>' : ''), 
-			$message);
+			'<img %s style="max-width:' . (!empty($size_x) ? $size_x : 150) . 'px; max-height:' . (!empty($size_y) ? $size_y : 150) . 'px;" src="' . $preview_link . '" />' .
+			(Config::read('use_preview', $this->module) ? '</a>' : '');
+		$from = array(
+			'{IMAGE' . $number . '}', 
+			'{LIMAGE' . $number . '}', 
+			'{RIMAGE' . $number . '}', 
+		);
+		$to = array(
+			sprintf($str, ''), 
+			sprintf($str, 'align="left"'), 
+			sprintf($str, 'align="right"'), 
+		);
+		return str_replace($from, $to, $message);
 	}
 }
