@@ -5,7 +5,7 @@ $id = (!empty($id)) ? (int)$id : 0;
 if ($id < 1) redirect($this->getModuleURL());
 
 
-$commentsModel = $this->Register['ModManager']->getModelInstance($this->module . 'Comments');
+$commentsModel = $this->Register['ModManager']->getModelInstance('Comments');
 if (!$commentsModel) return $this->showInfoMessage(__('Some error occurred'), $this->getModuleURL());
 $comment = $commentsModel->getById($id);
 if (!$comment) return $this->showInfoMessage(__('Comment not found'), $this->getModuleURL());
