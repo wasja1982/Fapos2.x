@@ -67,7 +67,6 @@ class Calendar {
 							if (count($wdays) && !in_array($current['wday'], $wdays))
 								$wday_ok = false;
 						}
-						$time_ok = true;
 						$dday_ok = true;
 						if (isset($calendar['period']) && $calendar['period']) {
 							$stack = array();
@@ -93,7 +92,7 @@ class Calendar {
 								}
 							}
 						}
-						if ($wday_ok && $dday_ok && $time_ok) {
+						if ($wday_ok && $dday_ok) {
 							$value = (isset($calendar['text']) ? $calendar['text'] : '');
 							$params = preg_replace('#{{\s*calendar_' . $index . '\s*}}#i', $value, $params);
 						}
