@@ -92,10 +92,8 @@ class Calendar {
 								}
 							}
 						}
-						if ($wday_ok && $dday_ok) {
-							$value = (isset($calendar['text']) ? $calendar['text'] : '');
-							$params = preg_replace('#{{\s*calendar_' . $index . '\s*}}#i', $value, $params);
-						}
+						$value = ($wday_ok && $dday_ok && isset($calendar['text']) ? $calendar['text'] : '');
+						$params = preg_replace('#{{\s*calendar_' . $index . '\s*}}#i', $value, $params);
 					}
 				}
 			}
