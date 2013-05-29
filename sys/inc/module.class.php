@@ -511,18 +511,36 @@ class Module {
 			}
 		}
 		if (empty($cats)) {
-			$cats = $this->DB->select($this->module . '_sections', DB_ALL, array(
+			if (!$id) {
+				$select = array(
 					'cond' => array(
 						'`parent_id` = 0 OR `parent_id` IS NULL ',
 					),
-			));
-		}
+				);
+			} else {
+				$select = array(
+					'joins' => array(
+						array(
+							'alias' => 'b',
+							'type' => 'LEFT',
+							'table' => $this->module . '_sections',
+							'cond' => 'a.`parent_id` = b.`parent_id`',
+						),
+					),
+					'fields' => array('b.*'),
+					'alias' => 'a',
+					'cond' => array('a.id' => intval($id)),
+				);
+			}
 			
+			$cats = $this->DB->select($this->module . '_sections', DB_ALL, $select);
+		}
+		
 		
 		// Build list
 		if (count($cats) > 0) {
 			foreach ($cats as $cat) {
-				$output .= '<li>' . get_link(h($cat['title']), '/' . $this->module . '/category/' . $cat['id']) . '</li>';
+				$output .= '<li>' . ($id && $cat['id'] == $id ? '<b>' : '') . get_link(h($cat['title']), '/' . $this->module . '/category/' . $cat['id']) . ($id && $cat['id'] == $id ? '</b>' : '') . '</li>';
 			}
 		}
 		
