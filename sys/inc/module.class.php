@@ -390,6 +390,10 @@ class Module {
             'fps_pagescnt' => (!empty($Register['pagescnt'])) ? intval($Register['pagescnt']) : 1,
             // 'fps_user' => (!empty($_SESSION['user'])) ? $_SESSION['user'] : array(),
         );
+		if (isset($this->Register['params']) && is_array($this->Register['params'])) {
+			$markers2['action'] = count($this->Register['params']) > 1 ? $this->Register['params'][1] : 'index';
+			$markers2['current_id'] = count($this->Register['params']) > 2 ? $this->Register['params'][2] : null;
+		}
 		$markers = array_merge($markers1, $markers2);
         return $markers;
     }
@@ -508,12 +512,12 @@ class Module {
 		}
 		if (empty($cats)) {
 			$cats = $this->DB->select($this->module . '_sections', DB_ALL, array(
-				'cond' => array(
-					'`parent_id` = 0 OR `parent_id` IS NULL ',
-				),
+					'cond' => array(
+						'`parent_id` = 0 OR `parent_id` IS NULL ',
+					),
 			));
 		}
-		
+			
 		
 		// Build list
 		if (count($cats) > 0) {
