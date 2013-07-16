@@ -142,25 +142,21 @@ if ('css' == $type) $file = 'style';
 
 
 if(isset($_POST['send']) && isset($_POST['templ'])) {
-	if ($type == 'css') {
-		$template_file = ROOT . '/template/' . Config::read('template') . '/css/style.css';
-		if (!is_file($template_file . '.stand')) {
-			copy($template_file, $template_file . '.stand');
-		}
-		$file = fopen($template_file, 'w+');
-
-
-	} else {
-		 
-		$template_file = ROOT . '/template/' . Config::read('template') . '/html/' . $module . '/' . $filename . '.html';
-		
-		
-		
-		if (!file_exists($template_file . '.stand') && file_exists($template_file)) {
-			copy($template_file, $template_file . '.stand');
-		}
-		$file = fopen($template_file, 'w+');
+	$template_file = ROOT . '/template/' . Config::read('template') . ($type == 'css' ? '/css/style.css' : '/html/' . $module . '/' . $filename . '.html');
+	if (file_exists($template_file . '.stand_9')) {
+		unlink($template_file . '.stand_9');
 	}
+	for ($i = 8; $i >= 0; $i--) {
+		$new_name = $template_file . '.stand_' . ($i + 1);
+		$old_name = $template_file . '.stand' . ($i > 0 ? ('_' . $i) : '');
+		if (file_exists($old_name)) {
+			rename($old_name, $new_name);
+		}
+	}
+	if (file_exists($template_file)) {
+		copy($template_file, $template_file . '.stand');
+	}
+	$file = fopen($template_file, 'w+');
 	
 	
 	if(fputs($file, $_POST['templ'])) {
