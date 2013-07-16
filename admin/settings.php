@@ -149,7 +149,7 @@ if (in_array($module, $sysMods)) {
 		include ($pathToModInfo);
 		$pageTitle = (isset($menuInfo['ankor']) ? $menuInfo['ankor'] . ' - Настройки' : $pageTitle);
 	} else {
-		$_SESSION['message'] = "Модуль \"{$module}\" не найден!";
+		$_SESSION['message'] = sprintf(__('Module not found'), $module);
 		$module = 'sys';
 		$settingsInfo = $settingsInfo[$module];
 	}

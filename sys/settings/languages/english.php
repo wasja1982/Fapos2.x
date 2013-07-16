@@ -388,6 +388,7 @@ $language = array(
 	'Few "poll_question"'           => 'должно быть указано не менее 2 возможных ответов',
 	'Many "poll_question"'          => 'должно быть указано не более 20 возможных ответов',
 	'Saved' 						=> 'Настройки сохранены',
+	'Module not found'				=> 'Модуль "%s" не найден!',
 	
 	
 	// Templates name
