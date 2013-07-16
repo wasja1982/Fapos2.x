@@ -9,7 +9,7 @@
 |  @package       CMS Fapos                      |
 |  @subpackege    Template redactor              |
 |  @copyright     ©Andrey Brykin 2010-2013       |
-|  @last mod.     2013/01/20                     |
+|  @last mod.     2013/06/13                     |
 \-----------------------------------------------*/
 
 /*-----------------------------------------------\
@@ -156,8 +156,8 @@ if(isset($_POST['send']) && isset($_POST['templ'])) {
 		
 		
 		
-		if (!is_file($template_file . '.stand') && file_exists($template_file)) {
-			copy($template_file, $backup_file_path);
+		if (!file_exists($template_file . '.stand') && file_exists($template_file)) {
+			copy($template_file, $template_file . '.stand');
 		}
 		$file = fopen($template_file, 'w+');
 	}
@@ -248,7 +248,7 @@ if(isset($mess) && $mess != NULL) {
 			<div class="items">
 				<div class="setting-item">
 					<div class="center">
-						<textarea title="Код шаблона" style="width:99%;height:380px;" wrap="off" name="templ" id="tmpl"><?php print htmlspecialchars($template); ?></textarea>
+						<textarea title="Код шаблона" style="width:99%;height:380px;" wrap="off" name="templ" id="tmpl"><?php print h($template); ?></textarea>
 					</div>
 					<div class="clear"></div>
 				</div>
@@ -270,6 +270,25 @@ if(isset($mess) && $mess != NULL) {
 
 
 
+<script type="text/javascript" src="js/codemirror/codemirror.js"></script>
+<script type="text/javascript" src="js/codemirror/mode/htmlmixed/htmlmixed.js"></script>
+<script type="text/javascript" src="js/codemirror/mode/vbscript/vbscript.js"></script>
+<script type="text/javascript" src="js/codemirror/mode/css/css.js"></script>
+<!--
+<script type="text/javascript" src="js/codemirror/mode/javascript/javascript.js"></script>
+<script type="text/javascript" src="js/codemirror/mode/xml/xml.js"></script>
+-->
+<link rel="StyleSheet" type="text/css" href="js/codemirror/codemirror.css" />
+<link rel="StyleSheet" type="text/css" href="js/codemirror/theme/eclipse.css" />
+<script type="text/javascript">
+$(document).ready(function(){
+    var editor = CodeMirror.fromTextArea(document.getElementById("tmpl"), {
+		theme: "eclipse", 
+		mode: "<?php echo ($type === 'css') ? 'css' : 'vbscript'; ?>"
+	});
+	editor.setSize(933, 450);
+});
+</script>
 
 
 
@@ -297,21 +316,21 @@ function(){
 
 
 <ul class="markers">
-	<li><div class="global-marks">{CONTENT}</div> - Основной контент страницы</li>
-	<li><div class="global-marks">{TITLE}</div> - Заголовок страницы</li>
-	<li><div class="global-marks">{DESCRIPTION}</div> - Содержание Мета-тега description</li>
-	<li><div class="global-marks">{FPS_WDAY}</div> - День кратко</li>
-	<li><div class="global-marks">{FPS_DATE}</div> - Дата</li>
-	<li><div class="global-marks">{FPS_TIME}</div> - Время</li>
-	<li><div class="global-marks">{HEADMENU}</div> - Верхнее меню</li>
-	<li><div class="global-marks">{FPS_USER_NAME}</div> - Ник текущего пользователя (Для не авторизованного - Гость)</li>
-	<li><div class="global-marks">{FPS_USER_GROUP}</div> - Группа текущего пользователя (Для не авторизованного - Гости)</li>
-	<li><div class="global-marks">{CATEGORIES}</div> - Список категорий раздела</li>
-	<li><div class="global-marks">{COUNTER}</div> - Встроенный счетчик посещаемости CMS Fapos</li>
-	<li><div class="global-marks">{FPS_YEAR}</div> - Год</li>
-	<li><div class="global-marks">{POWERED_BY}</div> - CMS Fapos</li>
-	<li><div class="global-marks">{COMMENTS}</div> - Комментарии к материалу и форма добавления комментариев <b>(если предусмотренно)</b></li>
-	<li><div class="global-marks">{PERSONAL_PAGE_LINK}</div> - URL на свою персональную страницу или на страницу регистрации, если не авторизован</li>
+	<h2>Глобальные метки</h2>
+	<li><div class="global-marks">{{ content }}</div> - Основной контент страницы</li>
+	<li><div class="global-marks">{{ title }}</div> - Заголовок страницы</li>
+	<li><div class="global-marks">{{ description }}</div> - Содержание Мета-тега description</li>
+	<li><div class="global-marks">{{ fps_wday }}</div> - День кратко</li>
+	<li><div class="global-marks">{{ fps_date }}</div> - Дата</li>
+	<li><div class="global-marks">{{ fps_time }}</div> - Время</li>
+	<li><div class="global-marks">{{ headmenu }}</div> - Верхнее меню</li>
+	<li><div class="global-marks">{{ fps_user_name }}</div> - Ник текущего пользователя (Для не авторизованного - Гость)</li>
+	<li><div class="global-marks">{{ fps_user_group }}</div> - Группа текущего пользователя (Для не авторизованного - Гости)</li>
+	<li><div class="global-marks">{{ categories }}</div> - Список категорий раздела</li>
+	<li><div class="global-marks">{{ counter }}</div> - Встроенный счетчик посещаемости CMS Fapos</li>
+	<li><div class="global-marks">{{ fps_year }}</div> - Год</li>
+	<li><div class="global-marks">{{ powered_by }}</div> - CMS Fapos</li>
+	<li><div class="global-marks">{{ comments }}</div> - Комментарии к материалу и форма добавления комментариев <b>(если предусмотренно)</b></li>
 </ul>
 
 

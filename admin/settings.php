@@ -7,7 +7,7 @@
 ## @package       CMS Fapos                     ##
 ## @subpackege    Admin Panel module            ##
 ## @copyright     ©Andrey Brykin 2010-2013      ##
-## @last mod.     2013/04/24                    ##
+## @last mod.     2013/06/15                    ##
 ##################################################
 
 
@@ -149,7 +149,7 @@ if (in_array($module, $sysMods)) {
 		include ($pathToModInfo);
 		$pageTitle = (isset($menuInfo['ankor']) ? $menuInfo['ankor'] . ' - Настройки' : $pageTitle);
 	} else {
-		$_SESSION['mess'] = "Модуль \"{$module}\" не найден!";
+		$_SESSION['message'] = "Модуль \"{$module}\" не найден!";
 		$module = 'sys';
 		$settingsInfo = $settingsInfo[$module];
 	}
@@ -229,7 +229,7 @@ if (isset($_POST['send'])) {
 
 	//save settings
 	Config::write($tmpSet);
-	$_SESSION['mess'] = "Настройки успешно сохранены!";
+	$_SESSION['message'] = __('Saved');
 	//clean cache
 	$Cache = new Cache;
 	$Cache->clean(CACHE_MATCHING_ANY_TAG, array('module_' . $module));
@@ -371,9 +371,9 @@ $pageNav = $pageTitle;
 $pageNavr = '';
 include_once ROOT . '/admin/template/header.php';
 
-if (isset($_SESSION['mess'])) {
-	echo '<div class="warning"><br /><b>' . $_SESSION['mess'] . '</b><br /><br /></div>';
-	unset($_SESSION['mess']);
+if (isset($_SESSION['message'])) {
+	echo '<div class="warning"><br /><b>' . $_SESSION['message'] . '</b><br /><br /></div>';
+	unset($_SESSION['message']);
 }
 ?>
 
