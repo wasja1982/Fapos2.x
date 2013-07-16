@@ -97,11 +97,11 @@ class LoadsEntity extends FpsEntity
 		$Register = Register::getInstance();
 		
 		$attachesModel = $Register['ModManager']->getModelInstance('LoadsAttaches');
-		$commentsModel = $Register['ModManager']->getModelInstance('LoadsComments');
+		$commentsModel = $Register['ModManager']->getModelInstance('Comments');
 		$addContentModel = $Register['ModManager']->getModelInstance('LoadsAddContent');
 		
 		$attachesModel->deleteByParentId($this->id);
-		$commentsModel->deleteByParentId($this->id);
+		$commentsModel->deleteByParentId($this->id, 'loads');
 		$addContentModel->deleteByParentId($this->id);
 
         if (file_exists(ROOT . '/sys/files/loads/' . $this->download)) {
