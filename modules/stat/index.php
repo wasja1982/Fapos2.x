@@ -4,12 +4,12 @@
 | @Author:       Andrey Brykin (Drunya)        |
 | @Email:        drunyacoder@gmail.com         |
 | @Site:         http://fapos.net              |
-| @Version:      1.8.2                         |
+| @Version:      1.8.3                         |
 | @Project:      CMS                           |
 | @Package       CMS Fapos                     |
-| @Subpackege    News Module                   |
+| @Subpackege    Stat Module                   |
 | @Copyright     ©Andrey Brykin 2010-2013      |
-| @Last mod      2013/07/05                    |
+| @Last mod      2013/07/16                    |
 |----------------------------------------------|
 |											   |
 | any partial or not partial extension         |
@@ -42,6 +42,8 @@ Class StatModule extends Module {
 	 * @module module indentifier
 	 */
 	public $module = 'stat';
+	
+	public $premoder_types = array('rejected', 'confirmed');
 
 	/**
 	 * default action ( show main page )
@@ -69,7 +71,10 @@ Class StatModule extends Module {
 			$where[] = "`tags` LIKE '%{$tag}%'";
 		}
 
-
+		if (!$this->ACL->turn(array('other', 'can_premoder'), false)) {
+			$where['premoder'] = 'confirmed';
+		}
+		
 		$total = $this->Model->getTotal(array('cond' => $where));
 		$perPage = intval($this->Register['Config']->read('per_page', $this->module));
 		if ($perPage < 1)
@@ -218,6 +223,10 @@ Class StatModule extends Module {
 		}
 
 
+		if (!$this->ACL->turn(array('other', 'can_premoder'), false)) {
+			$where['premoder'] = 'confirmed';
+		}
+		
 		$total = $this->Model->getTotal(array('cond' => $where));
 		$perPage = intval($this->Register['Config']->read('per_page', $this->module));
 		if ($perPage < 1)
@@ -348,6 +357,10 @@ Class StatModule extends Module {
 			return $this->showInfoMessage(__('Permission denied'), $this->getModuleURL());
 
 
+		if (!$this->ACL->turn(array('other', 'can_premoder'), false) && in_array($entity->getPremoder(), array('rejected', 'nochecked'))) {
+			return $this->showInfoMessage(__('Permission denied'), $this->getModuleURL());
+		}
+		
 		// Some gemor with add fields
 		if (is_object($this->AddFields)) {
 			$entities = $this->AddFields->mergeRecords(array($entity));
@@ -792,7 +805,7 @@ Class StatModule extends Module {
 		//remove cache
 		$this->Cache->clean(CACHE_MATCHING_ANY_TAG, array('module_' . $this->module));
 		$this->DB->cleanSqlCache();
-		// Формируем SQL-запрос на добавление темы
+		// Формируем SQL-запрос на добавление материала
 		$data = array(
 			'title' => $title,
 			'main' => mb_substr($main_text, 0, $max_lenght),
@@ -807,7 +820,12 @@ Class StatModule extends Module {
 			'commented' => $commented,
 			'available' => $available,
 			'view_on_home' => $category->getView_on_home(),
+			'premoder' 	   => 'confirmed',
 		);
+		if ($this->ACL->turn(array($this->module, 'materials_require_premoder'), false)) {
+			$data['premoder'] = 'nochecked';
+		}
+
 		$className = $this->Register['ModManager']->getEntityName($this->module);
 		$entity = new $className($data);
 		if ($entity) {
@@ -1329,6 +1347,30 @@ Class StatModule extends Module {
 		return $this->showInfoMessage(__('Operation is successful'), $this->getModuleURL());
 	}
 
+	
+	/**
+	* @param int $id - record ID
+	*
+	* fix or unfix record on top on home page
+	*/
+	public function premoder($id, $type)
+    {
+		$this->ACL->turn(array('other', 'can_premoder'));
+		$id = (int)$id;
+		if ($id < 1) return $this->showInfoMessage(__('Some error occurred'), $this->getModuleURL());
+		
+		if (!in_array((string)$type, $this->premoder_types)) 
+			return $this->showInfoMessage(__('Some error occurred'), $this->getModuleURL());
+
+		$target = $this->Model->getById($id);
+		if (!$target) return $this->showInfoMessage(__('Some error occurred'), $this->getModuleURL());
+		
+		$target->setPremoder((string)$type);
+		$target->save();
+		return $this->showInfoMessage(__('Operation is successful'), $this->getModuleURL());
+	}
+	
+	
 	/**
 	 * @param array $record - assoc record array
 	 * @return string - admin buttons
@@ -1342,6 +1384,28 @@ Class StatModule extends Module {
 		if (!$uid)
 			$uid = 0;
 
+		if ($this->ACL->turn(array('other', 'can_premoder'), false) && 'nochecked' == $record->getPremoder()) {
+			$moder_panel .= get_link('', $this->getModuleURL('premoder/' . $id . '/confirmed'),
+				array(
+					'class' => 'fps-premoder-confirm', 
+					'title' => 'Confirm', 
+					'onClick' => "return confirm('" . __('Are you sure') . "')",
+				)) . '&nbsp;';
+			$moder_panel .= get_link('', $this->getModuleURL('premoder/' . $id . '/rejected'),
+				array(
+					'class' => 'fps-premoder-reject', 
+					'title' => 'Reject', 
+					'onClick' => "return confirm('" . __('Are you sure') . "')",
+				)) . '&nbsp;';
+		} else if ($this->ACL->turn(array('other', 'can_premoder'), false) && 'rejected' == $record->getPremoder()) {
+			$moder_panel .= get_link('', $this->getModuleURL('premoder/' . $id . '/confirmed'),
+				array(
+					'class' => 'fps-premoder-confirm', 
+					'title' => 'Confirm', 
+					'onClick' => "return confirm('" . __('Are you sure') . "')",
+				)) . '&nbsp;';
+		}
+		
 		if ($this->ACL->turn(array($this->module, 'edit_materials'), false)
 				|| (!empty($_SESSION['user']['id']) && $uid == $_SESSION['user']['id']
 				&& $this->ACL->turn(array($this->module, 'edit_mine_materials'), false))) {
