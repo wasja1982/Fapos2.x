@@ -192,19 +192,23 @@ function getAge($y = 1970, $m = 1, $d = 1) {
 /**
  * Check and return order param
  */
-function getOrderParam($claas_name) {
+function getOrderParam($class_name) {
 	$order = (!empty($_GET['order'])) ? trim($_GET['order']) : '';
 	
-	switch ($claas_name) {
+	switch ($class_name) {
 		case 'FotoModule':
 		case 'StatModule':
 		case 'NewsModule':
-			$allowed_keys = array('views', 'date', 'comments');
+			$allowed_keys = array('title', 'views', 'date', 'comments');
 			$default_key = 'date';
 			break;
 		case 'LoadsModule':
-			$allowed_keys = array('views', 'date', 'comments', 'downloads');
+			$allowed_keys = array('title', 'views', 'date', 'comments', 'downloads');
 			$default_key = 'date';
+			break;
+		case 'ForumModule':
+			$allowed_keys = array('title', 'time', 'last_post', 'posts', 'views');
+			$default_key = 'last_post';
 			break;
 		case 'UsersModule':
 			$allowed_keys = array('puttime', 'last_visit', 'name', 'rating', 'posts', 'status', 'warnings', 'city', 'jabber', 'byear', 'pol');
@@ -783,4 +787,19 @@ function checkAccess($params = null) {
 		return $Register['ACL']->turn($params, false);
 	}
 	return false;
+}
+
+function checkUserOnline($user_id) {
+	if (!$user_id || !is_numeric($user_id)) return false;
+	$users_on_line = getOnlineUsers();
+	return (isset($users_on_line) && isset($users_on_line[$user_id]));
+}
+
+function getOrderLink($params) {
+	if (!$params || !is_array($params) || count($params) < 2) return '';
+	$order = (!empty($_GET['order'])) ? strtolower(trim($_GET['order'])) : '';
+	$new_order = strtolower($params[0]);
+	$active = ($order === $new_order);
+	$asc = ($active && isset($_GET['asc']));
+	return '<a href="?order=' . $new_order . ($asc ? '' : '&asc=1') . '">' . $params[1] . ($active ? ' ' . ($asc ? '↑' : '↓') : '') . '</a>';
 }

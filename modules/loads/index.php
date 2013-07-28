@@ -4,12 +4,12 @@
 | @Author:       Andrey Brykin (Drunya)        |
 | @Email:        drunyacoder@gmail.com         |
 | @Site:         http://fapos.net              |
-| @Version:      1.9.0                         |
+| @Version:      1.9.2                         |
 | @Project:      CMS                           |
 | @package       CMS Fapos                     |
 | @subpackege    Loads Module                  |
 | @copyright     ©Andrey Brykin 2010-2013      |
-| @last mod.     2013/03/31                    |
+| @last mod.     2013/07/05                    |
 |----------------------------------------------|
 |											   |
 | any partial or not partial extension         |
@@ -47,6 +47,8 @@ Class LoadsModule extends Module {
 	 * @module module indentifier
 	 */
 	public $attached_files_path = 'loads';
+	
+	public $premoder_types = array('0' => 'rejected', '1' => 'confirmed');
 
 	public function __construct($params) {
 		parent::__construct($params);
@@ -78,7 +80,6 @@ Class LoadsModule extends Module {
 			$tag = mysql_real_escape_string($tag);
 			$where[] = "`tags` LIKE '%{$tag}%'";
 		}
-
 
 		$total = $this->Model->getTotal(array('cond' => $where));
 		$perPage = intval($this->Register['Config']->read('per_page', $this->module));
@@ -228,7 +229,6 @@ Class LoadsModule extends Module {
 			$where['available'] = 1;
 		}
 
-
 		$total = $this->Model->getTotal(array('cond' => $where));
 		$perPage = intval($this->Register['Config']->read('per_page', $this->module));
 		if ($perPage < 1)
@@ -357,7 +357,6 @@ Class LoadsModule extends Module {
 			return $this->showInfoMessage(__('Permission denied'), $this->getModuleURL());
 		if (!$this->ACL->checkCategoryAccess($entity->getCategory()->getNo_access()))
 			return $this->showInfoMessage(__('Permission denied'), $this->getModuleURL());
-
 
 		// Some gemor with add fields
 		if (is_object($this->AddFields)) {
@@ -638,7 +637,7 @@ Class LoadsModule extends Module {
 
 
 		// Check for preview or errors
-		$data = array('title' => null, 'mainText' => null, 'in_cat' => null, 'description' => null, 'tags' => null, 'sourse' => null, 'sourse_email' => null, 'sourse_site' => null, 'commented' => null, 'available' => null, 'download_url' => null, 'download_url_size' => null);
+		$data = array('title' => null, 'mainText' => null, 'in_cat' => null, 'description' => null, 'tags' => null, 'sourse' => null, 'sourse_email' => null, 'sourse_site' => null, 'commented' => 1, 'available' => ($this->ACL->turn(array($this->module, 'materials_require_premoder'), false) ? 0 : 1), 'download_url' => null, 'download_url_size' => null);
 		$data = array_merge($data, $markers);
 		$data = Validate::getCurrentInputsValues($data);
 		$data['main_text'] = $data['mainText'];
@@ -658,10 +657,10 @@ Class LoadsModule extends Module {
 
 
 		//comments and hide
-		$data['commented'] = (!empty($data['commented']) || !isset($_POST['submitForm'])) ? 'checked="checked"' : '';
+		$data['commented'] = (!empty($data['commented'])) ? 'checked="checked"' : '';
 		if (!$this->ACL->turn(array($this->module, 'record_comments_management'), false))
 			$data['commented'] .= ' disabled="disabled"';
-		$data['available'] = (!empty($data['available']) || !isset($_POST['submitForm'])) ? 'checked="checked"' : '';
+		$data['available'] = (!empty($data['available'])) ? 'checked="checked"' : '';
 		if (!$this->ACL->turn(array($this->module, 'hide_material'), false))
 			$data['available'] .= ' disabled="disabled"';
 
@@ -733,13 +732,13 @@ Class LoadsModule extends Module {
 		if (!$this->ACL->turn(array($this->module, 'record_comments_management'), false))
 			$commented = 1;
 		if (!$this->ACL->turn(array($this->module, 'hide_material'), false))
-			$available = 1;
+			$available = ($this->ACL->turn(array($this->module, 'materials_require_premoder'), false) ? 0 : 1);
 
 		// Если пользователь хочет посмотреть на сообщение перед отправкой
 		if (isset($_POST['viewMessage'])) {
 			$_SESSION['viewMessage'] = array_merge(array('title' => null, 'mainText' => null, 'in_cat' => $in_cat,
 				'description' => null, 'tags' => null, 'sourse' => null, 'sourse_email' => null,
-				'sourse_site' => null, 'download_url' => null, 'download_url_size' => null, 'commented' => null, 'available' => null), $_POST);
+				'sourse_site' => null, 'download_url' => null, 'download_url_size' => null, 'commented' => $commented, 'available' => $available), $_POST);
 			redirect($this->getModuleURL('add_form/'));
 		}
 
@@ -763,10 +762,8 @@ Class LoadsModule extends Module {
 			$error .= '<li>' . sprintf(__('Very big "material"'), $max_lenght) . '</li>' . "\n";
 		elseif (mb_strlen($main_text) < $min_lenght)
 			$error .= '<li>' . sprintf(__('Very small "material"'), $min_lenght) . '</li>' . "\n";
-		if ($this->Register['Config']->read('require_file', $this->module) == 1) {
-			if (empty($_FILES['attach']['name']))
-				$error .= '<li>' . __('No attachment') . '</li>' . "\n";
-		}
+		if (($this->Register['Config']->read('require_file', $this->module) == 1 || empty($download_url)) && empty($_FILES['attach']['name']))
+			$error .= '<li>' . __('No attachment') . '</li>' . "\n";
 		if (isset($_FILES['attach']['name']) && $_FILES['attach']['size'] > $this->getMaxSize())
 			$error .= '<li>' . sprintf(__('Very big file2'), round($this->getMaxSize() / 1024, 2)) . '</li>' . "\n";
 		if (!empty($tags) && !$valobj->cha_val($tags, V_TITLE))
@@ -777,7 +774,7 @@ Class LoadsModule extends Module {
 			$error .= '<li>' . __('Wrong chars in "email"') . '</li>' . "\n";
 		if (!empty($sourse_site) && !$valobj->cha_val($sourse_site, V_URL))
 			$error .= '<li>' . __('Wrong chars in "sourse site"') . '</li>' . "\n";
-		if (!empty($download_url) && !$valobj->cha_val($download_url, V_TITLE))
+		if (!empty($download_url) && !$valobj->cha_val($download_url, V_URL))
 			$error .= '<li>' . __('Wrong chars in "download_url"') . '</li>' . "\n";
 		if (!empty($download_url_size) && !$valobj->cha_val($download_url_size, V_INT))
 			$error .= '<li>' . __('Wrong chars in "download_url_size"') . '</li>' . "\n";
@@ -816,7 +813,7 @@ Class LoadsModule extends Module {
 		if (!empty($error)) {
 			$_SESSION['FpsForm'] = array_merge(array('title' => null, 'mainText' => null, 'in_cat' => $in_cat,
 				'description' => null, 'tags' => null, 'sourse' => null, 'sourse_email' => null,
-				'sourse_site' => null, 'download_url' => null, 'download_url_size' => null, 'commented' => null, 'available' => null), $_POST);
+				'sourse_site' => null, 'download_url' => null, 'download_url_size' => null, 'commented' => $commented, 'available' => $available), $_POST);
 			$_SESSION['FpsForm']['error'] = '<p class="errorMsg">' . __('Some error in form') . '</p>'
 					. "\n" . '<ul class="errorMsg">' . "\n" . $error . '</ul>' . "\n";
 			redirect($this->getModuleURL('add_form/'));
@@ -874,6 +871,7 @@ Class LoadsModule extends Module {
 			$data['download'] = $file;
 			$data['filename'] = $filename;
 		}
+
 		$className = $this->Register['ModManager']->getEntityName($this->module);
 		$entity = new $className($data);
 		if ($entity) {
@@ -887,6 +885,12 @@ Class LoadsModule extends Module {
 
 			downloadAttaches($this->module, $last_id);
 
+
+			// hook for plugins
+			Plugins::intercept('new_entity', array(
+				'entity' => $entity,
+				'module' => $this->module,
+			));
 
 			//clean cache
 			$this->Cache->clean(CACHE_MATCHING_TAG, array('module_' . $this->module));
@@ -1009,7 +1013,7 @@ Class LoadsModule extends Module {
 		$this->_globalize($navi);
 
 
-		setReferer();
+		// setReferer();
 		$source = $this->render('editform.html', array('context' => $markers));
 		return $this->_view($source);
 	}
@@ -1081,14 +1085,14 @@ Class LoadsModule extends Module {
 		if (!$this->ACL->turn(array($this->module, 'record_comments_management'), false))
 			$commented = 1;
 		if (!$this->ACL->turn(array($this->module, 'hide_material'), false))
-			$available = 1;
+			$available = ($this->ACL->turn(array($this->module, 'materials_require_premoder'), false) ? 0 : 1);
 
 
 		// Если пользователь хочет посмотреть на сообщение перед отправкой
 		if (isset($_POST['viewMessage'])) {
 			$_SESSION['viewMessage'] = array_merge(array('title' => null, 'mainText' => null, 'in_cat' => $in_cat,
 				'description' => null, 'tags' => null, 'sourse' => null, 'sourse_email' => null,
-				'sourse_site' => null, 'download_url' => null, 'download_url_size' => null, 'commented' => null, 'available' => null), $_POST);
+				'sourse_site' => null, 'download_url' => null, 'download_url_size' => null, 'commented' => $commented, 'available' => $available), $_POST);
 			redirect($this->getModuleURL('edit_form/' . $id));
 		}
 
@@ -1110,10 +1114,8 @@ Class LoadsModule extends Module {
 			$error .= '<li>' . sprintf(__('Very big "material"'), $max_lenght) . '</li>' . "\n";
 		elseif (mb_strlen($main_text) < $min_lenght)
 			$error .= '<li>' . sprintf(__('Very small "material"'), $min_lenght) . '</li>' . "\n";
-		if ($this->Register['Config']->read('require_file', $this->module) == 1) {
-			if (empty($_FILES['attach']['name']))
-				$error .= '<li>' . __('No attachment') . '</li>' . "\n";
-		}
+		if (($this->Register['Config']->read('require_file', $this->module) == 1 || empty($download_url)) && empty($_FILES['attach']['name']) && !empty($_POST['delete_file']))
+			$error .= '<li>' . __('No attachment') . '</li>' . "\n";
 		if (isset($_FILES['attach']['name']) && $_FILES['attach']['size'] > $this->getMaxSize())
 			$error .= '<li>' . sprintf(__('Very big file2'), round($this->getMaxSize() / 1024, 2)) . '</li>' . "\n";
 		if (!empty($tags) && !$valobj->cha_val($tags, V_TITLE))
@@ -1124,7 +1126,7 @@ Class LoadsModule extends Module {
 			$error .= '<li>' . __('Wrong chars in "email"') . '</li>' . "\n";
 		if (!empty($sourse_site) && !$valobj->cha_val($sourse_site, V_URL))
 			$error .= '<li>' . __('Wrong chars in "sourse site"') . '</li>' . "\n";
-		if (!empty($download_url) && !$valobj->cha_val($download_url, V_TITLE))
+		if (!empty($download_url) && !$valobj->cha_val($download_url, V_URL))
 			$error .= '<li>' . __('Wrong chars in "download_url"') . '</li>' . "\n";
 		if (!empty($download_url_size) && !$valobj->cha_val($download_url_size, V_INT))
 			$error .= '<li>' . __('Wrong chars in "download_url_size"') . '</li>' . "\n";
@@ -1190,7 +1192,7 @@ Class LoadsModule extends Module {
 		if (!empty($error)) {
 			$_SESSION['FpsForm'] = array_merge(array('title' => null, 'mainText' => null, 'in_cat' => $in_cat,
 				'description' => null, 'tags' => null, 'sourse' => null, 'sourse_email' => null,
-				'sourse_site' => null, 'download_url' => null, 'download_url_size' => null, 'commented' => null, 'available' => null), $_POST);
+				'sourse_site' => null, 'download_url' => null, 'download_url_size' => null, 'commented' => $commented, 'available' => $available), $_POST);
 			$_SESSION['FpsForm']['error'] = '<p class="errorMsg">' . __('Some error in form') . '</p>'
 					. "\n" . '<ul class="errorMsg">' . "\n" . $error . '</ul>' . "\n";
 			redirect($this->getModuleURL('edit_form/' . $id));
@@ -1239,7 +1241,7 @@ Class LoadsModule extends Module {
 
 		if ($this->Log)
 			$this->Log->write('editing ' . $this->module, $this->module . ' id(' . $id . ')');
-		return $this->showInfoMessage(__('Operation is successful'), getReferer());
+		return $this->showInfoMessage(__('Operation is successful'), $this->getModuleURL('view/' . $id) /* getReferer() */);
 	}
 
 	/**
@@ -1431,6 +1433,8 @@ Class LoadsModule extends Module {
 	}
 
 	function download_file($id = null, $mimetype = 'application/octet-stream') {
+		//turn access
+		$this->ACL->turn(array($this->module, 'download_files'));
 
 		if (empty($id))
 			return $this->showInfoMessage(__('File not found'), $this->getModuleURL());
@@ -1536,6 +1540,9 @@ Class LoadsModule extends Module {
 	}
 
 	function download_file_url($id = null, $mimetype = 'application/octet-stream') {
+		//turn access
+		$this->ACL->turn(array($this->module, 'download_files'));
+
 		$entity = $this->Model->getById($id);
 		if (!$entity)
 			return $this->showInfoMessage(__('File not found'), $this->getModuleURL());
@@ -1545,6 +1552,33 @@ Class LoadsModule extends Module {
 		$this->DB->cleanSqlCache();
 
 		header('Location: ' . $entity->getDownload_url());
+	}
+
+	/**
+	 * @param int $id - record ID
+	 *
+	 * show or hide record
+	 */
+	public function premoder($id, $type) {
+		$this->ACL->turn(array($this->module, 'hide_material'));
+		$id = intval($id);
+		if ($id < 1)
+			return $this->showInfoMessage(__('Material not found'), $this->getModuleURL());
+
+		$type = strtolower((string) $type);
+		if (!in_array($type, $this->premoder_types))
+			return $this->showInfoMessage(__('Some error occurred'), $this->getModuleURL());
+
+		$entity = $this->Model->getById($id);
+		if (!$entity)
+			return $this->showInfoMessage(__('Material not found'), $this->getModuleURL());
+
+		$available = array_search($type, $this->premoder_types);
+		if ($available !== false) {
+			$entity->setAvailable($available);
+			$entity->save();
+		}
+		return $this->showInfoMessage(__('Operation is successful'), $this->getModuleURL());
 	}
 
 	/**
@@ -1559,6 +1593,22 @@ Class LoadsModule extends Module {
 		$uid = $record->getAuthor_id();
 		if (!$uid)
 			$uid = 0;
+
+		if ($this->ACL->turn(array($this->module, 'hide_material'), false)) {
+			if ($record->getAvailable() == 0) {
+				$moder_panel .= get_link('', $this->getModuleURL('premoder/' . $id . '/confirmed'), array(
+							'class' => 'fps-premoder-confirm',
+							'title' => 'Confirm',
+							'onClick' => "return confirm('" . __('Are you sure') . "')",
+						)) . '&nbsp;';
+			} else {
+				$moder_panel .= get_link('', $this->getModuleURL('premoder/' . $id . '/rejected'), array(
+							'class' => 'fps-premoder-reject',
+							'title' => 'Reject',
+							'onClick' => "return confirm('" . __('Are you sure') . "')",
+						)) . '&nbsp;';
+			}
+		}
 
 		if ($this->ACL->turn(array($this->module, 'edit_materials'), false)
 				|| (!empty($_SESSION['user']['id']) && $uid == $_SESSION['user']['id']

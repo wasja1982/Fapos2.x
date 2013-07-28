@@ -2,12 +2,12 @@
 /*-----------------------------------------------\
 | 												 |
 |  @Author:       Andrey Brykin (Drunya)         |
-|  @Version:      1.6.70                         |
+|  @Version:      1.6.72                         |
 |  @Project:      CMS                            |
 |  @package       CMS Fapos                      |
 |  @subpackege    Forum Module                   |
 |  @copyright     ©Andrey Brykin 2010-2013       |
-|  @last mod.     2013/03/30                     |
+|  @last mod.     2013/06/30                     |
 \-----------------------------------------------*/
 
 /*-----------------------------------------------\
@@ -312,13 +312,14 @@ Class ForumModule extends Module {
 			$this->page_title .= ' (' . $page . ')';
 
 
+			$order = getOrderParam(__CLASS__);
 			$themes = $themesClass->getCollection(
 					array(
 				'id_forum' => $id_forum
 					), array(
 				'page' => $page,
 				'limit' => $perPage,
-				'order' => 'important DESC, last_post DESC, id DESC',
+				'order' => 'important DESC,' . (empty($order) ? ' last_post DESC,' : $order . ',') . ' id DESC',
 					)
 			);
 
@@ -820,8 +821,7 @@ Class ForumModule extends Module {
 
 
 						// Если автор сообщения сейчас "на сайте"
-						$users_on_line = getOnlineUsers();
-						if (isset($users_on_line) && isset($users_on_line[$post->getId_author()])) {
+						if (checkUserOnline($post->getId_author())) {
 							$postAuthor->setStatus_on(__('Online'));
 							$postAuthor->setStatus_line('Online');
 						} else {
@@ -1290,8 +1290,9 @@ Class ForumModule extends Module {
 		$themesModel->bindModel('forum');
 		$themesModel->bindModel('author');
 		$themesModel->bindModel('last_author');
+		$order = getOrderParam(__CLASS__);
 		$themes = $themesModel->getCollection(array(), array(
-			'order' => 'last_post DESC',
+			'order' => (empty($order) ? 'last_post DESC' : $order),
 			'page' => $page,
 			'limit' => $perPage,
 				));
@@ -2671,7 +2672,7 @@ Class ForumModule extends Module {
 		$this->_globalize($navi);
 
 
-		setReferer();
+		// setReferer();
 		$source = $this->render('editpostform.html', array('context' => $markers));
 		$html = $html . $source;
 		return $this->_view($html);
@@ -2838,7 +2839,7 @@ Class ForumModule extends Module {
 		$this->DB->cleanSqlCache();
 		if ($this->Log)
 			$this->Log->write('editing post', 'post id(' . $id . '), theme id(' . $id_theme . ')');
-		return $this->showInfoMessage(__('Operation is successful'), getReferer());
+		return $this->showInfoMessage(__('Operation is successful'), $this->getModuleURL('view_post/' . $id) /*getReferer()*/);
 	}
 
 	/**
@@ -2971,7 +2972,7 @@ Class ForumModule extends Module {
 				$forum->setLast_theme_id($last_theme ? $last_theme->getId() : '0');
 				$forum->save();
 			}
-			return $this->showInfoMessage(__('Operation is successful'), getReferer());
+			return $this->showInfoMessage(__('Operation is successful'), $this->getModuleURL('view_theme/' . $theme->getId()) /*getReferer()*/);
 		}
 	}
 
@@ -3038,10 +3039,11 @@ Class ForumModule extends Module {
 		$themesModel->bindModel('last_author');
 		$themesModel->bindModel('postslist');
 		$themesModel->bindModel('forum');
+		$order = getOrderParam(__CLASS__);
 		$themes = $themesModel->getCollection(array(
 			'id_author' => $user_id,
 				), array(
-			'order' => 'time DESC',
+			'order' => (empty($order) ? 'time DESC' : $order),
 			'group' => 'id',
 			'page' => $page,
 			'limit' => $perPage,
@@ -3100,6 +3102,9 @@ Class ForumModule extends Module {
 	}
 
 	public function download_file($file = null, $mimetype = 'application/octet-stream') {
+		//turn access
+		$this->ACL->turn(array($this->module, 'download_files'));
+
 		if (empty($file))
 			return $this->showInfoMessage(__('File not found'), $this->getModuleURL());
 

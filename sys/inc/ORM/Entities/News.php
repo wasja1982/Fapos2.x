@@ -84,11 +84,11 @@ class NewsEntity extends FpsEntity
 		$Register = Register::getInstance();
 		
 		$attachesModel = $Register['ModManager']->getModelInstance('NewsAttaches');
-		$commentsModel = $Register['ModManager']->getModelInstance('NewsComments');
+		$commentsModel = $Register['ModManager']->getModelInstance('Comments');
 		$addContentModel = $Register['ModManager']->getModelInstance('NewsAddContent');
 		
 		$attachesModel->deleteByParentId($this->id);
-		$commentsModel->deleteByParentId($this->id);
+		$commentsModel->deleteByParentId($this->id, 'news');
 		$addContentModel->deleteByParentId($this->id);
 		
 

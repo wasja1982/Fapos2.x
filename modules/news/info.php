@@ -8,6 +8,7 @@ $menuInfo = array(
 		'design.php?m=news' => 'Дизайн',
 		'category.php?mod=news' => 'Управление категориями',
 		'additional_fields.php?m=news' => 'Дополнительные поля',
+        'premoder.php?m=news' => 'Премодерация',
 	),
 );
 
@@ -174,6 +175,13 @@ $settingsInfo = array(
 	
 	
 	'Прочее' => 'Прочее',
+	'calc_count' => array(
+		'type' => 'checkbox',
+		'title' => 'Отображать количество материалов',
+		'checked' => '1',
+		'value' => '1',
+		'description' => 'в списке категорий',
+	),
 	'active' => array(
 		'type' => 'checkbox',
 		'title' => 'Статус',
