@@ -82,7 +82,7 @@ $all_hosts[0]['hosts_cnt'] += $today_hosts;
 
 
 
-	
+
 //echo $header;
 include 'template/header.php';
 ?>
@@ -94,6 +94,15 @@ if (!empty($_SESSION['clean_cache'])):
 <script type="text/javascript">showHelpWin('<?php echo __('Cache is cleared'); ?>', 'Сообщение');</script>
 <?php
 	unset($_SESSION['clean_cache']);
+endif;
+?>
+
+<?php
+if (!empty($_SESSION['message'])):
+?>
+<script type="text/javascript">showHelpWin('<?php echo h($_SESSION['message']) ?>', '<?php echo __('Message') ?>');</script>
+<?php
+	unset($_SESSION['message']);
 endif;
 ?>
 

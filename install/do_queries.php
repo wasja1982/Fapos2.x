@@ -93,13 +93,17 @@ $array[] = "CREATE TABLE `{$set['db']['prefix']}pages` (
   `id` int(11) NOT NULL auto_increment,
   `name` varchar(255) collate utf8_general_ci NOT NULL,
   `template` varchar(255) default '' collate utf8_general_ci NOT NULL,
+  `title` VARCHAR(255) collate utf8_general_ci NOT NULL,
   `content` longtext collate utf8_general_ci NOT NULL,
   `url` varchar(255) default ''  NOT NULL,
+  `meta_title` VARCHAR(255) collate utf8_general_ci NOT NULL,
   `meta_keywords` varchar(255) default ''  NOT NULL,
   `meta_description` text,
   `parent_id` int(11) default 0  NOT NULL,
   `path` varchar(255) default '1.'  NOT NULL,
   `visible` enum('1','0') default '1'  NOT NULL,
+  `position` int(11) default 0  NOT NULL,
+  `publish` enum('1','0') default '0'  NOT NULL,
   PRIMARY KEY  (`id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci";
 $array[] = "INSERT INTO `{$set['db']['prefix']}pages` (`id`,`name`,`path`,`content`) VALUES ('1', 'root', '.', '')";

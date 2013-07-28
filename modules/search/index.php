@@ -192,7 +192,7 @@ class SearchModule extends Module {
 			unset($_SESSION['errorForm']);
 		}
 
-		$markers['search'] = $_SESSION['search_query'];
+		$markers['search'] = h($_SESSION['search_query']);
 
 		foreach ($_SESSION['m'] as $m) {
 			$markers[$m] = 'checked';

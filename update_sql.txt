@@ -1,5 +1,14 @@
 Здесь буду писать все запросы к БД, которые нужно выполнить при обновлении до новой версии движка. При новой установке они выполнятся автоматически.
 
+>>> Jul 28, 2013
+ALTER TABLE `pages` ADD `title` VARCHAR(255) NOT NULL AFTER `name`;
+ALTER TABLE `pages` ADD `meta_title` VARCHAR(255) NOT NULL AFTER `url`;
+ALTER TABLE `pages` ADD `position` INT NOT NULL DEFAULT '0';
+ALTER TABLE `pages` ADD `publish` ENUM('0', '1') NOT NULL DEFAULT '0';
+UPDATE `pages` SET `publish` = '1';
+
+
+
 >>> May 14, 2013
 CREATE TABLE `comments` (
   `id` int(11) NOT NULL auto_increment,

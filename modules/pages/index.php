@@ -57,15 +57,17 @@ Class PagesModule extends Module {
 						return $this->showInfoMessage(__('Can not find this page'), $this->getModuleURL());
 
 					$page = $this->Model->getById($id);
-					if (!$page)
+					if (empty($page) || !$page->getPublish())
 						return $this->showInfoMessage(__('Can not find this page'), $this->getModuleURL());
 				} else {
 					return $this->showInfoMessage(__('Can not find this page'), $this->getModuleURL());
 				}
+			} elseif (!$page->getPublish()) {
+				return $this->showInfoMessage(__('Can not find this page'), $this->getModuleURL());
 			}
 			$id = $page->getId();
 
-			$this->page_title = $page->getName();
+			$this->page_title = $page->getMeta_title();
 			$this->page_meta_keywords = $page->getMeta_keywords();
 			$this->page_meta_description = $page->getMeta_description();
 			$this->template = ($page->getTemplate()) ? $page->getTemplate() : 'default';

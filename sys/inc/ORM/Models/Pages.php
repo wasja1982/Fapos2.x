@@ -2,12 +2,12 @@
 /*---------------------------------------------\
 |											   |
 | @Author:       Andrey Brykin (Drunya)        |
-| @Version:      1.1                           |
+| @Version:      1.2                           |
 | @Project:      CMS                           |
 | @package       CMS Fapos                     |
 | @subpackege    Pages Model                   |
 | @copyright     ©Andrey Brykin 2010-2013      |
-| @last mod      2013/07/07                    |
+| @last mod      2013/07/16                    |
 |----------------------------------------------|
 |											   |
 | any partial or not partial extension         |
@@ -27,48 +27,82 @@
 class PagesModel extends FpsModel
 {
 	public $Table = 'pages';
-	
+
 	private static $pages = array();
 
     protected $RelatedEntities;
 
-	
+
 	public function __construct()
 	{
 		parent::__construct();
 		if (empty(self::$pages)) $this->getPages();
-		
+
 	}
-	
-	
+
+
 	private function getPages()
 	{
 		self::$pages = $this->getAllTree(array('id', 'url', 'path'));
 	}
-	
-	
+
+
 	public function buildUrl($page_id, $pages = null, $prefix = '') 
 	{ 
+		$url = '';
 		if ($pages === null) $pages = self::$pages;
-	
-		if (is_array($pages) && count($pages)) {
+
+		$targ_page = $this->getById($page_id);
+		if (empty($targ_page) || !$targ_page->getPublish()) return $page_id;
+
+
+
+		$page_path = $targ_page->getPath();
+		$ids = explode('.', $page_path);
+
+
+		foreach ($ids as $k => $v) {
+			if ($v == 1 || empty($v)) unset($ids[$k]);
+		}
+
+
+
+		if (!empty($ids)) {
+			foreach ($ids as $id) {
+				$need_page = $this->getPageById($id, $pages);
+				if ($need_page) $url .= '/' . $need_page->getUrl();
+			}
+		} else {
+			$url = '/';
+		}
+
+
+		$url = (!empty($url)) ? trim($url, '/') . '/' . $targ_page->getUrl() : $page_id;
+
+		return trim($url, '/');
+	}
+
+
+	/**
+	 * Recursive
+	 */
+	private function getPageById($id, $pages) {
+
+		if (!empty($pages)) {
 			foreach ($pages as $page) {
-				if ($page_id == $page->getId()) {
-					$url = ($page->getUrl()) ? $page->getUrl() : $page->getId();
-					return (!empty($prefix)) ? $prefix . '/' . $url : $url;
+
+				if ($id == $page->getId()) {
+					return $page;
 				}
-				
+
+
 				$sub = $page->getSub();
 				if (empty($sub)) continue;
-				
-				$prefix .= '/' . (($page->getUrl()) ? $page->getUrl() : $page->getId());
-				$url = $this->buildUrl($page_id, $sub, $prefix);
-				
-
-				return trim($url, '/');
+				$need_page = $this->getPageById($id, $sub);
+				if ($need_page) return $need_page;
 			}
 		}
-		return $page_id;
+		return false;
 	}
 
 
@@ -79,27 +113,33 @@ class PagesModel extends FpsModel
 	public function getByUrl($url)
 	{
 		$page_id = $this->searchInTreeByUrl($url, self::$pages);
-	
-        $page = $this->getById($page_id);
+
+        $page = $this->getCollection(array(
+			'id' => $page_id,
+			'publish' => 1,
+		));
+
+		$page = (!empty($page)) ? $page[0] : false;
+
 		return $page;
 	}
-	
-	
+
+
 	private function searchInTreeByUrl($url, $pages)
 	{
 		$url = explode('/', $url);
 
 		if (!empty($pages)) {
 			foreach ($pages as $page) {
-			
+
 				if ($url[0] == $page->getUrl() || $url[0] == $page->getId()) {
-				
+
 					if (is_array($url) && count($url) > 1) {
 						unset($url[0]);
 						$url = implode('/', $url);
-						
+
 						return $this->searchInTreeByUrl($url, $page->getSub());
-						
+
 					} else {
 						return $page->getId();
 					}
@@ -108,10 +148,11 @@ class PagesModel extends FpsModel
 		}
 		return false;
 	}
-	
-	
-	public function getTree($id, $fields = "`a`.*")
+
+
+	public function getTree($id, $fields = array('`a`.*'))
 	{
+		if (empty($fields)) $fields = array('`a`.*');
 		$params = array(
 			'joins' => array(
 				array(
@@ -127,29 +168,32 @@ class PagesModel extends FpsModel
 			'fields' => $fields,
 		);
 		$tree = $this->getDbDriver()->select($this->Table, DB_ALL, $params);
-		
+
 		//if (!empty($tree)) {
 		//	foreach($tree as $k => $v) {
 		//		$tree[$k] = new PagesEntity($v);
 		//	}
 		//}
-		
+
 		return $tree;
 	}
-	
-	
+
+
 	public function getAllTree($fields = "*")
 	{
-		$tree = $this->getCollection(array("`id` != 1"), $fields);
-		
+		$tree = $this->getCollection(array(
+			"`id` != 1",
+			"publish" => 1,
+		), $fields);
+
 		if (!empty($tree)) {
 			$tree = $this->buildTree($tree);
 		}
-		
+
 		return $tree;
 	}
-	
-	
+
+
 	/**
 	 * Get array with tree ierarhy
 	 */
@@ -157,12 +201,12 @@ class PagesModel extends FpsModel
 	{
 		if (!empty($tree)) {
 			foreach ($tree as $tk => $tv) {
-			
-			
+
+
 				$sub = array();
 				foreach ($pages as $pk => $pv) {
-				
-				
+
+
 					$path = $tv->getPath();
 					if ('.' === $path) $path = '';
 					if ($pv->getPath() === $path . $tv->getId() . '.') {
@@ -173,8 +217,8 @@ class PagesModel extends FpsModel
 				if (!empty($sub)) $sub = $this->buildTree($pages, $sub);
 				$tv->setSub($sub);
 			}
-			
-			
+
+
 		} else {
 			$lowest = false;
 			foreach ($pages as $pk => $pv) {
@@ -183,8 +227,8 @@ class PagesModel extends FpsModel
 					$lowest = $path;
 				}
 			}
-			
-			
+
+
 			if (false !== $lowest) {
 				foreach ($pages as $k => $page) {
 					if ($lowest === $page->getPath()) {
@@ -196,12 +240,12 @@ class PagesModel extends FpsModel
 				$tree = $this->buildTree($pages, $tree);
 			}
 		}
-		
+
 		return $tree;
 	}
-	
-	
-	
+
+
+
 	public function getOtherTrees($id)
 	{
 		$tree = $this->getById($id);
@@ -215,14 +259,14 @@ class PagesModel extends FpsModel
 		}
 		return false;
 	}
-	
-	
+
+
 	public function add($params)
 	{
 		if (!empty($params['parent_id'])) {
 			$parent = $this->getById($params['parent_id']);
 		}
-		
+
 		if (!empty($parent)) {
 			if ('.' === $parent->getPath()) {
 				$params['path'] = $parent->getId() . '.';
@@ -232,14 +276,14 @@ class PagesModel extends FpsModel
 		} else {
 			$params['path'] = '1.';
 		}
-		
-		
+
+
 		if (isset($params['id'])) unset($params['id']);
 		$id = $this->getDbDriver()->save($this->Table, $params);
 		return !empty($id) ? $id : false;
 	}
-	
-	
+
+
 	public function delete($id)
 	{
 		$entity = $this->getById($id);
@@ -251,19 +295,19 @@ class PagesModel extends FpsModel
 		}
 		throw new Exception('Entity not found');
 	}
-	
-	
+
+
 	public function replace($id, $new_parent_id)
 	{
 		$new_parent = $this->getById($new_parent_id);
 		$replaced = $this->getById($id);
 		if (!empty($replaced) && !empty($new_parent)) {
-		
-		
+
+
 			$old_path_mask = $replaced->getPath() . $replaced->getId() . '.';
 			$new_path = ('.' === $new_parent->getPath()) ? null : $new_parent->getPath();
 			$new_path_mask = $new_path . $new_parent->getId() . '.';
-			
+
 			$query = "UPDATE `" . $this->getDbDriver()->getFullTableName($this->Table) . "`
 				SET `path` = REPLACE(`path`, '" . $old_path_mask . "', '" . $new_path_mask . "')
 				WHERE `path` LIKE '" . $old_path_mask . "%'";
@@ -277,8 +321,8 @@ class PagesModel extends FpsModel
 		}
 		return false;
 	}
-	
-	
+
+
 	public function getEntitiesByHomePage($latest_on_home)
 	{
         $Register = Register::getInstance();
