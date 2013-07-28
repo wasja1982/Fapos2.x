@@ -4,12 +4,12 @@
 | @Author:       Andrey Brykin (Drunya)        |
 | @Email:        drunyacoder@gmail.com         |
 | @Site:         http://fapos.net              |
-| @Version:      1.8.0                         |
+| @Version:      1.8.3                         |
 | @Project:      CMS                           |
 | @Package       CMS Fapos                     |
-| @Subpackege    News Module                   |
+| @Subpackege    Stat Module                   |
 | @Copyright     ©Andrey Brykin 2010-2013      |
-| @Last mod      2013/03/31                    |
+| @Last mod      2013/07/16                    |
 |----------------------------------------------|
 |											   |
 | any partial or not partial extension         |
@@ -42,6 +42,8 @@ Class StatModule extends Module {
 	 * @module module indentifier
 	 */
 	public $module = 'stat';
+	
+	public $premoder_types = array('0' => 'rejected', '1' => 'confirmed');
 
 	/**
 	 * default action ( show main page )
@@ -68,7 +70,6 @@ Class StatModule extends Module {
 			$tag = mysql_real_escape_string($tag);
 			$where[] = "`tags` LIKE '%{$tag}%'";
 		}
-
 
 		$total = $this->Model->getTotal(array('cond' => $where));
 		$perPage = intval($this->Register['Config']->read('per_page', $this->module));
@@ -217,7 +218,6 @@ Class StatModule extends Module {
 			$where['available'] = 1;
 		}
 
-
 		$total = $this->Model->getTotal(array('cond' => $where));
 		$perPage = intval($this->Register['Config']->read('per_page', $this->module));
 		if ($perPage < 1)
@@ -346,7 +346,6 @@ Class StatModule extends Module {
 			return $this->showInfoMessage(__('Permission denied'), $this->getModuleURL());
 		if (!$this->ACL->checkCategoryAccess($entity->getCategory()->getNo_access()))
 			return $this->showInfoMessage(__('Permission denied'), $this->getModuleURL());
-
 
 		// Some gemor with add fields
 		if (is_object($this->AddFields)) {
@@ -604,7 +603,7 @@ Class StatModule extends Module {
 
 
 		// Check for preview or errors
-		$data = array('title' => null, 'mainText' => null, 'in_cat' => null, 'description' => null, 'tags' => null, 'sourse' => null, 'sourse_email' => null, 'sourse_site' => null, 'commented' => null, 'available' => null);
+		$data = array('title' => null, 'mainText' => null, 'in_cat' => null, 'description' => null, 'tags' => null, 'sourse' => null, 'sourse_email' => null, 'sourse_site' => null, 'commented' => 1, 'available' => ($this->ACL->turn(array($this->module, 'materials_require_premoder'), false) ? 0 : 1));
 		$data = array_merge($data, $markers);
 		$data = Validate::getCurrentInputsValues($data);
 		$data['main_text'] = $data['mainText'];
@@ -624,10 +623,10 @@ Class StatModule extends Module {
 
 
 		//comments and hide
-		$data['commented'] = (!empty($data['commented']) || !isset($_POST['submitForm'])) ? 'checked="checked"' : '';
+		$data['commented'] = (!empty($data['commented'])) ? 'checked="checked"' : '';
 		if (!$this->ACL->turn(array($this->module, 'record_comments_management'), false))
 			$data['commented'] .= ' disabled="disabled"';
-		$data['available'] = (!empty($data['available']) || !isset($_POST['submitForm'])) ? 'checked="checked"' : '';
+		$data['available'] = (!empty($data['available'])) ? 'checked="checked"' : '';
 		if (!$this->ACL->turn(array($this->module, 'hide_material'), false))
 			$data['available'] .= ' disabled="disabled"';
 
@@ -699,13 +698,13 @@ Class StatModule extends Module {
 		if (!$this->ACL->turn(array($this->module, 'record_comments_management'), false))
 			$commented = 1;
 		if (!$this->ACL->turn(array($this->module, 'hide_material'), false))
-			$available = 1;
+			$available = ($this->ACL->turn(array($this->module, 'materials_require_premoder'), false) ? 0 : 1);
 
 		// Если пользователь хочет посмотреть на сообщение перед отправкой
 		if (isset($_POST['viewMessage'])) {
 			$_SESSION['viewMessage'] = array_merge(array('title' => null, 'mainText' => null, 'in_cat' => $in_cat,
 				'description' => null, 'tags' => null, 'sourse' => null, 'sourse_email' => null,
-				'sourse_site' => null, 'commented' => null, 'available' => null), $_POST);
+				'sourse_site' => null, 'commented' => $commented, 'available' => $available), $_POST);
 			redirect($this->getModuleURL('add_form/'));
 		}
 
@@ -767,7 +766,7 @@ Class StatModule extends Module {
 		if (!empty($error)) {
 			$_SESSION['FpsForm'] = array_merge(array('title' => null, 'mainText' => null, 'in_cat' => $in_cat,
 				'description' => null, 'tags' => null, 'sourse' => null, 'sourse_email' => null,
-				'sourse_site' => null, 'commented' => null, 'available' => null), $_POST);
+				'sourse_site' => null, 'commented' => $commented, 'available' => $available), $_POST);
 			$_SESSION['FpsForm']['error'] = '<p class="errorMsg">' . __('Some error in form') . '</p>'
 					. "\n" . '<ul class="errorMsg">' . "\n" . $error . '</ul>' . "\n";
 			redirect($this->getModuleURL('add_form/'));
@@ -792,7 +791,7 @@ Class StatModule extends Module {
 		//remove cache
 		$this->Cache->clean(CACHE_MATCHING_ANY_TAG, array('module_' . $this->module));
 		$this->DB->cleanSqlCache();
-		// Формируем SQL-запрос на добавление темы
+		// Формируем SQL-запрос на добавление материала
 		$data = array(
 			'title' => $title,
 			'main' => mb_substr($main_text, 0, $max_lenght),
@@ -808,6 +807,7 @@ Class StatModule extends Module {
 			'available' => $available,
 			'view_on_home' => $category->getView_on_home(),
 		);
+
 		$className = $this->Register['ModManager']->getEntityName($this->module);
 		$entity = new $className($data);
 		if ($entity) {
@@ -821,6 +821,12 @@ Class StatModule extends Module {
 
 			downloadAttaches($this->module, $last_id);
 
+
+			// hook for plugins
+			Plugins::intercept('new_entity', array(
+				'entity' => $entity,
+				'module' => $this->module,
+			));
 
 			//clean cache
 			$this->Cache->clean(CACHE_MATCHING_TAG, array('module_' . $this->module));
@@ -941,7 +947,7 @@ Class StatModule extends Module {
 		$this->_globalize($navi);
 
 
-		setReferer();
+		// setReferer();
 		$source = $this->render('editform.html', array('context' => $markers));
 		return $this->_view($source);
 	}
@@ -1013,14 +1019,14 @@ Class StatModule extends Module {
 		if (!$this->ACL->turn(array($this->module, 'record_comments_management'), false))
 			$commented = 1;
 		if (!$this->ACL->turn(array($this->module, 'hide_material'), false))
-			$available = 1;
+			$available = ($this->ACL->turn(array($this->module, 'materials_require_premoder'), false) ? 0 : 1);
 
 
 		// Если пользователь хочет посмотреть на сообщение перед отправкой
 		if (isset($_POST['viewMessage'])) {
 			$_SESSION['viewMessage'] = array_merge(array('title' => null, 'mainText' => null, 'in_cat' => $in_cat,
 				'description' => null, 'tags' => null, 'sourse' => null, 'sourse_email' => null,
-				'sourse_site' => null, 'commented' => null, 'available' => null), $_POST);
+				'sourse_site' => null, 'commented' => $commented, 'available' => $available), $_POST);
 			redirect($this->getModuleURL('edit_form/' . $id));
 		}
 
@@ -1089,7 +1095,7 @@ Class StatModule extends Module {
 		if (!empty($error)) {
 			$_SESSION['FpsForm'] = array_merge(array('title' => null, 'mainText' => null, 'in_cat' => $in_cat,
 				'description' => null, 'tags' => null, 'sourse' => null, 'sourse_email' => null,
-				'sourse_site' => null, 'commented' => null, 'available' => null), $_POST);
+				'sourse_site' => null, 'commented' => $commented, 'available' => $available), $_POST);
 			$_SESSION['FpsForm']['error'] = '<p class="errorMsg">' . __('Some error in form') . '</p>'
 					. "\n" . '<ul class="errorMsg">' . "\n" . $error . '</ul>' . "\n";
 			redirect($this->getModuleURL('edit_form/' . $id));
@@ -1132,7 +1138,7 @@ Class StatModule extends Module {
 
 		if ($this->Log)
 			$this->Log->write('editing ' . $this->module, $this->module . ' id(' . $id . ')');
-		return $this->showInfoMessage(__('Operation is successful'), getReferer());
+		return $this->showInfoMessage(__('Operation is successful'), $this->getModuleURL('view/' . $id) /* getReferer() */);
 	}
 
 	/**
@@ -1324,6 +1330,33 @@ Class StatModule extends Module {
 	}
 
 	/**
+	 * @param int $id - record ID
+	 *
+	 * show or hide record
+	 */
+	public function premoder($id, $type) {
+		$this->ACL->turn(array($this->module, 'hide_material'));
+		$id = intval($id);
+		if ($id < 1)
+			return $this->showInfoMessage(__('Material not found'), $this->getModuleURL());
+
+		$type = strtolower((string) $type);
+		if (!in_array($type, $this->premoder_types))
+			return $this->showInfoMessage(__('Some error occurred'), $this->getModuleURL());
+
+		$entity = $this->Model->getById($id);
+		if (!$entity)
+			return $this->showInfoMessage(__('Material not found'), $this->getModuleURL());
+
+		$available = array_search($type, $this->premoder_types);
+		if ($available !== false) {
+			$entity->setAvailable($available);
+			$entity->save();
+		}
+		return $this->showInfoMessage(__('Operation is successful'), $this->getModuleURL());
+	}
+
+	/**
 	 * @param array $record - assoc record array
 	 * @return string - admin buttons
 	 *
@@ -1335,6 +1368,22 @@ Class StatModule extends Module {
 		$uid = $record->getAuthor_id();
 		if (!$uid)
 			$uid = 0;
+
+		if ($this->ACL->turn(array($this->module, 'hide_material'), false)) {
+			if ($record->getAvailable() == 0) {
+				$moder_panel .= get_link('', $this->getModuleURL('premoder/' . $id . '/confirmed'), array(
+							'class' => 'fps-premoder-confirm',
+							'title' => 'Confirm',
+							'onClick' => "return confirm('" . __('Are you sure') . "')",
+						)) . '&nbsp;';
+			} else {
+				$moder_panel .= get_link('', $this->getModuleURL('premoder/' . $id . '/rejected'), array(
+							'class' => 'fps-premoder-reject',
+							'title' => 'Reject',
+							'onClick' => "return confirm('" . __('Are you sure') . "')",
+						)) . '&nbsp;';
+			}
+		}
 
 		if ($this->ACL->turn(array($this->module, 'edit_materials'), false)
 				|| (!empty($_SESSION['user']['id']) && $uid == $_SESSION['user']['id']

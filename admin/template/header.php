@@ -155,7 +155,7 @@
 			<table class="side-separator" cellpadding="0" cellspacing="0" width="100%" height="100%" >
 				<tr>
 					<td width="237">
-						<div class="side-menu">
+						<div id="side-menu" class="side-menu">
 							<div class="search">
 								<form>
 									<div class="input"><input type="text" name="search" placeholder="Search..." /></div>
