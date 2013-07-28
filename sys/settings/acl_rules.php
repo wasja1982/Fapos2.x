@@ -24,7 +24,7 @@ $acl_rules = array (
       2 => 3,
       3 => 4,
     ),
-    'need_check_materials' => 
+    'materials_require_premoder' => 
     array (
       0 => 0,
       1 => 1,
@@ -95,11 +95,6 @@ $acl_rules = array (
     array (
       2 => 3,
       3 => 4,
-    ),
-    'materials_require_premoder' => 
-    array (
-      1 => 0,
-      2 => 1,
     ),
   ),
   'stat' => 
@@ -127,7 +122,7 @@ $acl_rules = array (
       3 => 4,
       4 => 3,
     ),
-    'need_check_materials' => 
+    'materials_require_premoder' => 
     array (
       0 => 0,
       1 => 1,
@@ -198,11 +193,6 @@ $acl_rules = array (
     array (
       2 => 3,
       3 => 4,
-    ),
-    'materials_require_premoder' => 
-    array (
-      1 => 0,
-      2 => 1,
     ),
   ),
   'loads' => 
@@ -239,7 +229,7 @@ $acl_rules = array (
       3 => 4,
       4 => 3,
     ),
-    'need_check_materials' => 
+    'materials_require_premoder' => 
     array (
       0 => 0,
       1 => 1,
@@ -310,11 +300,6 @@ $acl_rules = array (
     array (
       2 => 3,
       3 => 4,
-    ),
-    'materials_require_premoder' => 
-    array (
-      1 => 0,
-      2 => 1,
     ),
   ),
   'foto' => 
@@ -651,11 +636,6 @@ $acl_rules = array (
       4 => 3,
       2 => 2,
       5 => 1,
-    ),
-    'can_premoder' => 
-    array (
-      0 => 4,
-      1 => 5,
     ),
   ),
   'chat' => 

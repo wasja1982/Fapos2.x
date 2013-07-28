@@ -28,7 +28,27 @@ include_once ROOT . '/admin/inc/adm_boot.php';
 $pageTitle = 'Премодерация материалов';
 $Register = Register::getInstance();
 $config = $Register['Config']->read('all');
+$premoder_types = array('0' => 'rejected', '1' => 'confirmed');
 
+
+function insertImageAttach($message, $filename, $number, $module)
+{
+	$preview_link = get_url('/sys/files/' . $module . '/' . $filename);
+	$size_x = Config::read('img_size_x', $module);
+	$size_y = Config::read('img_size_y', $module);
+	$str = '<img %s style="max-width:' . (!empty($size_x) ? $size_x : 150) . 'px; max-height:' . (!empty($size_y) ? $size_y : 150) . 'px;" src="' . $preview_link . '" />';
+	$from = array(
+		'{IMAGE' . $number . '}', 
+		'{LIMAGE' . $number . '}', 
+		'{RIMAGE' . $number . '}', 
+	);
+	$to = array(
+		sprintf($str, ''), 
+		sprintf($str, 'align="left"'), 
+		sprintf($str, 'align="right"'), 
+	);
+	return str_replace($from, $to, $message);
+}
 
 $output = '';
 $module = $_GET['m'];
@@ -44,13 +64,15 @@ if (in_array($module, array('news', 'stat', 'loads'))) {
 		$entity = $Model->getById(intval($_GET['id']));
 		if (!empty($entity)) {
 			
-			$status = $_GET['status'];
-			if (!in_array($status, array('rejected', 'confirmed'))) $status = 'nochecked';
-			
-			$entity->setPremoder($status);
-			$entity->save();
+			$status = strtolower((string)$_GET['status']);
+			if (in_array($status, $premoder_types)) {
+				$available = array_search($status, $premoder_types);
+				if ($available !== false) {
+					$entity->setAvailable($available);
+					$entity->save();
+				}
+			}
 			$_SESSION['message'] = __('Saved');
-			
 			
 			//clean cache
 			$Cache = new Cache;
@@ -67,7 +89,7 @@ if (in_array($module, array('news', 'stat', 'loads'))) {
 	$Model->bindModel('author');
 	$Model->bindModel('category');
 	$premoder_entities = $Model->getCollection(array(
-		'premoder' => 'nochecked',
+		'available = \'0\'',
 	));
 	
 
@@ -76,7 +98,7 @@ if (in_array($module, array('news', 'stat', 'loads'))) {
 		foreach ($premoder_entities as $premoder_ent) {
 			
 			
-			$announce = $premoder_ent->getMain();
+			$announce = $Register['PrintText']->getAnnounce($premoder_ent->getMain(), null, 0, Config::read('announce_lenght', $module), $premoder_ent);
 			
 			// replace image tags in text
 			$attaches = $premoder_ent->getAttaches();
@@ -84,7 +106,6 @@ if (in_array($module, array('news', 'stat', 'loads'))) {
 				$attachDir = ROOT . '/sys/files/' . $module . '/';
 				foreach ($attaches as $attach) {
 					if ($attach->getIs_image() == 1 && file_exists($attachDir . $attach->getFilename())) {
-					
 					
 						$announce = insertImageAttach(
 							$announce, 
@@ -102,20 +123,20 @@ if (in_array($module, array('news', 'stat', 'loads'))) {
 				' . h($premoder_ent->getTitle()) . '
 				</div>
 				<div class="right" style="position:relative; border-right: 1px solid #E1E1E1;">
-					<textarea style="width:500px; height:200px;">' . $Register['PrintText']->print_page($premoder_ent->getMain(), $premoder_ent->getAuthor()->getStatus(), $premoder_ent->getTitle()) . '</textarea>
-					</div><div style="position:relative; float:left; padding-left:20px;">' . get_link('', 'admin/premoder.php?m=' . $module . '&id=' . $premoder_ent->getId() . '&status=rejected',
+					<div style="width:500px;">' . $announce . '</div>
+					</div><div style="position:relative; float:left; padding-left:20px;">' . /* get_link('', 'admin/premoder.php?m=' . $module . '&id=' . $premoder_ent->getId() . '&status=rejected',
 							array(
 								'class' => 'off', 
 								'title' => 'Reject', 
 								'onClick' => "return confirm('" . __('Are you sure') . "')",
 								'style' => 'position:absolute; top:21px;',
 							)) . '&nbsp;' . '
-					' . get_link('', '/admin/premoder.php?m=' . $module . '&id=' . $premoder_ent->getId() . '&status=confirmed',
+					' . */ get_link('', '/admin/premoder.php?m=' . $module . '&id=' . $premoder_ent->getId() . '&status=confirmed',
 							array(
 								'class' => 'on', 
 								'title' => 'Confirm', 
 								'onClick' => "return confirm('" . __('Are you sure') . "')",
-								'style' => 'margin-left:15px; position:absolute; top:21px;',
+								'style' => /* 'margin-left:15px; ' . */ ' position:absolute; top:21px;',
 							)) . '&nbsp;</div>' . '
 				
 				<div class="clear"></div>

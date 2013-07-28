@@ -42,9 +42,9 @@ Class NewsModule extends Module {
 	 * @module module indentifier
 	 */
 	public $module = 'news';
-
-	public $premoder_types = array('rejected', 'confirmed');
 	
+	public $premoder_types = array('0' => 'rejected', '1' => 'confirmed');
+
 	/**
 	 * default action ( show main page )
 	 */
@@ -69,10 +69,6 @@ Class NewsModule extends Module {
 		if (!empty($tag)) {
 			$tag = mysql_real_escape_string($tag);
 			$where[] = "`tags` LIKE '%{$tag}%'";
-		}
-
-		if (!$this->ACL->turn(array('other', 'can_premoder'), false)) {
-			$where['premoder'] = 'confirmed';
 		}
 
 		$total = $this->Model->getTotal(array('cond' => $where));
@@ -222,11 +218,6 @@ Class NewsModule extends Module {
 			$where['available'] = 1;
 		}
 
-
-		if (!$this->ACL->turn(array('other', 'can_premoder'), false)) {
-			$where['premoder'] = 'confirmed';
-		}
-		
 		$total = $this->Model->getTotal(array('cond' => $where));
 		$perPage = intval($this->Register['Config']->read('per_page', $this->module));
 		if ($perPage < 1)
@@ -356,11 +347,6 @@ Class NewsModule extends Module {
 		if (!$this->ACL->checkCategoryAccess($entity->getCategory()->getNo_access()))
 			return $this->showInfoMessage(__('Permission denied'), $this->getModuleURL());
 
-
-		if (!$this->ACL->turn(array('other', 'can_premoder'), false) && in_array($entity->getPremoder(), array('rejected', 'nochecked'))) {
-			return $this->showInfoMessage(__('Permission denied'), $this->getModuleURL());
-		}
-		
 		// Some gemor with add fields
 		if (is_object($this->AddFields)) {
 			$entities = $this->AddFields->mergeRecords(array($entity));
@@ -617,7 +603,7 @@ Class NewsModule extends Module {
 
 
 		// Check for preview or errors
-		$data = array('title' => null, 'mainText' => null, 'in_cat' => null, 'description' => null, 'tags' => null, 'sourse' => null, 'sourse_email' => null, 'sourse_site' => null, 'commented' => 1, 'available' => ($this->ACL->turn(array($this->module, 'need_check_materials'), false) ? 0 : 1));
+		$data = array('title' => null, 'mainText' => null, 'in_cat' => null, 'description' => null, 'tags' => null, 'sourse' => null, 'sourse_email' => null, 'sourse_site' => null, 'commented' => 1, 'available' => ($this->ACL->turn(array($this->module, 'materials_require_premoder'), false) ? 0 : 1));
 		$data = array_merge($data, $markers);
 		$data = Validate::getCurrentInputsValues($data);
 		$data['main_text'] = $data['mainText'];
@@ -712,7 +698,7 @@ Class NewsModule extends Module {
 		if (!$this->ACL->turn(array($this->module, 'record_comments_management'), false))
 			$commented = 1;
 		if (!$this->ACL->turn(array($this->module, 'hide_material'), false))
-			$available = ($this->ACL->turn(array($this->module, 'need_check_materials'), false) ? 0 : 1);
+			$available = ($this->ACL->turn(array($this->module, 'materials_require_premoder'), false) ? 0 : 1);
 
 		// Если пользователь хочет посмотреть на сообщение перед отправкой
 		if (isset($_POST['viewMessage'])) {
@@ -820,11 +806,7 @@ Class NewsModule extends Module {
 			'commented' => $commented,
 			'available' => $available,
 			'view_on_home' => $category->getView_on_home(),
-			'premoder' 	   => 'confirmed',
 		);
-		if ($this->ACL->turn(array($this->module, 'materials_require_premoder'), false)) {
-			$data['premoder'] = 'nochecked';
-		}
 
 		$className = $this->Register['ModManager']->getEntityName($this->module);
 		$entity = new $className($data);
@@ -845,7 +827,7 @@ Class NewsModule extends Module {
 				'entity' => $entity,
 				'module' => $this->module,
 			));
-			
+
 			//clean cache
 			$this->Cache->clean(CACHE_MATCHING_TAG, array('module_' . $this->module));
 			$this->DB->cleanSqlCache();
@@ -1037,7 +1019,7 @@ Class NewsModule extends Module {
 		if (!$this->ACL->turn(array($this->module, 'record_comments_management'), false))
 			$commented = 1;
 		if (!$this->ACL->turn(array($this->module, 'hide_material'), false))
-			$available = ($this->ACL->turn(array($this->module, 'need_check_materials'), false) ? 0 : 1);
+			$available = ($this->ACL->turn(array($this->module, 'materials_require_premoder'), false) ? 0 : 1);
 
 
 		// Если пользователь хочет посмотреть на сообщение перед отправкой
@@ -1156,7 +1138,7 @@ Class NewsModule extends Module {
 
 		if ($this->Log)
 			$this->Log->write('editing ' . $this->module, $this->module . ' id(' . $id . ')');
-		return $this->showInfoMessage(__('Operation is successful'), $this->getModuleURL('view/' . $id) /*getReferer()*/);
+		return $this->showInfoMessage(__('Operation is successful'), $this->getModuleURL('view/' . $id) /* getReferer() */);
 	}
 
 	/**
@@ -1347,30 +1329,33 @@ Class NewsModule extends Module {
 		return $this->showInfoMessage(__('Operation is successful'), $this->getModuleURL());
 	}
 
-	
 	/**
-	* @param int $id - record ID
-	*
-	* fix or unfix record on top on home page
-	*/
-	public function premoder($id, $type)
-    {
-		$this->ACL->turn(array('other', 'can_premoder'));
-		$id = (int)$id;
-		if ($id < 1) return $this->showInfoMessage(__('Some error occurred'), $this->getModuleURL());
-		
-		if (!in_array((string)$type, $this->premoder_types)) 
+	 * @param int $id - record ID
+	 *
+	 * show or hide record
+	 */
+	public function premoder($id, $type) {
+		$this->ACL->turn(array($this->module, 'hide_material'));
+		$id = intval($id);
+		if ($id < 1)
+			return $this->showInfoMessage(__('Material not found'), $this->getModuleURL());
+
+		$type = strtolower((string) $type);
+		if (!in_array($type, $this->premoder_types))
 			return $this->showInfoMessage(__('Some error occurred'), $this->getModuleURL());
 
-		$target = $this->Model->getById($id);
-		if (!$target) return $this->showInfoMessage(__('Some error occurred'), $this->getModuleURL());
-		
-		$target->setPremoder((string)$type);
-		$target->save();
+		$entity = $this->Model->getById($id);
+		if (!$entity)
+			return $this->showInfoMessage(__('Material not found'), $this->getModuleURL());
+
+		$available = array_search($type, $this->premoder_types);
+		if ($available !== false) {
+			$entity->setAvailable($available);
+			$entity->save();
+		}
 		return $this->showInfoMessage(__('Operation is successful'), $this->getModuleURL());
 	}
-	
-	
+
 	/**
 	 * @param array $record - assoc record array
 	 * @return string - admin buttons
@@ -1384,28 +1369,22 @@ Class NewsModule extends Module {
 		if (!$uid)
 			$uid = 0;
 
-		if ($this->ACL->turn(array('other', 'can_premoder'), false) && 'nochecked' == $record->getPremoder()) {
-			$moder_panel .= get_link('', $this->getModuleURL('premoder/' . $id . '/confirmed'),
-				array(
-					'class' => 'fps-premoder-confirm', 
-					'title' => 'Confirm', 
-					'onClick' => "return confirm('" . __('Are you sure') . "')",
-				)) . '&nbsp;';
-			$moder_panel .= get_link('', $this->getModuleURL('premoder/' . $id . '/rejected'),
-				array(
-					'class' => 'fps-premoder-reject', 
-					'title' => 'Reject', 
-					'onClick' => "return confirm('" . __('Are you sure') . "')",
-				)) . '&nbsp;';
-		} else if ($this->ACL->turn(array('other', 'can_premoder'), false) && 'rejected' == $record->getPremoder()) {
-			$moder_panel .= get_link('', $this->getModuleURL('premoder/' . $id . '/confirmed'),
-				array(
-					'class' => 'fps-premoder-confirm', 
-					'title' => 'Confirm', 
-					'onClick' => "return confirm('" . __('Are you sure') . "')",
-				)) . '&nbsp;';
+		if ($this->ACL->turn(array($this->module, 'hide_material'), false)) {
+			if ($record->getAvailable() == 0) {
+				$moder_panel .= get_link('', $this->getModuleURL('premoder/' . $id . '/confirmed'), array(
+							'class' => 'fps-premoder-confirm',
+							'title' => 'Confirm',
+							'onClick' => "return confirm('" . __('Are you sure') . "')",
+						)) . '&nbsp;';
+			} else {
+				$moder_panel .= get_link('', $this->getModuleURL('premoder/' . $id . '/rejected'), array(
+							'class' => 'fps-premoder-reject',
+							'title' => 'Reject',
+							'onClick' => "return confirm('" . __('Are you sure') . "')",
+						)) . '&nbsp;';
+			}
 		}
-		
+
 		if ($this->ACL->turn(array($this->module, 'edit_materials'), false)
 				|| (!empty($_SESSION['user']['id']) && $uid == $_SESSION['user']['id']
 				&& $this->ACL->turn(array($this->module, 'edit_mine_materials'), false))) {
